@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACEP Studio | Autonomous Controller Evolution Platform</title>
+  <meta name="description" content="AI-Driven Self-Evolving Control Engineering Platform integrating Digital Twins, Reinforcement Learning, Fault-Tolerant Control, and Explainable Intelligence.">
+  <!-- PWA & Mobile Web App Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07090e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ACEP Studio">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192' fill='%2307090e'%3E%3Crect width='192' height='192' rx='36' fill='%2307090e' stroke='%2300f2fe' stroke-width='4'/%3E%3Ccircle cx='96' cy='96' r='60' stroke='%2300f2fe' stroke-width='6' stroke-dasharray='12 6'/%3E%3Ccircle cx='96' cy='96' r='32' stroke='%234facfe' stroke-width='6' fill='%23111624'/%3E%3Ccircle cx='96' cy='96' r='12' fill='%2300f2fe'/%3E%3Cline x1='96' y1='16' x2='96' y2='40' stroke='%2300f2fe' stroke-width='8'/%3E%3Cline x1='96' y1='152' x2='96' y2='176' stroke='%2300f2fe' stroke-width='8'/%3E%3Cline x1='16' y1='96' x2='40' y2='96' stroke='%2300f2fe' stroke-width='8'/%3E%3Cline x1='152' y1='96' x2='176' y2='96' stroke='%2300f2fe' stroke-width='8'/%3E%3C/svg%3E">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-theme">
+  <!-- TOP HEADER & NAV -->
+  <header class="top-nav" id="topNav">
+    <div class="nav-brand">
+      <div class="brand-logo-glow">
+        <svg viewBox="0 0 32 32" fill="none" class="brand-icon">
+          <circle cx="16" cy="16" r="14" stroke="#00f2fe" stroke-width="2" stroke-dasharray="4 2"/>
+          <circle cx="16" cy="16" r="8" stroke="#4facfe" stroke-width="2"/>
+          <circle cx="16" cy="16" r="3" fill="#00f2fe"/>
+          <line x1="16" y1="2" x2="16" y2="8" stroke="#00f2fe" stroke-width="2"/>
+          <line x1="16" y1="24" x2="16" y2="30" stroke="#00f2fe" stroke-width="2"/>
+          <line x1="2" y1="16" x2="8" y2="16" stroke="#00f2fe" stroke-width="2"/>
+          <line x1="24" y1="16" x2="30" y2="16" stroke="#00f2fe" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="brand-titles">
+        <span class="brand-name">ACEP <span class="badge-version">v2.0 PRO</span></span>
+        <span class="brand-tagline">Autonomous Controller Evolution Platform</span>
+      </div>
+    </div>
+
+    <nav class="nav-links">
+      <button class="nav-tab active" data-target="dashboardTab" id="navDashboardBtn">Mission Control</button>
+      <button class="nav-tab" data-target="swarmTab" id="navSwarmBtn">Swarm & GNN</button>
+      <button class="nav-tab" data-target="evolutionTab" id="navEvolutionBtn">Genetic Evolution</button>
+      <button class="nav-tab" data-target="warroomTab" id="navWarroomBtn">Cyber & FDI War Room</button>
+      <button class="nav-tab" data-target="modulesTab" id="navModulesBtn">MATLAB Modules (500+)</button>
+      <button class="nav-tab" data-target="innovationsTab" id="navInnovationsBtn">50 Breakthroughs</button>
+      <button class="nav-tab" data-target="paperTab" id="navPaperBtn">IEEE Research Paper</button>
+    </nav>
+
+    <div class="nav-status-indicators">
+      <div class="status-pill status-network" id="networkPill" title="Network Access for iPhone, iPad, & other PCs">
+        <span class="status-dot"></span> IP: 10.184.177.218:8080
+      </div>
+      <div class="status-pill status-healthy" title="Plant Physical Substrate">
+        <span class="status-dot"></span> Plant: Nominal
+      </div>
+      <div class="status-pill status-twin" title="Bilateral Digital Twin Observer">
+        <span class="status-dot pulse"></span> Twin: Sync (99.8%)
+      </div>
+      <div class="status-pill status-certified" title="Lyapunov Formal Safety Verification">
+        <span class="status-dot"></span> Lyapunov: Certified
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN VIEWPORT CONTAINER -->
+  <main class="main-content" id="mainContent">
+
+    <!-- ========================================================================= -->
+    <!-- TAB 1: MISSION CONTROL DASHBOARD -->
+    <!-- ========================================================================= -->
+    <section class="tab-pane active" id="dashboardTab">
+      <!-- Cockpit Bar -->
+      <div class="cockpit-bar">
+        <div class="cockpit-group">
+          <label for="plantSelect">Target Plant Dynamic:</label>
+          <select id="plantSelect" class="cyber-select">
+            <option value="quadrotor">UAV Quadrotor Altitude & Pitch (6-DOF)</option>
+            <option value="pendulum">Inverted Pendulum Cart Stabilization</option>
+            <option value="dcmotor">Precision Industrial DC Servo Motor</option>
+            <option value="chemical">Exothermic Chemical Batch Reactor</option>
+            <option value="satellite">LEO Satellite Orbit Attitude Control</option>
+          </select>
+        </div>
+
+        <div class="cockpit-group">
+          <label for="controllerSelect">Active Controller Paradigm:</label>
+          <select id="controllerSelect" class="cyber-select accent-select">
+            <option value="acep_evolved">ACEP Evolved Hybrid (MPC + RL + PINN)</option>
+            <option value="pid">Conventional PID Controller</option>
+            <option value="lead">Lead-Lag Compensator</option>
+            <option value="lqr">Linear Quadratic Regulator (LQR)</option>
+            <option value="mpc">Model Predictive Control (MPC)</option>
+            <option value="hinf">Robust H-Infinity (H∞) Controller</option>
+            <option value="smc">Sliding Mode Controller (SMC)</option>
+          </select>
+        </div>
+
+        <div class="cockpit-group simulation-controls">
+          <button id="simPlayPauseBtn" class="cyber-btn btn-primary">
+            <span class="icon">⏸</span> Pause Simulation
+          </button>
+          <button id="simResetBtn" class="cyber-btn btn-secondary">
+            <span class="icon">↺</span> Reset
+          </button>
+          <button id="autoEvolveBtn" class="cyber-btn btn-accent">
+            <span class="icon">⚡</span> Evolve Better Controller
+          </button>
+        </div>
+      </div>
+
+      <!-- Grid Layout: Plots & Live Diagnostics -->
+      <div class="dashboard-grid">
+        <!-- Left: Real-time Oscilloscope Plots -->
+        <div class="panel panel-oscilloscope">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="title-icon">📈</span>
+              <span>Real-Time Closed-Loop Trajectory & Digital Twin Tracking</span>
+            </div>
+            <div class="legend-bar">
+              <span class="legend-item"><span class="legend-color legend-ref"></span> Reference $r(t)$</span>
+              <span class="legend-item"><span class="legend-color legend-plant"></span> Physical Plant $y(t)$</span>
+              <span class="legend-item"><span class="legend-color legend-twin"></span> Digital Twin $\hat{y}(t)$</span>
+              <span class="legend-item"><span class="legend-color legend-ctrl"></span> Control Effort $u(t)$</span>
+            </div>
+          </div>
+          <div class="canvas-container">
+            <canvas id="scopeCanvas" width="900" height="380"></canvas>
+            <div class="watermark-badge" id="activeControllerBadge">ACTIVE: ACEP HYBRID EVOLVED</div>
+          </div>
+          <!-- Quick Metric Badges -->
+          <div class="metrics-ribbon">
+            <div class="metric-card">
+              <span class="metric-label">Rise Time ($T_r$)</span>
+              <span class="metric-value" id="valRiseTime">0.29 s</span>
+              <span class="metric-sub text-green">34.2% faster</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Settling Time ($T_s$)</span>
+              <span class="metric-value" id="valSettling">0.88 s</span>
+              <span class="metric-sub text-green">Nominal &lt; 1.0s</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Overshoot ($M_p$)</span>
+              <span class="metric-value" id="valOvershoot">3.8 %</span>
+              <span class="metric-sub text-green">PID: 24.6%</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Tracking Error ($\mathcal{L}_2$)</span>
+              <span class="metric-value" id="valError">0.012</span>
+              <span class="metric-sub text-green">-28.4% variance</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Twin Divergence</span>
+              <span class="metric-value" id="valTwinDiv">0.004</span>
+              <span class="metric-sub text-cyan">Sync Locked</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Interactive Tuning & Plant Parameters -->
+        <div class="panel panel-tuning">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="title-icon">🎛</span>
+              <span>Physical Dynamics & Disturbance Injection</span>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>External Disturbance Amplitude</span>
+                <span class="slider-val" id="dispDistAmp">0.0 N</span>
+              </div>
+              <input type="range" id="sliderDistAmp" min="0" max="10" step="0.2" value="0" class="cyber-slider">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Actuator Efficiency Health</span>
+                <span class="slider-val text-green" id="dispActHealth">100 %</span>
+              </div>
+              <input type="range" id="sliderActHealth" min="20" max="100" step="5" value="100" class="cyber-slider">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Sensor Measurement Noise ($\sigma$)</span>
+                <span class="slider-val" id="dispNoise">0.02</span>
+              </div>
+              <input type="range" id="sliderNoise" min="0" max="0.2" step="0.01" value="0.02" class="cyber-slider">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Neural Compensator Adaptation ($\eta$)</span>
+                <span class="slider-val text-cyan" id="dispLearningRate">0.05</span>
+              </div>
+              <input type="range" id="sliderLearningRate" min="0" max="0.2" step="0.01" value="0.05" class="cyber-slider">
+            </div>
+
+            <div class="quick-stress-buttons">
+              <button class="stress-btn" id="btnInjectGust">🌪 Wind Shear Gust</button>
+              <button class="stress-btn" id="btnActuatorFail">⚠️ 40% Actuator Drop</button>
+              <button class="stress-btn" id="btnSensorSpike">⚡ Sensor Bias Drift</button>
+            </div>
+          </div>
+
+          <!-- Explainable AI Streaming Feed -->
+          <div class="panel-footer-xai">
+            <div class="xai-header">
+              <span class="pulse-ring"></span>
+              <span>Explainable AI Autonomous Reasoning Stream</span>
+            </div>
+            <div class="xai-log-terminal" id="xaiTerminal">
+              <div class="xai-line"><span class="t-stamp">[00:00.1]</span> <span class="t-tag tag-sys">SYS</span> ACEP v2.0 Platform Initialized on Physical Plant.</div>
+              <div class="xai-line"><span class="t-stamp">[00:00.4]</span> <span class="t-tag tag-lyap">LYAP</span> Lyapunov stability certified: V(x) = x^T P x, dot(V) &lt; -0.42x^2.</div>
+              <div class="xai-line"><span class="t-stamp">[00:01.2]</span> <span class="t-tag tag-twin">TWIN</span> Bilateral Digital Twin observer synchronized (RMSE: 0.009).</div>
+              <div class="xai-line"><span class="t-stamp">[00:02.5]</span> <span class="t-tag tag-ai">AI</span> ACEP Evolved Hybrid Controller active with PINDO disturbance compensation.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 2: MULTI-AGENT SWARM & GRAPH NEURAL NETWORKS (GNN) -->
+    <!-- ========================================================================= -->
+    <section class="tab-pane" id="swarmTab">
+      <div class="swarm-cockpit-bar">
+        <div class="cockpit-group">
+          <label for="swarmTopologySelect">Swarm Topology Mode:</label>
+          <select id="swarmTopologySelect" class="cyber-select">
+            <option value="hexagon">Tactical Hexagonal Shield (6-8 Drones)</option>
+            <option value="v_formation">V-Formation Aerodynamic Flocking</option>
+            <option value="circular">Circular Perimeter Surveillance</option>
+            <option value="dispersed">Decentralized Mesh Patrol</option>
+          </select>
+        </div>
+
+        <div class="cockpit-group">
+          <label for="gnnAttentionMode">Graph AI Algorithm:</label>
+          <select id="gnnAttentionMode" class="cyber-select accent-select">
+            <option value="gat">Graph Attention Network (GAT Multi-Head)</option>
+            <option value="transformer">Graph Transformer with Positional Encodings</option>
+            <option value="laplacian">Symmetric Normalized Laplacian Consensus</option>
+            <option value="wmsr">Byzantine-Resilient W-MSR Consensus</option>
+          </select>
+        </div>
+
+        <div class="cockpit-group">
+          <button id="jamDroneBtn" class="cyber-btn btn-danger">
+            <span class="icon">🚫</span> Jam Node #4
+          </button>
+          <button id="selfHealSwarmBtn" class="cyber-btn btn-accent">
+            <span class="icon">✨</span> Trigger Self-Healing Network
+          </button>
+        </div>
+      </div>
+
+      <div class="swarm-view-grid">
+        <div class="panel panel-swarm-canvas">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="title-icon">🛸</span>
+              <span>Multi-Agent Swarm Real-Time Graph Topology & Collision Spheres</span>
+            </div>
+            <div class="swarm-legend">
+              <span><span class="dot dot-leader"></span> Leader Agent</span>
+              <span><span class="dot dot-follower"></span> Follower Agents</span>
+              <span><span class="dot dot-link"></span> GAT Attention Link</span>
+              <span><span class="dot dot-jammed"></span> Jammed / Compromised</span>
+            </div>
+          </div>
+          <div class="canvas-container">
+            <canvas id="swarmCanvas" width="900" height="480"></canvas>
+          </div>
+        </div>
+
+        <div class="panel panel-swarm-telemetry">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="title-icon">📊</span>
+              <span>Swarm Telemetry & Adjacency Matrix</span>
+            </div>
+          </div>
+          <div class="swarm-node-list" id="swarmNodeList">
+            <!-- Dynamically populated node statuses -->
+          </div>
+          <div class="fiedler-metric-box">
+            <div class="metric-row">
+              <span>Algebraic Connectivity ($\lambda_2$ Laplacian):</span>
+              <strong id="valFiedler">1.482 (Robust)</strong>
+            </div>
+            <div class="metric-row">
+              <span>Swarm Cohesion Index:</span>
+              <strong id="valCohesion" class="text-green">99.4%</strong>
+            </div>
+            <div class="metric-row">
+              <span>Inter-Agent Collision Clearance:</span>
+              <strong id="valClearance">4.2 m (Safe &gt; 2.0m)</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 3: GENETIC CONTROLLER EVOLUTION ENGINE -->
+    <!-- ========================================================================= -->
+    <section class="tab-pane" id="evolutionTab">
+      <div class="evolution-cockpit">
+        <div class="cockpit-group">
+          <label>Evolutionary Metaheuristic:</label>
+          <select id="metaheuristicSelect" class="cyber-select">
+            <option value="ga">Genetic Algorithm (Elitist Tournament + BLX-alpha)</option>
+            <option value="pso">Particle Swarm Optimization (PSO Inertia Damped)</option>
+            <option value="gwo">Grey Wolf Optimizer (Alpha/Beta/Delta Pack)</option>
+            <option value="woa">Whale Optimization Algorithm (Bubble-Net)</option>
+          </select>
+        </div>
+
+        <div class="cockpit-group">
+          <button id="evolveStepBtn" class="cyber-btn btn-primary">
+            <span class="icon">🧬</span> Evolve 1 Generation
+          </button>
+          <button id="evolveFastBtn" class="cyber-btn btn-accent">
+            <span class="icon">🚀</span> Run 15 Generations
+          </button>
+          <button id="resetGeneticsBtn" class="cyber-btn btn-secondary">
+            <span class="icon">↺</span> Reset Population
+          </button>
+        </div>
+      </div>
+
+      <div class="evolution-grid">
+        <div class="panel panel-fitness-curve">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="title-icon">📉</span>
+              <span>Fitness Convergence & Pareto Multi-Objective Frontier</span>
+            </div>
+            <span class="badge-gen" id="badgeGenCounter">GENERATION: 1 / 15</span>
+          </div>
+          <canvas id="fitnessCanvas" width="800" height="320"></canvas>
+        </div>
+
+        <div class="panel panel-chromosome-leaderboard">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="title-icon">🏆</span>
+              <span>Top Evolving Chromosome Genomes</span>
+            </div>
+          </div>
+          <div class="chromosome-table-wrapper">
+            <table class="cyber-table" id="chromosomeTable">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Fitness</th>
+                  <th>$K_p$</th>
+                  <th>$K_i$</th>
+                  <th>$K_d$</th>
+                  <th>$Q/R$</th>
+                  <th>MPC $N_p$</th>
+                  <th>NN Gain</th>
+                </tr>
+              </thead>
+              <tbody id="chromosomeTableBody">
+                <!-- Dynamically generated rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 4: CYBER & FDI WAR ROOM -->
+    <!-- ========================================================================= -->
+    <section class="tab-pane" id="warroomTab">
+      <div class="warroom-header-bar">
+        <h2>🛡️ Cyber-Physical Defense & Fault Injection Matrix</h2>
+        <p>Test real-time resilience against physical actuator loss, sensor drift, false data injection, and sensor replay attacks.</p>
+      </div>
+
+      <div class="warroom-grid">
+        <!-- Attack Launch Matrix -->
+        <div class="panel warroom-attack-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="title-icon">⚔️</span>
+              <span>Threat Injection Vector</span>
+            </div>
+          </div>
+          <div class="attack-buttons-grid">
+            <div class="attack-card">
+              <h4>False Data Injection (FDI)</h4>
+              <p>Injects +50 spoofed sensor telemetry spikes directly into control loop.</p>
+              <button class="cyber-btn btn-danger" id="triggerFdiBtn">Launch FDI Attack</button>
+            </div>
+
+            <div class="attack-card">
+              <h4>Sensor Replay Attack</h4>
+              <p>Replays cached previous trajectory packets with zero variance to mask drifts.</p>
+              <button class="cyber-btn btn-danger" id="triggerReplayBtn">Launch Replay Attack</button>
+            </div>
+
+            <div class="attack-card">
+              <h4>Actuator 40% Gain Loss</h4>
+              <p>Simulates motor thermal burnout reducing torque output by 40%.</p>
+              <button class="cyber-btn btn-warning" id="triggerActuatorLossBtn">Inject Actuator Loss</button>
+            </div>
+
+            <div class="attack-card">
+              <h4>Denial of Service (DoS) Delay</h4>
+              <p>Simulates packet buffering and 200ms communication network latency.</p>
+              <button class="cyber-btn btn-warning" id="triggerDosBtn">Inject DoS Latency</button>
+            </div>
+          </div>
+          <div class="warroom-neutralize-row">
+            <button class="cyber-btn btn-accent btn-large" id="neutralizeAllBtn">
+              🛡️ Engage Full Defense & Neutralize All Threats
+            </button>
+          </div>
+        </div>
+
+        <!-- Defense Verification & Threat Log -->
+        <div class="panel warroom-defense-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="title-icon">🔍</span>
+              <span>Defense Status & Chi-Square Innovation Monitor</span>
+            </div>
+          </div>
+          <div class="defense-indicators">
+            <div class="defense-item">
+              <span>Chi-Square Innovation Test:</span>
+              <strong id="statusChiSquare" class="text-green">PASS ($\chi^2 = 1.12 &lt; 3.84$)</strong>
+            </div>
+            <div class="defense-item">
+              <span>Dynamic Watermarking Hash:</span>
+              <strong id="statusWatermark" class="text-cyan">SEALED (SHA-256 Valid)</strong>
+            </div>
+            <div class="defense-item">
+              <span>Digital Twin Mirror Fallback:</span>
+              <strong id="statusTwinFallback" class="text-green">STANDBY READY</strong>
+            </div>
+            <div class="defense-item">
+              <span>Lyapunov Barrier QP Filter:</span>
+              <strong id="statusBarrier" class="text-green">ACTIVE INVARIANCE</strong>
+            </div>
+          </div>
+          <div class="warroom-audit-feed" id="warroomFeed">
+            <div class="feed-entry">[DEFENSE MONITOR] Zero-Trust Cyber Layer Active. Baseline noise within 3-sigma bound.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 5: MATLAB MODULES (35 SCRIPTS BROWSER) -->
+    <!-- ========================================================================= -->
+    <section class="tab-pane" id="modulesTab">
+      <div class="modules-layout">
+        <aside class="modules-sidebar">
+          <div class="modules-search-box">
+            <input type="text" id="moduleSearchInput" placeholder="Filter 500+ research MATLAB scripts..." class="cyber-input">
+          </div>
+          <div class="modules-nav-tree" id="modulesNavTree">
+            <!-- Populated via Javascript -->
+          </div>
+        </aside>
+
+        <article class="module-code-viewer panel">
+          <div class="code-viewer-header">
+            <div class="module-info-meta">
+              <span class="module-badge" id="viewerBadge">MATLAB FUNCTION</span>
+              <h3 id="viewerFileName">distributed_mpc_rl.m</h3>
+            </div>
+            <div class="viewer-actions">
+              <button class="action-btn" id="copyCodeBtn" title="Copy MATLAB code to clipboard">📋 Copy Code</button>
+              <button class="action-btn" id="downloadCodeBtn" title="Download .m script">💾 Download .m</button>
+            </div>
+          </div>
+          <pre class="code-pre"><code id="viewerCodeBlock" class="language-matlab"></code></pre>
+        </article>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 6: 50 BREAKTHROUGHS SHOWCASE -->
+    <!-- ========================================================================= -->
+    <section class="tab-pane" id="innovationsTab">
+      <div class="breakthroughs-header">
+        <h2>💡 50 Architectural Innovations, Inventions & Mechanisms</h2>
+        <p>The definitive catalogue of new paradigms engineered into the ACEP ecosystem.</p>
+        <div class="category-pills" id="breakthroughCategoryPills">
+          <button class="pill active" data-cat="innovations">10 Innovations</button>
+          <button class="pill" data-cat="inventions">10 Inventions</button>
+          <button class="pill" data-cat="solutions">10 Out-of-the-Box Solutions</button>
+          <button class="pill" data-cat="mechanisms">10 New Mechanisms</button>
+          <button class="pill" data-cat="features">10 New Features</button>
+        </div>
+      </div>
+      <div class="breakthroughs-cards-grid" id="breakthroughCardsGrid">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 7: IEEE RESEARCH PAPER VIEWER -->
+    <!-- ========================================================================= -->
+    <section class="tab-pane" id="paperTab">
+      <div class="paper-viewer-wrapper">
+        <aside class="paper-toc panel">
+          <h4>Table of Contents</h4>
+          <ul id="paperTocList">
+            <li><a href="#sec-abstract">Abstract & Keywords</a></li>
+            <li><a href="#sec-intro">1. Introduction</a></li>
+            <li><a href="#sec-lit">2. Literature Review</a></li>
+            <li><a href="#sec-problem">3. Problem Statement</a></li>
+            <li><a href="#sec-arch">4. Proposed Architecture</a></li>
+            <li><a href="#sec-math">5. Mathematical Formulation</a></li>
+            <li><a href="#sec-modules">6. ACEP Modules</a></li>
+            <li><a href="#sec-impl">7. MATLAB/Simulink Implementation</a></li>
+            <li><a href="#sec-results">8. Experimental Results</a></li>
+            <li><a href="#sec-comp">9. Comparative Analysis</a></li>
+            <li><a href="#sec-future">10. Future Directions</a></li>
+            <li><a href="#sec-conclusion">11. Conclusion & References</a></li>
+          </ul>
+          <div class="toc-download-box">
+            <button class="cyber-btn btn-accent btn-full" id="downloadPaperTexBtn" style="margin-bottom: 8px;">📥 Download IEEE LaTeX (.TEX)</button>
+            <button class="cyber-btn btn-secondary btn-full" id="downloadPaperMdBtn">📄 Download Paper (.MD)</button>
+          </div>
+        </aside>
+
+        <article class="paper-body panel" id="paperContentBody">
+          <!-- Rendered formatted paper content -->
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="simulation_engine.js"></script>
+  <script src="acep_paper_content.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('[PWA] Service Worker active:', reg.scope))
+          .catch(err => console.log('[PWA] Service Worker registration skipped:', err));
+      });
+    }
+  </script>
+</body>
+</html>

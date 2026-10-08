@@ -1,0 +1,24 @@
+{
+  "name": "ACEP Studio - Autonomous Controller Evolution Platform",
+  "short_name": "ACEP Studio",
+  "description": "AI-Driven Self-Evolving Control Engineering Platform for Autonomous Cyber-Physical Systems",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#07090e",
+  "theme_color": "#07090e",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192' fill='%2307090e'%3E%3Crect width='192' height='192' rx='36' fill='%2307090e' stroke='%2300f2fe' stroke-width='4'/%3E%3Ccircle cx='96' cy='96' r='60' stroke='%2300f2fe' stroke-width='6' stroke-dasharray='12 6'/%3E%3Ccircle cx='96' cy='96' r='32' stroke='%234facfe' stroke-width='6' fill='%23111624'/%3E%3Ccircle cx='96' cy='96' r='12' fill='%2300f2fe'/%3E%3Cline x1='96' y1='16' x2='96' y2='40' stroke='%2300f2fe' stroke-width='8'/%3E%3Cline x1='96' y1='152' x2='96' y2='176' stroke='%2300f2fe' stroke-width='8'/%3E%3Cline x1='16' y1='96' x2='40' y2='96' stroke='%2300f2fe' stroke-width='8'/%3E%3Cline x1='152' y1='96' x2='176' y2='96' stroke='%2300f2fe' stroke-width='8'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='%2307090e'%3E%3Crect width='512' height='512' rx='96' fill='%2307090e' stroke='%2300f2fe' stroke-width='8'/%3E%3Ccircle cx='256' cy='256' r='160' stroke='%2300f2fe' stroke-width='14' stroke-dasharray='28 14'/%3E%3Ccircle cx='256' cy='256' r='88' stroke='%234facfe' stroke-width='14' fill='%23111624'/%3E%3Ccircle cx='256' cy='256' r='32' fill='%2300f2fe'/%3E%3Cline x1='256' y1='40' x2='256' y2='100' stroke='%2300f2fe' stroke-width='18'/%3E%3Cline x1='256' y1='412' x2='256' y2='472' stroke='%2300f2fe' stroke-width='18'/%3E%3Cline x1='40' y1='256' x2='100' y2='256' stroke='%2300f2fe' stroke-width='18'/%3E%3Cline x1='412' y1='256' x2='472' y2='256' stroke='%2300f2fe' stroke-width='18'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

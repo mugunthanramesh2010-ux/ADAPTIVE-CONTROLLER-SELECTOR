@@ -1,0 +1,16 @@
+# Node modules
+node_modules/
+npm-debug.log*
+
+# MATLAB temporary files
+*.asv
+*.m~
+*.slxc
+*.autosave
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
