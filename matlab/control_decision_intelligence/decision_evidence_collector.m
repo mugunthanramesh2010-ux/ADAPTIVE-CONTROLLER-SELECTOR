@@ -1,0 +1,6 @@
+function evidence = decision_evidence_collector(y_meas, y_twin, r, u, theta)
+% DECISION_EVIDENCE_COLLECTOR Aggregates sensor history, observer residuals, and parameters
+evidence = struct('MeasuredOutput', y_meas, 'TwinPrediction', y_twin, ...
+                  'Residual', r, 'ControlApplied', u, 'ParameterVector', theta, ...
+                  'Timestamp', char(datetime('now')));
+end

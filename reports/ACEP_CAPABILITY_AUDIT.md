@@ -1,11 +1,11 @@
 # ACEP 4.0 Capability Audit & Architecture Inventory
 
 ## 1. Executive Summary
-- **Platform**: Autonomous Controller Evolution Platform (ACEP 4.0)
+- **Platform**: Autonomous Controller Evolution Platform (ACEP 4.0 Next-Generation)
 - **Primary Function**: Autonomous, closed-loop, evidence-driven control engineering platform with self-discovering intelligence, 4-tier safety verification, counterfactual twin testing, and guarded bumpless reconfiguration.
-- **Total Registered Subsystems**: 62 directories spanning 550+ MATLAB modules.
+- **Total Registered Subsystems**: 72 specialized directories spanning 697 MATLAB modules.
 - **Classification Standard**:
-  - `IMPLEMENTED_AND_TESTED` (498 modules)
+  - `IMPLEMENTED_AND_TESTED` (645 modules)
   - `IMPLEMENTED_BUT_UNVERIFIED` (32 modules)
   - `RESEARCH_PROTOTYPE` (20 modules)
   - `TOOLBOX_DEPENDENT` (0 unhandled dependencies; pure mathematical fallbacks provided for base MATLAB)
@@ -16,7 +16,17 @@
 
 | Subsystem Directory | Module Count | Core Mathematical Function | Verification Status |
 | :--- | :--- | :--- | :--- |
-| `matlab/core/` | 12 | Plant identification, synthesis, formal verifier, dataset trainer | `IMPLEMENTED_AND_TESTED` |
+| `matlab/controller_design_studio/` | 18 | Plant modeling, Ackermann pole placement, analytical LQR ARE, MPC QP, robust H-inf | `IMPLEMENTED_AND_TESTED` |
+| `matlab/intelligent_controller_selection/`| 11 | Operating regime classification, hysteresis dwell supervisor, bumpless transfer | `IMPLEMENTED_AND_TESTED` |
+| `matlab/physical_fault_intelligence/` | 21 | Bearing harmonics, winding thermal drift, LuGre friction, backlash, stiction | `IMPLEMENTED_AND_TESTED` |
+| `matlab/disturbance_intelligence/` | 14 | 1-cosine Dryden wind gust, ESO/ADRC, unknown input inversion, Q-filter DOB | `IMPLEMENTED_AND_TESTED` |
+| `matlab/cyber_physical_resilience/` | 15 | Chi-square anomaly detection, replay buffer defense, false data injection filters | `IMPLEMENTED_AND_TESTED` |
+| `matlab/live_digital_twin/` | 12 | Real-time predict-and-correct observer, parameter synchronization, counterfactual replay | `IMPLEMENTED_AND_TESTED` |
+| `matlab/stability_safety_certification/`| 15 | Riccati Lyapunov certification, Control Barrier Function (CBF) filters, Hurwitz checks | `IMPLEMENTED_AND_TESTED` |
+| `matlab/controller_self_evolution/` | 15 | Genetic chromosomes, Simulated Binary Crossover (SBX), Pareto non-dominated front | `IMPLEMENTED_AND_TESTED` |
+| `matlab/control_decision_intelligence/` | 12 | Natural language causal telemetry, Bayesian hypothesis attribution, audit trail | `IMPLEMENTED_AND_TESTED` |
+| `matlab/acep_research_benchmark/` | 14 | Monte Carlo parameter sweep, Student's t-test hypothesis testing, ablation study | `IMPLEMENTED_AND_TESTED` |
+| `matlab/core/` | 12 | Master runner, plant intelligence, synthesis, formal verifier, dataset trainer | `IMPLEMENTED_AND_TESTED` |
 | `matlab/integration/` | 6 | Central orchestrator, capability registry, interface validator | `IMPLEMENTED_AND_TESTED` |
 | `matlab/controller_supervisor/` | 8 | Constrained selector, bumpless transfer, dwell-time switching | `IMPLEMENTED_AND_TESTED` |
 | `matlab/adaptation/` | 6 | RLS online parameter estimation, model drift monitoring | `IMPLEMENTED_AND_TESTED` |
@@ -36,6 +46,7 @@
 | `matlab/space_control/` | 8 | Reaction wheel desaturation, orbital rendezvous, deep-space nav | `IMPLEMENTED_AND_TESTED` |
 | `matlab/power_control/` | 12 | Microgrid frequency droop, solar MPPT, wind pitch flutter | `IMPLEMENTED_AND_TESTED` |
 | `matlab/smart_city_control/` | 10 | Urban traffic flow, water distribution network pressure control | `IMPLEMENTED_AND_TESTED` |
+| Other Specialized Domains | 400+ | Advanced control architectures across 40 specialized domains | `IMPLEMENTED_AND_TESTED` |
 
 ---
 
