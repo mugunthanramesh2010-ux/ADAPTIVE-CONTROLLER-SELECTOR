@@ -188,6 +188,56 @@ guaranteeing zero violation of physical boundaries.
 
 ---
 
+
+### 5.7 Safety-Gated Controller Evolution via Digital-Twin Discrepancy and Fault Evidence (SGDTE)
+
+While evolutionary metaheuristics allow continuous adaptation to severe structural damage and parameter drift, deploying unverified mutated controller parameters directly onto safety-critical physical plants introduces catastrophic instability risks. To eliminate exploratory failures, ACEP implements the **Safety-Gated Controller Evolution (SGDTE)** framework, mathematically coupling bilateral Digital-Twin Discrepancy tracking with multi-modal Fault Detection and Isolation (FDI) evidence under a rigid 4-Tier Safety Certification Gate.
+
+#### 5.7.1 Real-Time Digital-Twin Discrepancy ($\Delta_{	ext{DT}}$)
+Let the physical plant output be $y(t) = C x(t) + v(t)$ and the observer-driven Digital Twin shadow output be $\hat{y}(t) = C \hat{x}(t)$. The instantaneous Digital-Twin Discrepancy is defined as:
+$$\Delta_{	ext{DT}}(t) = \|y(t) - \hat{y}(t)\|_2$$
+To filter high-frequency sensor noise while capturing persistent dynamical divergence, the sliding-window cumulative discrepancy is integrated:
+$$D_{	ext{cum}}(t) = \int_{t - T_w}^t e^{-\lambda (t - 	au)} \Delta_{	ext{DT}}(	au)^2 d	au$$
+
+#### 5.7.2 Multi-Modal Fault Evidence Aggregation ($\mathcal{E}_{	ext{fault}}$)
+Physical failures rarely manifest through a single metric. The Fault Evidence Score $\mathcal{E}_{	ext{fault}} \in [0, 1]$ integrates three complementary analytical indicators:
+$$\mathcal{E}_{	ext{fault}}(t) = w_r \cdot \min\left(1, rac{\|\mathbf{r}(t)\|}{	au_{	ext{FDI}}}ight) + w_a \cdot (1 - \hat{\eta}_{	ext{act}}(t)) + w_c \cdot \mathcal{S}_{	ext{cyber}}(t)$$
+where:
+* $\|\mathbf{r}(t)\|$ is the FDI innovation residual norm,
+* $\hat{\eta}_{	ext{act}} \in [0, 1]$ is the estimated actuator effectiveness health factor ($\hat{\eta}_{	ext{act}} = 1$ nominal, $\hat{\eta}_{	ext{act}} < 1$ represents loss-of-effectiveness),
+* $\mathcal{S}_{	ext{cyber}}(t) \in [0, 1]$ represents cyber-intrusion confidence (Chi-square anomaly / replay detector),
+* $w_r = 0.45, w_a = 0.40, w_c = 0.15$ satisfy $\sum w_i = 1.0$.
+
+An evolutionary re-synthesis trigger occurs if and only if:
+$$\Delta_{	ext{DT}}(t) > \Theta_{	ext{discrepancy}} \quad \lor \quad \mathcal{E}_{	ext{fault}}(t) > \Theta_{	ext{evidence}}$$
+
+#### 5.7.3 4-Tier Safety Gate Verification Pipeline
+When triggered, the evolutionary engine generates candidate mutated parameter chromosomes $\mathbf{	heta}_k = [K_p, K_i, K_d, K_{	ext{smc}}, \eta_{	ext{nn}}]^T$. Each candidate must strictly satisfy all four gates before loop closure:
+
+1. **Gate 1: Control Barrier Function (CBF) Forward Invariance:**
+   For safe state space $\mathcal{C} = \{x \in \mathbb{R}^n : h(x) \ge 0\}$ where $h(x) = p_{\max}^2 - x_1^2$, the candidate must satisfy:
+   $$\dot{h}(x, u_k) + \gamma \cdot h(x) \ge 0, \quad \gamma > 0$$
+   ensuring the state trajectory remains invariant in $\mathcal{C}$ for all future time.
+
+2. **Gate 2: Lyapunov Contraction & Stability Certification:**
+   The linearized closed-loop autonomous transition matrix $A_{	ext{cl}}(\mathbf{	heta}_k) = A - B K_k$ must satisfy strict Hurwitz stability with guaranteed decay margin $\epsilon > 0$:
+   $$\max \operatorname{Re}\left(\lambda\left(A_{	ext{cl}}(\mathbf{	heta}_k)ight)ight) < -\epsilon$$
+
+3. **Gate 3: Actuator Saturation & Slew Bound:**
+   Peak commanded control effort under worst-case bounded state deviation must obey physical limits:
+   $$\|u_k(x)\| \le u_{\max}, \quad orall x \in \partial \mathcal{C}$$
+
+4. **Gate 4: Fast-Time Digital-Twin Lookahead Rollout (10× Co-Simulation):**
+   Before committing physical commands, the candidate genome is simulated inside the Digital Twin sandbox for $T_{	ext{lookahead}} = 25$ steps at $10	imes$ real-time speed. If the rollout exhibits numerical divergence ($\|x_{	ext{sim}}\| > p_{\max}$) or peak error exceeds $e_{	ext{threshold}}$, the candidate is instantly vetoed.
+
+**Decision Commitment:**
+$$	ext{GATE\_STATUS} = egin{cases} 
+	ext{APPROVED} \implies \mathbf{	heta}_{	ext{active}} \leftarrow \mathbf{	heta}_k^* & 	ext{if } igwedge_{j=1}^4 	ext{Gate}_j = 	ext{PASS} \ 
+	ext{BLOCKED} \implies \mathbf{	heta}_{	ext{active}} \leftarrow \mathbf{	heta}_{	ext{fallback}} & 	ext{otherwise} 
+\end{cases}$$
+If blocked, the system locks to a robust low-gain, high-damping fallback mode, guaranteeing graceful degradation and avoiding system loss.
+
+
 ## 6. ACEP Deep-Dive Modules
 
 ### 6.1 Controller Generation Engine & Reflex Sub-Millisecond Layer

@@ -224,6 +224,132 @@
           </div>
         </div>
       </div>
+    
+      <!-- =========================================================================
+           SAFETY-GATED CONTROLLER EVOLUTION COCKPIT (SGDTE)
+           Digital-Twin Discrepancy & Multi-Modal Fault Evidence with 4-Tier Gate
+           ========================================================================= -->
+      <div class="panel panel-safety-gate">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span class="title-icon">🛡️</span>
+            <span>Safety-Gated Controller Evolution (Digital-Twin Discrepancy &amp; Fault Evidence)</span>
+          </div>
+          <div class="safety-gate-status-group">
+            <span class="badge-gate-verdict status-monitoring" id="badgeGateVerdict">MONITORING NOMINAL</span>
+            <label class="cyber-toggle" title="Automatically trigger safety-certified evolution upon fault/discrepancy spike">
+              <input type="checkbox" id="checkAutoSafetyGate" checked>
+              <span class="toggle-slider"></span>
+              <span class="toggle-label">Auto-Gated Evolution</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="safety-gate-body">
+          <!-- Dual Real-Time Telemetry Cards -->
+          <div class="safety-telemetry-row">
+            <div class="telemetry-card">
+              <div class="telemetry-header">
+                <span class="telemetry-title">Digital-Twin Discrepancy (Δ_DT)</span>
+                <span class="telemetry-value" id="valDiscrepancy">0.004</span>
+              </div>
+              <div class="cyber-meter-bar">
+                <div class="meter-fill fill-cyan" id="meterDiscrepancy" style="width: 4%;"></div>
+              </div>
+              <div class="telemetry-sub">Trigger: &gt;0.280 | Cumulative: <span id="valCumDiscrepancy">0.003</span></div>
+            </div>
+
+            <div class="telemetry-card">
+              <div class="telemetry-header">
+                <span class="telemetry-title">Fault Evidence Score (E_fault)</span>
+                <span class="telemetry-value" id="valFaultEvidence">0.000</span>
+              </div>
+              <div class="cyber-meter-bar">
+                <div class="meter-fill fill-yellow" id="meterFaultEvidence" style="width: 0%;"></div>
+              </div>
+              <div class="telemetry-sub">Actuator LoE: <span id="valActLoESub">0%</span> | Residual: <span id="valResNormSub">0.00</span></div>
+            </div>
+
+            <div class="telemetry-card">
+              <div class="telemetry-header">
+                <span class="telemetry-title">Control Barrier Margin (h(x))</span>
+                <span class="telemetry-value text-green" id="valCbfMargin">+1.60</span>
+              </div>
+              <div class="cyber-meter-bar">
+                <div class="meter-fill fill-green" id="meterCbfMargin" style="width: 88%;"></div>
+              </div>
+              <div class="telemetry-sub">Invariance Condition: h_dot + γ·h ≥ 0</div>
+            </div>
+
+            <div class="telemetry-card">
+              <div class="telemetry-header">
+                <span class="telemetry-title">Lyapunov Contraction (λ_max)</span>
+                <span class="telemetry-value text-green" id="valLyapEig">-0.42</span>
+              </div>
+              <div class="cyber-meter-bar">
+                <div class="meter-fill fill-green" id="meterLyapEig" style="width: 75%;"></div>
+              </div>
+              <div class="telemetry-sub">Contractive Margin: Re(λ) &lt; -0.25</div>
+            </div>
+          </div>
+
+          <!-- 4-Tier Gate Real-time Verification Checklist -->
+          <div class="gate-tiers-row">
+            <div class="gate-tier-box" id="gateTier1">
+              <span class="gate-icon" id="gateIcon1">✅</span>
+              <div class="gate-info">
+                <strong>Gate 1: CBF Barrier Invariance</strong>
+                <span id="gateSub1">h_dot + 1.5·h ≥ 0 forward set safe</span>
+              </div>
+            </div>
+            <div class="gate-tier-box" id="gateTier2">
+              <span class="gate-icon" id="gateIcon2">✅</span>
+              <div class="gate-info">
+                <strong>Gate 2: Lyapunov Contraction</strong>
+                <span id="gateSub2">max Re(λ(A_cl)) &lt; -0.25 asymptotic</span>
+              </div>
+            </div>
+            <div class="gate-tier-box" id="gateTier3">
+              <span class="gate-icon" id="gateIcon3">✅</span>
+              <div class="gate-info">
+                <strong>Gate 3: Actuator Limit Bound</strong>
+                <span id="gateSub3">|u_cand| ≤ 15.0N saturation free</span>
+              </div>
+            </div>
+            <div class="gate-tier-box" id="gateTier4">
+              <span class="gate-icon" id="gateIcon4">✅</span>
+              <div class="gate-info">
+                <strong>Gate 4: 10× DT Sandbox Rollout</strong>
+                <span id="gateSub4">Lookahead co-simulation error &lt; 1.6</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Genome Badge & Interactive Control Buttons -->
+          <div class="safety-controls-row">
+            <div class="active-genome-display">
+              <span class="genome-badge-title">COMMITTED CONTROLLER GENOME:</span>
+              <span class="genome-badge-name" id="dispActiveGenomeName">ACEP Safety-Gated Evolved Baseline</span>
+              <span class="genome-params" id="dispActiveGenomeParams">Kp: 4.50 | Ki: 1.20 | Kd: 1.10 | SMC: 3.00 | NN: 0.50</span>
+            </div>
+            <div class="safety-btn-group">
+              <button id="btnTriggerSafetyEvolution" class="cyber-btn btn-accent">
+                <span class="icon">🛡️</span> Trigger Safety-Gated Evolution
+              </button>
+              <button id="btnTestUnsafeMutation" class="cyber-btn btn-danger" title="Inject extreme high-gain chromosome to verify Gate blocks destructive mutation">
+                <span class="icon">⚠️</span> Test Unsafe Mutation (Verify Block)
+              </button>
+            </div>
+          </div>
+
+          <!-- Live Audit Stream Log -->
+          <div class="safety-audit-terminal" id="safetyGateAuditStream">
+            <div class="xai-line"><span class="t-stamp">[00:00.0]</span> <span class="t-tag tag-sys">GATE</span> 4-Tier Safety Gate online. Continuous monitoring of Digital-Twin discrepancy &amp; fault evidence.</div>
+            <div class="xai-line"><span class="t-stamp">[00:00.1]</span> <span class="t-tag tag-lyap">CERT</span> Initial baseline controller certified under Lyapunov A_cl spectral radius &lt; -0.42.</div>
+          </div>
+        </div>
+      </div>
+
     </section>
 
     <!-- ========================================================================= -->

@@ -26,7 +26,35 @@ document.addEventListener('DOMContentLoaded', () => {
   const valSettling = document.getElementById('valSettling');
   const valOvershoot = document.getElementById('valOvershoot');
   const valError = document.getElementById('valError');
-  const valTwinDiv = document.getElementById('valTwinDiv');
+    const valTwinDiv = document.getElementById('valTwinDiv');
+
+  // Safety-Gated Controller Evolution (SGDTE) DOM Elements
+  const badgeGateVerdict = document.getElementById('badgeGateVerdict');
+  const checkAutoSafetyGate = document.getElementById('checkAutoSafetyGate');
+  const valDiscrepancy = document.getElementById('valDiscrepancy');
+  const meterDiscrepancy = document.getElementById('meterDiscrepancy');
+  const valCumDiscrepancy = document.getElementById('valCumDiscrepancy');
+  const valFaultEvidence = document.getElementById('valFaultEvidence');
+  const meterFaultEvidence = document.getElementById('meterFaultEvidence');
+  const valActLoESub = document.getElementById('valActLoESub');
+  const valResNormSub = document.getElementById('valResNormSub');
+  const valCbfMargin = document.getElementById('valCbfMargin');
+  const meterCbfMargin = document.getElementById('meterCbfMargin');
+  const valLyapEig = document.getElementById('valLyapEig');
+  const meterLyapEig = document.getElementById('meterLyapEig');
+  const gateTier1 = document.getElementById('gateTier1');
+  const gateTier2 = document.getElementById('gateTier2');
+  const gateTier3 = document.getElementById('gateTier3');
+  const gateTier4 = document.getElementById('gateTier4');
+  const gateIcon1 = document.getElementById('gateIcon1');
+  const gateIcon2 = document.getElementById('gateIcon2');
+  const gateIcon3 = document.getElementById('gateIcon3');
+  const gateIcon4 = document.getElementById('gateIcon4');
+  const dispActiveGenomeName = document.getElementById('dispActiveGenomeName');
+  const dispActiveGenomeParams = document.getElementById('dispActiveGenomeParams');
+  const btnTriggerSafetyEvolution = document.getElementById('btnTriggerSafetyEvolution');
+  const btnTestUnsafeMutation = document.getElementById('btnTestUnsafeMutation');
+  const safetyGateAuditStream = document.getElementById('safetyGateAuditStream');
 
   // Sliders DOM
   const sliderDistAmp = document.getElementById('sliderDistAmp');
@@ -234,6 +262,67 @@ document.addEventListener('DOMContentLoaded', () => {
       valOvershoot.textContent = '8.4 %';
       valError.textContent = '0.022';
       valTwinDiv.textContent = '0.009';
+    }
+
+    // Update SGDTE Live Telemetry
+    if (sim.safetyGate) {
+      const sg = sim.safetyGate;
+      if (valDiscrepancy) valDiscrepancy.textContent = sg.deltaDT.toFixed(3);
+      if (meterDiscrepancy) meterDiscrepancy.style.width = Math.min(100, (sg.deltaDT / 0.5) * 100) + '%';
+      if (valCumDiscrepancy) valCumDiscrepancy.textContent = sg.cumulativeDiscrepancy.toFixed(3);
+
+      if (valFaultEvidence) valFaultEvidence.textContent = sg.faultEvidence.toFixed(3);
+      if (meterFaultEvidence) meterFaultEvidence.style.width = Math.min(100, sg.faultEvidence * 100) + '%';
+      if (valActLoESub) valActLoESub.textContent = Math.round((1.0 - sim.actuatorHealth) * 100) + '%';
+      if (valResNormSub) valResNormSub.textContent = sim.twinResidual.toFixed(2);
+
+      if (valCbfMargin) {
+        valCbfMargin.textContent = (sg.cbfConditionVal >= 0 ? '+' : '') + sg.cbfConditionVal.toFixed(2);
+        valCbfMargin.className = sg.cbfConditionVal >= 0 ? 'telemetry-value text-green' : 'telemetry-value text-red';
+      }
+      if (meterCbfMargin) meterCbfMargin.style.width = Math.max(5, Math.min(100, ((sg.cbfConditionVal + 1.0) / 3.0) * 100)) + '%';
+
+      if (valLyapEig) {
+        valLyapEig.textContent = sg.lyapunovMaxEig.toFixed(2);
+        valLyapEig.className = sg.lyapunovMaxEig < -0.25 ? 'telemetry-value text-green' : 'telemetry-value text-red';
+      }
+      if (meterLyapEig) meterLyapEig.style.width = Math.min(100, Math.max(10, Math.abs(sg.lyapunovMaxEig) * 150)) + '%';
+
+      if (badgeGateVerdict) {
+        if (sg.status === 'APPROVED') {
+          badgeGateVerdict.className = 'badge-gate-verdict status-approved';
+          badgeGateVerdict.textContent = 'APPROVED & COMMITTED';
+        } else if (sg.status === 'BLOCKED') {
+          badgeGateVerdict.className = 'badge-gate-verdict status-blocked';
+          badgeGateVerdict.textContent = 'BLOCKED - FALLBACK ENGAGED';
+        } else {
+          badgeGateVerdict.className = 'badge-gate-verdict status-monitoring';
+          badgeGateVerdict.textContent = 'MONITORING NOMINAL';
+        }
+      }
+
+      const audit = sg.lastAuditDetails;
+      if (audit) {
+        if (gateTier1) gateTier1.classList.toggle('gate-violated', !audit.gate1_cbf);
+        if (gateIcon1) gateIcon1.textContent = audit.gate1_cbf ? '✅' : '❌';
+
+        if (gateTier2) gateTier2.classList.toggle('gate-violated', !audit.gate2_lyap);
+        if (gateIcon2) gateIcon2.textContent = audit.gate2_lyap ? '✅' : '❌';
+
+        if (gateTier3) gateTier3.classList.toggle('gate-violated', !audit.gate3_act);
+        if (gateIcon3) gateIcon3.textContent = audit.gate3_act ? '✅' : '❌';
+
+        if (gateTier4) gateTier4.classList.toggle('gate-violated', !audit.gate4_rollout);
+        if (gateIcon4) gateIcon4.textContent = audit.gate4_rollout ? '✅' : '❌';
+      }
+
+      if (dispActiveGenomeName && sg.activeGenome) {
+        dispActiveGenomeName.textContent = sg.activeGenome.name || 'ACEP Safety-Gated Evolved';
+      }
+      if (dispActiveGenomeParams && sg.activeGenome) {
+        const ag = sg.activeGenome;
+        dispActiveGenomeParams.textContent = `Kp: ${Number(ag.kp).toFixed(2)} | Ki: ${Number(ag.ki).toFixed(2)} | Kd: ${Number(ag.kd).toFixed(2)} | SMC: ${Number(ag.smc_gain).toFixed(2)} | NN: ${Number(ag.nn_gain).toFixed(2)}`;
+      }
     }
   }
 
@@ -784,6 +873,52 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
   // MASTER ANIMATION LOOP (60 FPS)
   // =========================================================================
+  
+  // =========================================================================
+  // SAFETY-GATED CONTROLLER EVOLUTION (SGDTE) EVENT LISTENERS
+  // =========================================================================
+  function logSafetyAudit(audit) {
+    if (!safetyGateAuditStream || !audit) return;
+    const isApproved = audit.decision === 'APPROVED';
+    const tagClass = isApproved ? 'tag-lyap' : 'tag-sec';
+    const tagText = isApproved ? 'GATE-PASS' : 'GATE-BLOCK';
+    const msg = isApproved
+      ? `APPROVED: Genome [${audit.candidate.id}] passed 4-tier check (Δ_DT=${audit.deltaDT}, E_f=${audit.faultEvidence}, λ_max=${audit.lyapEig}, CBF=${audit.cbfMargin}). Committing gains.`
+      : `BLOCKED: Hazardous mutation rejected [CBF=${audit.gate1_cbf?'OK':'FAIL'}, Lyap=${audit.gate2_lyap?'OK':'FAIL'}, Rollout=${audit.gate4_rollout?'OK':'FAIL'}]. Safe degraded fallback engaged.`;
+
+    const div = document.createElement('div');
+    div.className = 'xai-line';
+    div.innerHTML = `<span class="t-stamp">[${audit.timestamp}]</span> <span class="t-tag ${tagClass}">${tagText}</span> ${msg}`;
+    safetyGateAuditStream.prepend(div);
+
+    logXai(isApproved ? 'LYAP' : 'WARN', msg);
+    addWarroomLog(isApproved ? 'SYS' : 'WARN', `SGDTE: ${audit.decision} - ${msg}`);
+  }
+
+  if (btnTriggerSafetyEvolution) {
+    btnTriggerSafetyEvolution.addEventListener('click', () => {
+      const audit = sim.triggerSafetyGatedEvolution(false);
+      logSafetyAudit(audit);
+      updateMetrics();
+    });
+  }
+
+  if (btnTestUnsafeMutation) {
+    btnTestUnsafeMutation.addEventListener('click', () => {
+      const audit = sim.triggerSafetyGatedEvolution(true);
+      logSafetyAudit(audit);
+      updateMetrics();
+    });
+  }
+
+  if (checkAutoSafetyGate) {
+    checkAutoSafetyGate.addEventListener('change', (e) => {
+      sim.safetyGate.autoGating = e.target.checked;
+      logXai('GATE', `Auto Safety-Gated Evolution ${e.target.checked ? 'ENABLED' : 'PAUSED'}.`);
+    });
+  }
+
+
   function loop() {
     sim.step();
     renderOscilloscope();
