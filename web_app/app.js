@@ -764,6 +764,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const downloadPaperMdBtn = document.getElementById('downloadPaperMdBtn');
 
   function renderPaperHTML() {
+    if (!paperContentBody) return;
     paperContentBody.innerHTML = `
       <h1>Autonomous Controller Evolution Platform (ACEP): An AI-Driven Self-Evolving Control Architecture Integrating Digital Twins, Reinforcement Learning, Fault-Tolerant Control, and Explainable Intelligence</h1>
       <div class="paper-meta">
@@ -855,20 +856,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  downloadPaperMdBtn.addEventListener('click', () => {
-    fetch('../papers/IEEE_ACEP_Research_Paper.md')
-      .then(r => r.text())
-      .then(text => {
-        const blob = new Blob([text], { type: 'text/markdown' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'IEEE_ACEP_Research_Paper.md';
-        a.click();
-      })
-      .catch(() => {
-        alert('Downloading paper markdown file...');
-      });
-  });
+  if (downloadPaperMdBtn) {
+    downloadPaperMdBtn.addEventListener('click', () => {
+      fetch('../papers/IEEE_ACEP_Research_Paper.md')
+        .then(r => r.text())
+        .then(text => {
+          const blob = new Blob([text], { type: 'text/markdown' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'IEEE_ACEP_Research_Paper.md';
+          a.click();
+        })
+        .catch(() => {
+          alert('Downloading paper markdown file...');
+        });
+    });
+  }
 
   // =========================================================================
   // MASTER ANIMATION LOOP (60 FPS)

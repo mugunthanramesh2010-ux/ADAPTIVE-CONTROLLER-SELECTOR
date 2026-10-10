@@ -11,7 +11,17 @@ function [isCertified, lyapunovReport] = acep_formal_verifier(A_cl, candidateP)
         try
             candidateP = lyap(A_cl', Q);
         catch
-            candidateP = [];
+            % Base MATLAB analytical Lyapunov solver for 2x2 systems: A'*P + P*A = -Q
+            if isequal(size(A_cl), [2, 2]) && max(real(eig(A_cl))) < -1e-4
+                M = [2*A_cl(1,1), 2*A_cl(2,1), 0; ...
+                     A_cl(1,2), A_cl(1,1)+A_cl(2,2), A_cl(2,1); ...
+                     0, 2*A_cl(1,2), 2*A_cl(2,2)];
+                rhs = [-Q(1,1); -Q(1,2); -Q(2,2)];
+                p_vec = M \ rhs;
+                candidateP = [p_vec(1), p_vec(2); p_vec(2), p_vec(3)];
+            else
+                candidateP = [];
+            end
         end
     end
 

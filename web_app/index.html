@@ -46,7 +46,7 @@
       <button class="nav-tab" data-target="warroomTab" id="navWarroomBtn">Cyber & FDI War Room</button>
       <button class="nav-tab" data-target="modulesTab" id="navModulesBtn">MATLAB Modules (500+)</button>
       <button class="nav-tab" data-target="innovationsTab" id="navInnovationsBtn">50 Breakthroughs</button>
-      <button class="nav-tab" data-target="paperTab" id="navPaperBtn">IEEE Research Paper</button>
+      <button class="nav-tab" data-target="universalStudioTab" id="navStudioBtn">Universal Plant Studio</button>
     </nav>
 
     <div class="nav-status-indicators">
@@ -638,35 +638,258 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- TAB 7: IEEE RESEARCH PAPER VIEWER -->
+    <!-- TAB 7: UNIVERSAL PLANT & REMOTE SENSING CONTROLLER STUDIO -->
     <!-- ========================================================================= -->
-    <section class="tab-pane" id="paperTab">
-      <div class="paper-viewer-wrapper">
-        <aside class="paper-toc panel">
-          <h4>Table of Contents</h4>
-          <ul id="paperTocList">
-            <li><a href="#sec-abstract">Abstract & Keywords</a></li>
-            <li><a href="#sec-intro">1. Introduction</a></li>
-            <li><a href="#sec-lit">2. Literature Review</a></li>
-            <li><a href="#sec-problem">3. Problem Statement</a></li>
-            <li><a href="#sec-arch">4. Proposed Architecture</a></li>
-            <li><a href="#sec-math">5. Mathematical Formulation</a></li>
-            <li><a href="#sec-modules">6. ACEP Modules</a></li>
-            <li><a href="#sec-impl">7. MATLAB/Simulink Implementation</a></li>
-            <li><a href="#sec-results">8. Experimental Results</a></li>
-            <li><a href="#sec-comp">9. Comparative Analysis</a></li>
-            <li><a href="#sec-future">10. Future Directions</a></li>
-            <li><a href="#sec-conclusion">11. Conclusion & References</a></li>
-          </ul>
-          <div class="toc-download-box">
-            <button class="cyber-btn btn-accent btn-full" id="downloadPaperTexBtn" style="margin-bottom: 8px;">📥 Download IEEE LaTeX (.TEX)</button>
-            <button class="cyber-btn btn-secondary btn-full" id="downloadPaperMdBtn">📄 Download Paper (.MD)</button>
+    <section class="tab-pane" id="universalStudioTab">
+      <div class="studio-header">
+        <div>
+          <h2>🌐 Universal Plant & Remote Sensing Controller Studio</h2>
+          <p>Real-time dynamic synthesis for any physical plant in the world with predict-and-correct digital twin synchronization and 70% / 10% / 20% multi-dataset training.</p>
+        </div>
+        <div class="studio-quick-stats">
+          <div class="quick-stat-box">
+            <span class="stat-label">Plant Status</span>
+            <span class="stat-val text-cyan" id="studioPlantStatus">Dynamic (Active)</span>
           </div>
-        </aside>
+          <div class="quick-stat-box">
+            <span class="stat-label">Remote Residual r(t)</span>
+            <span class="stat-val text-emerald" id="studioResidualVal">0.014</span>
+          </div>
+          <div class="quick-stat-box">
+            <span class="stat-label">Dataset Split</span>
+            <span class="stat-val text-amber">70% / 10% / 20%</span>
+          </div>
+        </div>
+      </div>
 
-        <article class="paper-body panel" id="paperContentBody">
-          <!-- Rendered formatted paper content -->
-        </article>
+      <!-- ROW 1: PLANT CONFIGURATOR & REMOTE SENSING TELEMETRY -->
+      <div class="studio-grid-2">
+        <!-- Panel 1: World Plant Selector & Custom Polynomial Input -->
+        <div class="panel studio-panel">
+          <div class="panel-header">
+            <h3>🏭 World Plant Dynamic Substrate</h3>
+            <span class="badge badge-cyan">Universal Model Engine</span>
+          </div>
+          <div class="studio-form-group">
+            <label for="worldPlantSelect">Select Physical Plant Dynamics:</label>
+            <select id="worldPlantSelect" class="cyber-select">
+              <option value="quadrotor">1. UAV Quadrotor Altitude & Pitch (6-DOF)</option>
+              <option value="pendulum">2. Inverted Pendulum on Cart (Underactuated)</option>
+              <option value="dcmotor">3. Precision Industrial DC Servomotor</option>
+              <option value="robotarm">4. Two-Link Flexible Robotic Manipulator</option>
+              <option value="windturbine">5. Wind Turbine Blade Pitch & Rotor Speed</option>
+              <option value="maglev">6. Active Magnetic Levitation Bearing (Unstable)</option>
+              <option value="cstr">7. Exothermic Chemical CSTR Reactor</option>
+              <option value="satellite">8. LEO Satellite Reaction Wheel Attitude</option>
+              <option value="trms">9. Twin-Rotor MIMO Aerodynamic System (TRMS)</option>
+              <option value="bioreactor">10. Bio-Reactor Substrate & Biomass Loop</option>
+              <option value="nuclear">11. Nuclear Steam Generator Water Level</option>
+              <option value="custom">12. Custom Polynomial Transfer Function G(s)</option>
+            </select>
+          </div>
+
+          <!-- Custom Polynomial Input Form -->
+          <div id="customPlantInputBox" class="custom-plant-box" style="display: none;">
+            <div class="form-row">
+              <div class="form-col">
+                <label>Numerator N(s) [e.g. 10]:</label>
+                <input type="text" id="customNumInput" class="cyber-input" value="10">
+              </div>
+              <div class="form-col">
+                <label>Denominator D(s) [e.g. 1, 3, 10]:</label>
+                <input type="text" id="customDenInput" class="cyber-input" value="1, 3, 10">
+              </div>
+            </div>
+            <button class="cyber-btn btn-secondary btn-sm" id="applyCustomPlantBtn" style="margin-top: 8px;">Apply & Synthesize Custom Plant</button>
+          </div>
+
+          <div class="plant-specs-grid">
+            <div class="spec-card">
+              <span class="spec-name">Natural Freq (\omega_n)</span>
+              <span class="spec-value text-cyan" id="specWn">3.16 rad/s</span>
+            </div>
+            <div class="spec-card">
+              <span class="spec-name">Damping Ratio (\zeta)</span>
+              <span class="spec-value text-emerald" id="specZeta">0.47</span>
+            </div>
+            <div class="spec-card">
+              <span class="spec-name">Open-Loop Poles</span>
+              <span class="spec-value text-muted" id="specPoles">-1.50 \pm 2.78j</span>
+            </div>
+            <div class="spec-card">
+              <span class="spec-name">Controllability</span>
+              <span class="spec-value text-emerald" id="specControllable">Full Rank (2/2)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 2: Live Remote Sensing Ingestion & Parameter Tracking -->
+        <div class="panel studio-panel">
+          <div class="panel-header">
+            <h3>📡 Remote Sensing Stream & Dynamic Identification</h3>
+            <span class="badge badge-emerald">No Fixed Constants</span>
+          </div>
+          <div class="remote-telemetry-controls">
+            <div class="slider-row">
+              <label>Remote Sensor Noise (\sigma): <span id="valNoiseDisplay">0.02</span></label>
+              <input type="range" id="remoteNoiseSlider" min="0" max="0.10" step="0.005" value="0.02">
+            </div>
+            <div class="slider-row">
+              <label>Sensor Calibration Bias: <span id="valBiasDisplay">+0.00</span></label>
+              <input type="range" id="remoteBiasSlider" min="-1.0" max="1.0" step="0.05" value="0.00">
+            </div>
+            <div class="slider-row">
+              <label>Measurement Drift Rate: <span id="valDriftDisplay">0.00/s</span></label>
+              <input type="range" id="remoteDriftSlider" min="0" max="0.20" step="0.01" value="0.00">
+            </div>
+          </div>
+
+          <div class="rls-identification-box">
+            <h4>Live Recursive Least Squares (RLS) Parameter Estimates</h4>
+            <div class="rls-grid">
+              <div class="rls-item">
+                <span>Estimated Gain \hat{b}_0:</span>
+                <span class="text-cyan font-mono" id="rlsGainEst">9.94</span>
+              </div>
+              <div class="rls-item">
+                <span>Estimated Pole \hat{a}_1:</span>
+                <span class="text-amber font-mono" id="rlsPoleEst">2.98</span>
+              </div>
+              <div class="rls-item">
+                <span>Observer Innovation L \cdot r(t):</span>
+                <span class="text-emerald font-mono" id="rlsInnovation">0.005</span>
+              </div>
+              <div class="rls-item">
+                <span>Digital Twin Tracking Status:</span>
+                <span class="text-emerald font-mono" id="twinSyncStatus">Predict & Correct Active</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW 2: MULTI-DATASET 70/10/20 TRAINING PIPELINE -->
+      <div class="panel studio-panel" style="margin-top: 16px;">
+        <div class="panel-header">
+          <h3>🧠 Multi-Dataset Neural Training Pipeline (70% Train | 10% Validate | 20% Test)</h3>
+          <span class="badge badge-violet">Continuous Online Learning</span>
+        </div>
+        <div class="dataset-trainer-wrapper">
+          <div class="dataset-controls-bar">
+            <div class="studio-form-group" style="margin-bottom: 0;">
+              <label for="datasetSelect">Select Training Corpus:</label>
+              <select id="datasetSelect" class="cyber-select">
+                <option value="windshear">NASA Dryden High-Frequency Wind Shear Turbulence</option>
+                <option value="actuatorwear">Industrial Actuator Thermal Degradation & Nonlinear Friction</option>
+                <option value="groundeffect">Non-Stationary Ground-Effect Aerodynamic Flight</option>
+                <option value="cstr">Exothermic Chemical CSTR Concentration Transients</option>
+                <option value="satellite">LEO Satellite Reaction Wheel Micro-Vibration & Jitter</option>
+              </select>
+            </div>
+            <button class="cyber-btn btn-accent" id="trainDatasetBtn">🚀 Train 50 Epochs (70% Train / 10% Val / 20% Test)</button>
+          </div>
+
+          <!-- Split Visualizer Bar -->
+          <div class="dataset-split-visualizer">
+            <div class="split-bar-container">
+              <div class="split-segment train-seg" style="width: 70%;">70% Training Buffer (700 Samples)</div>
+              <div class="split-segment val-seg" style="width: 10%;">10% Val (100)</div>
+              <div class="split-segment test-seg" style="width: 20%;">20% Held-Out Test (200)</div>
+            </div>
+          </div>
+
+          <!-- Training Metrics & Epoch Loss Monitor -->
+          <div class="training-results-grid">
+            <div class="loss-chart-box">
+              <canvas id="trainingLossCanvas" width="500" height="140"></canvas>
+            </div>
+            <div class="training-metrics-card">
+              <div class="tmetric-row">
+                <span>Training Loss (MSE):</span>
+                <span class="text-cyan font-mono" id="tmetricTrainLoss">0.0384</span>
+              </div>
+              <div class="tmetric-row">
+                <span>Validation Loss (MSE):</span>
+                <span class="text-amber font-mono" id="tmetricValLoss">0.0412</span>
+              </div>
+              <div class="tmetric-row">
+                <span>Raw Test RMSE:</span>
+                <span class="text-muted font-mono" id="tmetricTestRaw">0.1982</span>
+              </div>
+              <div class="tmetric-row">
+                <span>Predict & Correct Test RMSE:</span>
+                <span class="text-emerald font-mono" id="tmetricTestCorrected">0.0245</span>
+              </div>
+              <div class="tmetric-row">
+                <span>Prediction Error Reduction:</span>
+                <span class="text-emerald font-mono" id="tmetricImprovement">-87.6%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW 3: DIGITAL TWIN SIMULATION VISUALIZER FOR EACH CONTROLLER -->
+      <div class="panel studio-panel" style="margin-top: 16px;">
+        <div class="panel-header">
+          <h3>🔬 Visual Digital Twin Testing for Each Controller</h3>
+          <span class="badge badge-cyan">Full Spectrum Benchmarking</span>
+        </div>
+        <div class="controller-switcher-bar">
+          <label>Test Controller on Digital Twin:</label>
+          <div class="controller-tabs-group" id="studioControllerTabs">
+            <button class="c-tab active" data-ctrl="PID">Classical PID</button>
+            <button class="c-tab" data-ctrl="LEAD">Lead-Lag</button>
+            <button class="c-tab" data-ctrl="LQR">LQR Optimal</button>
+            <button class="c-tab" data-ctrl="MPC">Constrained MPC</button>
+            <button class="c-tab" data-ctrl="SMC">Sliding Mode (SMC)</button>
+            <button class="c-tab" data-ctrl="ADRC">ADRC with ESO</button>
+            <button class="c-tab" data-ctrl="FOPID">Fractional-Order PI^{\lambda}D^{\mu}</button>
+            <button class="c-tab" data-ctrl="HYBRID">ACEP Evolved Hybrid</button>
+          </div>
+        </div>
+
+        <div class="studio-sim-container">
+          <div class="studio-canvas-wrapper">
+            <canvas id="studioOscilloscope" width="700" height="240"></canvas>
+            <div class="canvas-legend">
+              <span class="legend-item"><span class="legend-color legend-ref"></span> Target Setpoint r(t)</span>
+              <span class="legend-item"><span class="legend-color legend-plant"></span> Remote Sensed Plant y(t)</span>
+              <span class="legend-item"><span class="legend-color legend-twin"></span> Digital Twin \hat{y}(t)</span>
+              <span class="legend-item"><span class="legend-color legend-ctrl"></span> Control Effort u(t)</span>
+            </div>
+          </div>
+
+          <div class="controller-scorecard">
+            <h4>Active Controller Analytical Parameters</h4>
+            <div class="scorecard-grid">
+              <div class="sc-item">
+                <span class="sc-label">Synthesized Gains:</span>
+                <span class="sc-val text-cyan font-mono" id="scGains">Kp=3.21, Ki=1.25, Kd=1.61</span>
+              </div>
+              <div class="sc-item">
+                <span class="sc-label">Rise Time (t_r):</span>
+                <span class="sc-val text-emerald font-mono" id="scRiseTime">0.24 s</span>
+              </div>
+              <div class="sc-item">
+                <span class="sc-label">Settling Time (t_s):</span>
+                <span class="sc-val text-emerald font-mono" id="scSettlingTime">0.68 s</span>
+              </div>
+              <div class="sc-item">
+                <span class="sc-label">Peak Overshoot:</span>
+                <span class="sc-val text-amber font-mono" id="scOvershoot">4.2%</span>
+              </div>
+              <div class="sc-item">
+                <span class="sc-label">Steady-State Error:</span>
+                <span class="sc-val text-emerald font-mono" id="scSSE">0.001</span>
+              </div>
+              <div class="sc-item">
+                <span class="sc-label">Lyapunov Certificate:</span>
+                <span class="sc-val text-emerald font-mono" id="scLyapunov">\dot{V}(x) < -1.82 V(x) [STABLE]</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -675,6 +898,7 @@
   <script src="simulation_engine.js"></script>
   <script src="acep_paper_content.js"></script>
   <script src="app.js"></script>
+  <script src="universal_studio.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
