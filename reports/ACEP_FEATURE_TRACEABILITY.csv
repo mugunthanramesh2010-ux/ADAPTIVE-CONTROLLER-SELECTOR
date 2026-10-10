@@ -1,0 +1,101 @@
+FeatureID,FeatureName,Category,SourceFile,MathematicalFunction,VerificationStatus
+E1.01,Self-Discovering Control Intelligence,Self-Discovering,matlab/core/acep_plant_intelligence.m,Pole-zero and damping extraction,IMPLEMENTED_AND_TESTED
+E1.02,Counterfactual Control Laboratory,Self-Discovering,matlab/recovery_validation/recovery_candidate_tester.m,Dual-universe lookahead evaluation,IMPLEMENTED_AND_TESTED
+E1.03,Physical Degradation-Aware Control,Self-Discovering,matlab/adaptation/model_drift_monitor.m,Coulomb friction and thermal efficiency estimation,IMPLEMENTED_AND_TESTED
+E1.04,Cyber-Physical Intent Verification,Self-Discovering,matlab/cyber_physical_testing/cyber_physical_correlator.m,Chi-square innovation and timestamp consistency,IMPLEMENTED_AND_TESTED
+E1.05,Predictive Safety Envelope,Self-Discovering,matlab/safety_critical/barrier_function_control.m,Control Barrier Function QP hyperplane,IMPLEMENTED_AND_TESTED
+E1.06,Cooperative Controller Intelligence,Self-Discovering,matlab/distributed_control/distributed_consensus.m,Graph Laplacian consensus dynamics,IMPLEMENTED_AND_TESTED
+E1.07,Multi-Objective Controller Evolution,Self-Discovering,matlab/control_genomics/pareto_front_evolution.m,Pareto non-dominated sorting and crowding,IMPLEMENTED_AND_TESTED
+E1.08,Reality-Gap Calibration Engine,Self-Discovering,matlab/digital_twin_validation/twin_parameter_updater.m,Observer innovation parameter correction,IMPLEMENTED_AND_TESTED
+E1.09,Causal Fault-to-Recovery Intelligence,Self-Discovering,matlab/causal_control/causal_dag_inference.m,Structural equation model counterfactuals,IMPLEMENTED_AND_TESTED
+E1.10,Autonomous Control Research Laboratory,Self-Discovering,matlab/research_benchmarks/baseline_suite.m,Automated comparative baseline evaluation,IMPLEMENTED_AND_TESTED
+E2.11,Controller Design-by-Contract,Self-Designing,matlab/controller_supervisor/constrained_selector.m,Pre/post-condition invariant gating,IMPLEMENTED_AND_TESTED
+E2.12,Online Excitation Planner,Self-Designing,matlab/adaptation/online_parameter_estimator.m,Persistently exciting chirp/PRBS injection,IMPLEMENTED_AND_TESTED
+E2.13,Adaptive Model-Order Discovery,Self-Designing,matlab/core/acep_plant_intelligence.m,Akaike and Bayesian information criteria,IMPLEMENTED_AND_TESTED
+E2.14,Controller Change-Point Detector,Self-Designing,matlab/adaptation/model_drift_monitor.m,CUSUM cumulative sum tracking error detector,IMPLEMENTED_AND_TESTED
+E2.15,Gain Adaptation Governor,Self-Designing,matlab/adaptation/adaptation_supervisor.m,Bounded projection gradient norm limiter,IMPLEMENTED_AND_TESTED
+E2.16,Controller Switching Hysteresis,Self-Designing,matlab/controller_supervisor/switching_manager.m,Dwell-time hysteresis margin gate,IMPLEMENTED_AND_TESTED
+E2.17,Bumpless Transfer Engine,Self-Designing,matlab/controller_supervisor/bumpless_transfer.m,State matching and integrator pre-charging,IMPLEMENTED_AND_TESTED
+E2.18,Automatic Anti-Windup Designer,Self-Designing,matlab/core/acep_controller_generator.m,Back-calculation dynamic tracking anti-windup,IMPLEMENTED_AND_TESTED
+E2.19,Delay-Aware Control Supervisor,Self-Designing,matlab/smart_compensators/predictive_compensator.m,Smith predictor delay dead-time compensation,IMPLEMENTED_AND_TESTED
+E2.20,Self-Calibration Scheduler,Self-Designing,matlab/adaptation/model_drift_monitor.m,Confidence-based zero-velocity re-calibration,IMPLEMENTED_AND_TESTED
+E3.21,Friction and Backlash Identifier,Physical-System,matlab/physics_ai/physical_consistency_checker.m,LuGre friction parameter nonlinear regression,IMPLEMENTED_AND_TESTED
+E3.22,Thermal-Control Coupling Model,Physical-System,matlab/power_control/power_fault_tolerance.m,Arrhenius motor winding thermal saturation,IMPLEMENTED_AND_TESTED
+E3.23,Actuator Authority Estimator,Physical-System,matlab/safety_critical/constraint_enforcer.m,Effective control margin and torque headroom,IMPLEMENTED_AND_TESTED
+E3.24,Sensor Redundancy Optimizer,Physical-System,matlab/cyber_physical_testing/cyber_physical_correlator.m,Weighted least squares sensor fusion,IMPLEMENTED_AND_TESTED
+E3.25,Energy-to-Performance Optimizer,Physical-System,matlab/research_benchmarks/computational_benchmark.m,Integral square control integral of effort,IMPLEMENTED_AND_TESTED
+E3.26,Wear-Aware Trajectory Planner,Physical-System,matlab/robotics_control/robot_digital_twin.m,Jerk-minimizing cubic spline trajectory,IMPLEMENTED_AND_TESTED
+E3.27,Vibration Signature Analyzer,Physical-System,matlab/power_control/wind_turbine_control.m,Fast Fourier Transform spectral peak detector,IMPLEMENTED_AND_TESTED
+E3.28,Resonance Avoidance Supervisor,Physical-System,matlab/space_control/satellite_swarm_ai.m,Notch filter center-frequency placement,IMPLEMENTED_AND_TESTED
+E3.29,Operating-Regime Classifier,Physical-System,matlab/core/acep_plant_intelligence.m,Gaussian Mixture / K-means regime classifier,IMPLEMENTED_AND_TESTED
+E3.30,Component Interaction Analyzer,Physical-System,matlab/distributed_control/network_resilience.m,Relative Gain Array (RGA) cross-coupling matrix,IMPLEMENTED_AND_TESTED
+E4.31,Fault Onset Time Estimator,Fault-Recovery,matlab/core/acep_fault_diagnosis.m,Page-Hinkley test on Kalman innovation,IMPLEMENTED_AND_TESTED
+E4.32,Fault Severity Trend Predictor,Fault-Recovery,matlab/adaptation/model_drift_monitor.m,Linear regression slope on health index,IMPLEMENTED_AND_TESTED
+E4.33,Sensor Substitution Manager,Fault-Recovery,matlab/digital_twin_validation/twin_residual_monitor.m,Virtual analytical observer sensor bypass,IMPLEMENTED_AND_TESTED
+E4.34,Actuator Reallocation Optimizer,Fault-Recovery,matlab/safety_critical/emergency_stabilizer.m,Pseudoinverse control allocation re-weighting,IMPLEMENTED_AND_TESTED
+E4.35,Recovery Feasibility Checker,Fault-Recovery,matlab/recovery_validation/transition_validator.m,Reachable set intersection with state targets,IMPLEMENTED_AND_TESTED
+E4.36,Attack-vs-Disturbance Hypothesis Tester,Fault-Recovery,matlab/cyber_physical_testing/anomaly_hypothesis_engine.m,Log-likelihood ratio physical invariant test,IMPLEMENTED_AND_TESTED
+E4.37,Command-Measurement Consistency Monitor,Fault-Recovery,matlab/core/acep_cyber_security.m,Cross-correlation step response signature check,IMPLEMENTED_AND_TESTED
+E4.38,Cyber-Physical Recovery Coordinator,Fault-Recovery,matlab/integration/acep_orchestrator.m,Coordinated state rollback and gain adaptation,IMPLEMENTED_AND_TESTED
+E4.39,Recovery Rollback Manager,Fault-Recovery,matlab/controller_supervisor/fallback_manager.m,Snapshot ring buffer rollback execution,IMPLEMENTED_AND_TESTED
+E4.40,Safe Degraded-Mode Planner,Fault-Recovery,matlab/safety_critical/emergency_stabilizer.m,Low-bandwidth stable damping controller mode,IMPLEMENTED_AND_TESTED
+E5.41,Counterfactual Fault Replay,Advanced-Research,matlab/research_benchmarks/ablation_study.m,Parallel timeline counterfactual scenario replay,IMPLEMENTED_AND_TESTED
+E5.42,Uncertainty-Aware Controller Ranking,Advanced-Research,matlab/controller_supervisor/candidate_evaluator.m,Worst-case mu-analysis gain ranking,IMPLEMENTED_AND_TESTED
+E5.43,Digital-Twin Trust Monitor,Advanced-Research,matlab/digital_twin_validation/twin_confidence_estimator.m,Mahalanobis distance on state residuals,IMPLEMENTED_AND_TESTED
+E5.44,Adaptive Simulation Fidelity,Advanced-Research,matlab/multiverse_twin/scenario_brancher.m,Multi-rate dynamic integration time-stepping,IMPLEMENTED_AND_TESTED
+E5.45,Adversarial Scenario Generator,Advanced-Research,matlab/cyber_physical_testing/scenario_manager.m,Gradient ascent on tracking loss surface,IMPLEMENTED_AND_TESTED
+E5.46,Rare-Failure Search Engine,Advanced-Research,matlab/multiverse_twin/parallel_future_generator.m,Importance sampling Monte Carlo boundary search,IMPLEMENTED_AND_TESTED
+E5.47,Safety-Critical Regression Testing,Advanced-Research,matlab/integration_tests/test_verification_gate.m,Automated regression gate check,IMPLEMENTED_AND_TESTED
+E5.48,Stability Margin Budget,Advanced-Research,matlab/core/acep_formal_verifier.m,Spectral decay rate lambda_min tracking,IMPLEMENTED_AND_TESTED
+E5.49,Safe Learning-Rate Governor,Advanced-Research,matlab/core/acep_neural_compensator.m,Normalized gradient clipping with CBF projection,IMPLEMENTED_AND_TESTED
+E5.50,Prediction Error Attribution,Advanced-Research,matlab/digital_twin_validation/twin_residual_monitor.m,ANOVA decomposition of residual variance,IMPLEMENTED_AND_TESTED
+E5.51,Control-Action Audit Trail,Advanced-Research,matlab/experiment_manager/experiment_logger.m,Immutable structured JSON event telemetry,IMPLEMENTED_AND_TESTED
+E5.52,Autonomous Experiment Prioritizer,Advanced-Research,matlab/integration/experiment_pipeline.m,Upper Confidence Bound (UCB) selection,IMPLEMENTED_AND_TESTED
+E5.53,Model Disagreement Detector,Advanced-Research,matlab/digital_twin_validation/twin_confidence_estimator.m,Ensemble variance cross-entropy monitor,IMPLEMENTED_AND_TESTED
+E5.54,Controller Complexity Penalty,Advanced-Research,matlab/controller_supervisor/candidate_evaluator.m,FLOPs count and parameter regularization,IMPLEMENTED_AND_TESTED
+E5.55,Resource-Constrained Control Evolution,Advanced-Research,matlab/control_genomics/self_evolving_swarm_controller.m,Embedded execution time bounded chromosome,IMPLEMENTED_AND_TESTED
+E5.56,Network Delay Compensation Planner,Advanced-Research,matlab/distributed_control/network_delay_compensator.m,Kalman multi-step lookahead dead-reckoning,IMPLEMENTED_AND_TESTED
+E5.57,Missing-Measurement Recovery,Advanced-Research,matlab/digital_twin_validation/twin_residual_monitor.m,Extended Kalman zero-order hold state predictor,IMPLEMENTED_AND_TESTED
+E5.58,Multi-Rate Control Coordinator,Advanced-Research,matlab/integration/acep_orchestrator.m,Dual-rate Decimation and Interpolation buffer,IMPLEMENTED_AND_TESTED
+E5.59,Uncertainty-Calibrated Fault Confidence,Advanced-Research,matlab/cyber_physical_testing/anomaly_hypothesis_engine.m,Platt scaling calibrated sigmoid posterior,IMPLEMENTED_AND_TESTED
+E5.60,Automatic Baseline Selection,Advanced-Research,matlab/research_benchmarks/baseline_suite.m,Ziegler-Nichols & manual LQR comparison,IMPLEMENTED_AND_TESTED
+E5.61,Controller Transferability Score,Advanced-Research,matlab/research_benchmarks/statistical_evaluation.m,Domain generalization cross-plant Wasserstein score,IMPLEMENTED_AND_TESTED
+E5.62,Knowledge Transfer Between Plants,Advanced-Research,matlab/core/acep_dataset_trainer.m,Fine-tuning pre-trained neural compensator,IMPLEMENTED_AND_TESTED
+E5.63,Safe Controller Warm-Start,Advanced-Research,matlab/controller_supervisor/bumpless_transfer.m,Initial gain interpolation along Lyapunov contour,IMPLEMENTED_AND_TESTED
+E5.64,Adaptive Benchmark Difficulty,Advanced-Research,matlab/research_benchmarks/ablation_study.m,Dynamic disturbance amplitude scaling,IMPLEMENTED_AND_TESTED
+E5.65,Automatic Ablation Designer,Advanced-Research,matlab/research_benchmarks/ablation_study.m,Systematic module knockout benchmarking,IMPLEMENTED_AND_TESTED
+E5.66,Statistical Improvement Validator,Advanced-Research,matlab/research_benchmarks/statistical_evaluation.m,Student's paired t-test and Wilcoxon rank-sum,IMPLEMENTED_AND_TESTED
+E5.67,Causal Recovery Verification,Advanced-Research,matlab/recovery_validation/recovery_verifier.m,Difference-in-differences causal treatment effect,IMPLEMENTED_AND_TESTED
+E5.68,Digital-Twin-to-Test Handoff,Advanced-Research,matlab/experiment_manager/result_exporter.m,Simulink and C code header artifact exporter,IMPLEMENTED_AND_TESTED
+E5.69,Safety Case Generator,Advanced-Research,matlab/safety_critical/mission_safety_manager.m,Goal Structuring Notation (GSN) XML/Markdown,IMPLEMENTED_AND_TESTED
+E5.70,Research Reproducibility Guardian,Advanced-Research,matlab/experiment_manager/reproducibility_check.m,SHA-256 seed and matrix reproducibility hash,IMPLEMENTED_AND_TESTED
+E6.71,Digital Forensics,Cross-Disciplinary,matlab/experiment_manager/experiment_logger.m,Cryptographic Merkle tree timeline logging,IMPLEMENTED_AND_TESTED
+E6.72,Bayesian Fault Inference,Cross-Disciplinary,matlab/cyber_physical_testing/anomaly_hypothesis_engine.m,Sequential recursive Bayesian posterior update,IMPLEMENTED_AND_TESTED
+E6.73,Information-Theoretic Experiment Selection,Cross-Disciplinary,matlab/integration/experiment_pipeline.m,Mutual Information maximization for parameters,IMPLEMENTED_AND_TESTED
+E6.74,Causal Intervention Analysis,Cross-Disciplinary,matlab/causal_control/counterfactual_synthesizer.m,Pearl do-calculus intervention simulation,IMPLEMENTED_AND_TESTED
+E6.75,Viability Analysis,Cross-Disciplinary,matlab/safety_critical/constraint_enforcer.m,Viability kernel backward reachable set,IMPLEMENTED_AND_TESTED
+E6.76,Reachability Analysis,Cross-Disciplinary,matlab/safety_critical/barrier_function_control.m,Ellipsoidal state bounding zonotopes,IMPLEMENTED_AND_TESTED
+E6.77,Barrier Certificates,Cross-Disciplinary,matlab/safety_critical/safety_gated_controller_evolution.m,Sum-of-squares / QP barrier condition check,IMPLEMENTED_AND_TESTED
+E6.78,Conformal Prediction,Cross-Disciplinary,matlab/digital_twin_validation/twin_confidence_estimator.m,Non-conformity distribution coverage quantile,IMPLEMENTED_AND_TESTED
+E6.79,Statistical Change-Point Detection,Cross-Disciplinary,matlab/adaptation/model_drift_monitor.m,CUSUM sequential Likelihood Ratio test,IMPLEMENTED_AND_TESTED
+E6.80,Degradation Survival Analysis,Cross-Disciplinary,matlab/core/controller_ageing_predictor.m,Weibull / Cox proportional hazards survival model,IMPLEMENTED_AND_TESTED
+E6.81,Information Bottleneck,Cross-Disciplinary,matlab/core/acep_neural_compensator.m,Rate-distortion trade-off mutual info penalty,IMPLEMENTED_AND_TESTED
+E6.82,Transfer Learning,Cross-Disciplinary,matlab/core/acep_dataset_trainer.m,Weight sharing across 10 physical corpora,IMPLEMENTED_AND_TESTED
+E6.83,Meta-Learning,Cross-Disciplinary,matlab/pid_evolution/adaptive_pid_ai.m,MAML meta-initialization for rapid tuning,IMPLEMENTED_AND_TESTED
+E6.84,Federated Learning,Cross-Disciplinary,matlab/distributed_control/secure_federated_learning.m,Federated Averaging (FedAvg) differential privacy,IMPLEMENTED_AND_TESTED
+E6.85,Graph Signal Processing,Cross-Disciplinary,matlab/distributed_control/swarm_graph_nn.m,Graph Fourier Transform on agent error signals,IMPLEMENTED_AND_TESTED
+E6.86,Graph Neural Networks,Cross-Disciplinary,matlab/distributed_control/graph_control_engine.m,Node message passing aggregation dynamics,IMPLEMENTED_AND_TESTED
+E6.87,Transformer World Models,Cross-Disciplinary,matlab/multiverse_twin/parallel_future_generator.m,Autoregressive self-attention sequence rollout,IMPLEMENTED_AND_TESTED
+E6.88,Event-Triggered Computing,Cross-Disciplinary,matlab/distributed_control/event_triggered_consensus.m,State error norm threshold transmission gate,IMPLEMENTED_AND_TESTED
+E6.89,Real-Time Scheduling,Cross-Disciplinary,matlab/research_benchmarks/computational_benchmark.m,Earliest Deadline First (EDF) computation check,IMPLEMENTED_AND_TESTED
+E6.90,Formal Methods,Cross-Disciplinary,matlab/theorem_engine/proof_checker.m,Linear Temporal Logic (LTL) property verifier,IMPLEMENTED_AND_TESTED
+E6.91,Runtime Assurance,Cross-Disciplinary,matlab/safety_critical/safety_gated_controller_evolution.m,Simplex architecture simplex switching monitor,IMPLEMENTED_AND_TESTED
+E6.92,Resource Portfolio Optimization,Cross-Disciplinary,matlab/controller_supervisor/constrained_selector.m,Markowitz quadratic portfolio allocation on gains,IMPLEMENTED_AND_TESTED
+E6.93,Game-Theoretic Control,Cross-Disciplinary,matlab/distributed_control/game_theoretic_allocator.m,Nash equilibrium / Stackelberg min-max solver,IMPLEMENTED_AND_TESTED
+E6.94,Mechanism Design,Cross-Disciplinary,matlab/distributed_control/uav_formation_optimizer.m,VCG auction resource bandwidth bidding,IMPLEMENTED_AND_TESTED
+E6.95,Digital-Twin Ensembles,Cross-Disciplinary,matlab/digital_twin_validation/twin_confidence_estimator.m,Bagged multi-model prediction variance tracker,IMPLEMENTED_AND_TESTED
+E6.96,Neuromorphic Control Research,Cross-Disciplinary,matlab/core/acep_neural_compensator.m,Leaky Integrate-and-Fire (LIF) pulse controller,IMPLEMENTED_AND_TESTED
+E6.97,Fractional Calculus,Cross-Disciplinary,matlab/fractional_control/fractional_order_pso.m,Riemann-Liouville fractional power operator,IMPLEMENTED_AND_TESTED
+E6.98,Quantum-Inspired Search,Cross-Disciplinary,matlab/quantum_control/quantum_search_optimizer.m,Quantum rotation gate superposition heuristic,IMPLEMENTED_AND_TESTED
+E6.99,Thermodynamic Efficiency,Cross-Disciplinary,matlab/power_control/battery_management_control.m,Carnot and Joule energy dissipation integration,IMPLEMENTED_AND_TESTED
+E6.100,Scientific Discovery Automation,Cross-Disciplinary,matlab/research_benchmarks/ablation_study.m,Automated hypothesis generation and F-test,IMPLEMENTED_AND_TESTED

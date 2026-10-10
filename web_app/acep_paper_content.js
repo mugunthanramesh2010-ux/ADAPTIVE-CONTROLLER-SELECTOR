@@ -3315,69 +3315,515 @@ window.ACEP_DATA = {
   // 50 BREAKTHROUGHS CATALOG
   // =========================================================================
   breakthroughs: {
-    innovations: [
-      { num: "01", title: "Genome-Encoded Hybrid Controller Chromosomes", desc: "Encodes PID, LQR penalty matrices, MPC horizons, and neural weights into a unified continuous-discrete genetic chromosome undergoing multi-paradigm crossover." },
-      { num: "02", title: "Physics-Informed Neural Disturbance Observer (PINDO)", desc: "Constrains neural compensator loss by Newton-Euler momentum conservation to isolate aerodynamic buffeting without violating physics." },
-      { num: "03", title: "Symbiotic Closed-Loop Digital Twin", desc: "Bilateral feedback where the digital twin actively predicts catastrophic divergence 100 steps ahead and injects pre-emptive feedforward stabilization." },
-      { num: "04", title: "Real-Time Control Barrier Function (CBF) Lyapunov Filter", desc: "Filters all AI/RL actions through quadratic programming hyperplanes to guarantee mathematical safety invariance." },
-      { num: "05", title: "Explainable Control Decision Tree (X-CDT)", desc: "Translates high-dimensional policy adjustments into clear, human-auditable causal prose in real-time flight telemetry." },
-      { num: "06", title: "Graph-Attention Multi-Agent Consensus Protocol (GAT-MCP)", desc: "Uses multi-head self-attention over adjacency matrices to dynamically discount jammed or degraded swarm neighbors." },
-      { num: "07", title: "Zero-Trust Distributed Controller Blockchain Consensus", desc: "Seals telemetry and setpoint dispatches into Merkle-hashed blocks across swarm nodes, instantly isolating tampered packets." },
-      { num: "08", title: "Quantum-Inspired Swarm Optimization (QISO)", desc: "Uses qubit rotation gates in metaheuristics to avoid local minima in 50+ dimensional controller tuning spaces." },
-      { num: "09", title: "Neuromorphic Spike-Rate Controller Adapter", desc: "Converts continuous control into event-driven spiking neural signals, slashing edge embedded power consumption by 82%." },
-      { num: "10", title: "Meta-Reinforcement Learning Rapid Adaptation (MAML)", desc: "Learns an optimal meta-policy initialization enabling single-step adaptation to drastic aerodynamic payload shifts in under 100 ms." }
+    "innovations": [
+        {
+            "num": "01",
+            "title": "Genome-Encoded Hybrid Controller Chromosomes",
+            "desc": "Encodes PID gains, LQR weights, MPC horizons, and neural observer weights into a continuous-discrete genetic chromosome undergoing crossover."
+        },
+        {
+            "num": "02",
+            "title": "Physics-Informed Neural Disturbance Observer (PINDO)",
+            "desc": "Constrains neural network compensator loss by Newton-Euler momentum conservation to isolate aerodynamic buffeting without violating physics."
+        },
+        {
+            "num": "03",
+            "title": "Symbiotic Closed-Loop Digital Twin",
+            "desc": "Bilateral state-space feedback where the digital twin actively predicts catastrophic divergence 100 steps ahead and injects stabilizing feedforward."
+        },
+        {
+            "num": "04",
+            "title": "Real-Time Control Barrier Function (CBF) Lyapunov Filter",
+            "desc": "Filters all AI/RL actions through quadratic programming hyperplanes to guarantee mathematical safety invariance."
+        },
+        {
+            "num": "05",
+            "title": "Explainable Control Decision Tree (X-CDT)",
+            "desc": "Translates high-dimensional policy adjustments into clear, human-auditable causal prose in real-time flight telemetry."
+        },
+        {
+            "num": "06",
+            "title": "Graph-Attention Multi-Agent Consensus Protocol (GAT-MCP)",
+            "desc": "Uses multi-head self-attention over adjacency matrices to dynamically discount jammed or degraded swarm neighbors."
+        },
+        {
+            "num": "07",
+            "title": "Zero-Trust Distributed Controller Blockchain Consensus",
+            "desc": "Seals telemetry and setpoint dispatches into Merkle-hashed blocks across swarm nodes, instantly isolating tampered packets."
+        },
+        {
+            "num": "08",
+            "title": "Quantum-Inspired Swarm Optimization (QISO)",
+            "desc": "Uses qubit rotation gates in metaheuristics to avoid local minima in 50+ dimensional controller tuning spaces."
+        },
+        {
+            "num": "09",
+            "title": "Neuromorphic Spike-Rate Controller Adapter",
+            "desc": "Converts continuous control into event-driven spiking neural signals, slashing edge embedded power consumption by 82%."
+        },
+        {
+            "num": "10",
+            "title": "Meta-Reinforcement Learning Rapid Adaptation (MAML)",
+            "desc": "Learns an optimal meta-policy initialization enabling single-step adaptation to drastic aerodynamic payload shifts in under 100 ms."
+        },
+        {
+            "num": "11",
+            "title": "Continuous Differential Dynamic Programming (CDDP)",
+            "desc": "Solves trajectory optimization on Lie groups for coupled rigid-body attitude and translational dynamics in real time."
+        },
+        {
+            "num": "12",
+            "title": "Nonlinear Disturbance Decoupling Observers (NDDO)",
+            "desc": "Algebraically decouples cross-axis aerodynamic gyroscopic moments from control channel residuals."
+        },
+        {
+            "num": "13",
+            "title": "Lyapunov-Certifying Neural Contraction Metrics",
+            "desc": "Guarantees exponential convergence of all neighboring trajectories via matrix-valued contraction metrics."
+        },
+        {
+            "num": "14",
+            "title": "Energy-Preserving Port-Hamiltonian Neural Synthesizer",
+            "desc": "Preserves Dirac structural invariants during high-speed actuator switching, avoiding energy-pumping instability."
+        },
+        {
+            "num": "15",
+            "title": "Passivity-Based Sliding Boundary Layer Adaptive Law",
+            "desc": "Modulates the boundary layer width dynamically based on instantaneous high-frequency chattering energy."
+        },
+        {
+            "num": "16",
+            "title": "Fractional-Order Oustaloup Filter Synthesizer",
+            "desc": "Synthesizes continuous recursive pole-zero approximations for fractional integrators and differentiators."
+        },
+        {
+            "num": "17",
+            "title": "Dual-Quaternion Attitude-Position Coupled Control",
+            "desc": "Unifies 6-DOF translation and rotation kinematics into a singularity-free dual-quaternion algebraic representation."
+        },
+        {
+            "num": "18",
+            "title": "Nonlinear Immersion and Invariance (I&I) Estimator",
+            "desc": "Immerses the uncertain plant into a stable manifold, guaranteeing parameter estimation convergence without persistence of excitation."
+        },
+        {
+            "num": "19",
+            "title": "Finite-Time Super-Twisting Disturbance Rejector",
+            "desc": "Ensures second-order sliding mode convergence in finite time without discontinuous high-frequency control chatter."
+        },
+        {
+            "num": "20",
+            "title": "Information-Theoretic Model Predictive Path Integral (MPPI)",
+            "desc": "Samples 5,000 stochastic trajectory rollouts using GPU acceleration to navigate extreme nonlinear aerodynamic regimes."
+        }
     ],
-    inventions: [
-      { num: "11", title: "Autonomous Genetic Controller Synthesizer (AGCS)", desc: "Compiler that ingests plant step data and outputs production-grade C++/MATLAB/Rust controller binaries without human intervention." },
-      { num: "12", title: "Active Cyber-Physical Deception Decoy (ACPDD)", desc: "Spawns honeypot plant simulations on communication links to trap adversaries while real control shifts to encrypted out-of-band channels." },
-      { num: "13", title: "Self-Healing Topology Reconfiguration Matrix (SHTRM)", desc: "Dynamically recalculates algebraic connectivity (Fiedler eigenvalue) to re-route links when agents are jammed." },
-      { num: "14", title: "Dynamic Spectral Residual Anomaly Detector (DSRAD)", desc: "Combines wavelet spectral decomposition with residual tracking to separate physical sensor wear from malicious high-frequency cyber dither." },
-      { num: "15", title: "Multi-Fidelity Federated Digital Twin Mirror (MF-FDTM)", desc: "Distributes 6-DOF nonlinear models at the cloud layer with reduced-order observers at the edge, synchronized via Kalman innovation." },
-      { num: "16", title: "Neural-Compensated Sliding Mode Chattering Absorber", desc: "Replaces discontinuous signum switching with a dynamically trained neural boundary width, eliminating physical actuator fatigue." },
-      { num: "17", title: "Cross-Domain Transfer Control Knowledge Graph", desc: "Ontological database transferring tuned pole-zero gain templates between dissimilar domains (e.g. robotic arms to naval vessels)." },
-      { num: "18", title: "Event-Triggered Tokenized Control Communication Engine", desc: "Transmits tokenized control packets only when Lyapunov decay derivative drops below tolerance, reducing bandwidth by 70%." },
-      { num: "19", title: "Autonomous Controller Mutation Sandbox (ACMS)", desc: "Isolated software sandbox that subjects newly evolved chromosomes to accelerated Monte-Carlo stress before certifying deployment." },
-      { num: "20", title: "Explainable Control Traceability Flight Recorder", desc: "Hardware black-box logger continuously capturing state trajectories, neural gradients, barrier multipliers, and operator overrides." }
+    "inventions": [
+        {
+            "num": "21",
+            "title": "Autonomous Genetic Controller Synthesizer (AGCS)",
+            "desc": "Compiler that ingests plant step response and outputs production-grade C++/MATLAB/Rust controller binaries without human intervention."
+        },
+        {
+            "num": "22",
+            "title": "Active Cyber-Physical Deception Decoy (ACPDD)",
+            "desc": "Spawns honeypot plant simulations on communication links to trap adversaries while real control shifts to encrypted out-of-band channels."
+        },
+        {
+            "num": "23",
+            "title": "Self-Healing Topology Reconfiguration Matrix (SHTRM)",
+            "desc": "Dynamically recalculates algebraic connectivity (Fiedler eigenvalue) to re-route links when agents are jammed."
+        },
+        {
+            "num": "24",
+            "title": "Dynamic Spectral Residual Anomaly Detector (DSRAD)",
+            "desc": "Combines wavelet spectral decomposition with residual tracking to separate physical sensor wear from malicious cyber dither."
+        },
+        {
+            "num": "25",
+            "title": "Multi-Fidelity Federated Digital Twin Mirror (MF-FDTM)",
+            "desc": "Distributes 6-DOF nonlinear models at the cloud layer with reduced-order observers at the edge, synchronized via Kalman innovation."
+        },
+        {
+            "num": "26",
+            "title": "Neural-Compensated Sliding Mode Chattering Absorber",
+            "desc": "Replaces discontinuous signum switching with a dynamically trained neural boundary width, eliminating physical actuator fatigue."
+        },
+        {
+            "num": "27",
+            "title": "Cross-Domain Transfer Control Knowledge Graph",
+            "desc": "Ontological database transferring tuned pole-zero gain templates between dissimilar domains (e.g. robotic arms to naval vessels)."
+        },
+        {
+            "num": "28",
+            "title": "Event-Triggered Tokenized Control Communication Engine",
+            "desc": "Transmits tokenized control packets only when Lyapunov decay derivative drops below tolerance, reducing bandwidth by 70%."
+        },
+        {
+            "num": "29",
+            "title": "Autonomous Controller Mutation Sandbox (ACMS)",
+            "desc": "Isolated software sandbox that subjects newly evolved chromosomes to accelerated Monte-Carlo stress before certifying deployment."
+        },
+        {
+            "num": "30",
+            "title": "Explainable Control Traceability Flight Recorder",
+            "desc": "Hardware black-box logger continuously capturing state trajectories, neural gradients, barrier multipliers, and operator overrides."
+        },
+        {
+            "num": "31",
+            "title": "Chi-Square Innovation Dynamic Watermarking Cryptosystem",
+            "desc": "Injects zero-mean Gaussian pseudo-random watermarking sequences into actuators to expose covert sensor replay attacks."
+        },
+        {
+            "num": "32",
+            "title": "Self-Synthesizing Lyapunov Matrix LMI Solver",
+            "desc": "Directly solves Lyapunov Riccati equations and LMIs on bare-metal microcontrollers using fixed-point matrix inversion."
+        },
+        {
+            "num": "33",
+            "title": "Bumpless Actuator Handover Smoothing Transformer",
+            "desc": "Computes first-order continuous transition blending between legacy and evolved controllers to eliminate mechanical shock."
+        },
+        {
+            "num": "34",
+            "title": "Multi-Agent Leaderless Virtual Beacon Generator",
+            "desc": "Calculates a virtual geometric centroid via local Laplacian consensus as a swarm guidance beacon, eliminating single-leader failure."
+        },
+        {
+            "num": "35",
+            "title": "Real-Time Eigenvalue Migration Velocity Tracker",
+            "desc": "Monitors the migration speed of closed-loop poles across the s-plane, predicting instability before imaginary axis crossing."
+        },
+        {
+            "num": "36",
+            "title": "Bio-Mimetic Physarum Polycephalum Flow Mesh Router",
+            "desc": "Thickens communication bandwidth along low-packet-loss links while starving jammed channels based on slime-mold mechanics."
+        },
+        {
+            "num": "37",
+            "title": "Chaotic Lorenz Oscillator Cryptographic Nonce Generator",
+            "desc": "Synchronizes continuous chaotic attractors between sensor and controller to generate un-replayable session nonces."
+        },
+        {
+            "num": "38",
+            "title": "Asynchronous Byzantine Fault-Tolerant Gossip Consensus",
+            "desc": "Maintains swarm consensus without clock synchronization, tolerating up to F < N/3 maliciously compromised nodes."
+        },
+        {
+            "num": "39",
+            "title": "Hardware Black-Box Flight Telemetry Flight Recorder",
+            "desc": "Records causal inference logs, control action derivatives, and safety barrier margins into tamper-proof circular buffers."
+        },
+        {
+            "num": "40",
+            "title": "Autonomous Safety Gate Fallback Watchdog (SGDTE)",
+            "desc": "A hardware-independent safety gate validating CBF margins, Lyapunov eigenvalues, and actuator saturation limits."
+        }
     ],
-    solutions: [
-      { num: "21", title: "Synthetic Adversarial Digital Twin Stress Tester", desc: "Adversarial AI agent generating worst-case edge cases in the digital twin to stress-test evolutionary controllers before flight." },
-      { num: "22", title: "Immune-System-Inspired Antigen-Antibody Reconfiguration", desc: "Treats faults/attacks as antigens and synthesizes matching controller antibodies from memory for instant zero-shot immunity." },
-      { num: "23", title: "Bio-Mimetic Slime-Mold Flow Network Routing", desc: "Thickens communication bandwidth along high-quality mesh links while starving jammed channels based on Physarum polycephalum mechanics." },
-      { num: "24", title: "Acoustic/Vibration Latent Sensor Fusion via Autoencoders", desc: "Uses low-cost audio microphones to identify motor bearing wear and blade vibration long before current sensors detect anomalies." },
-      { num: "25", title: "Chaotic Oscillator Seeded Cyber-Physical Encryption", desc: "Synchronizes Lorenz chaotic attractor states between controller and actuator to generate un-replayable cryptographic session nonces." },
-      { num: "26", title: "Reverse Time-Horizon Virtual Rehearsal", desc: "Simulates control maneuvers backward from danger zones in the digital twin to compute safe reachable exit corridors." },
-      { num: "27", title: "Energy-Harvesting-Aware Adaptive Gain Scaling", desc: "Dynamically throttles controller gains and MPC horizons based on real-time solar/piezoelectric energy harvesting rates." },
-      { num: "28", title: "Holographic State Projection for Multi-UAV Swarms", desc: "Models swarms as continuous density fluid fields to achieve instant collision-free navigation through cluttered urban tunnels." },
-      { num: "29", title: "Asynchronous Byzantine Fault-Tolerant Gossip Protocols", desc: "Removes clock synchronization requirements across distributed agents, tolerating up to F < N/3 Byzantine malicious nodes." },
-      { num: "30", title: "Self-Synthesizing Lyapunov Solvers via Symbolic Regression", desc: "Synthesizes closed-form algebraic Lyapunov candidate functions directly from system matrices without iterative LMI solvers." }
+    "solutions": [
+        {
+            "num": "41",
+            "title": "Synthetic Adversarial Digital Twin Stress Tester",
+            "desc": "Adversarial AI agent generating worst-case edge cases in the digital twin to stress-test evolutionary controllers before flight."
+        },
+        {
+            "num": "42",
+            "title": "Immune-System-Inspired Antigen-Antibody Reconfiguration",
+            "desc": "Treats faults/attacks as antigens and synthesizes matching controller antibodies from memory for instant zero-shot immunity."
+        },
+        {
+            "num": "43",
+            "title": "Acoustic/Vibration Latent Sensor Fusion via Autoencoders",
+            "desc": "Uses low-cost audio microphones to identify motor bearing wear and blade vibration long before current sensors detect anomalies."
+        },
+        {
+            "num": "44",
+            "title": "Reverse Time-Horizon Virtual Rehearsal",
+            "desc": "Simulates control maneuvers backward from danger zones in the digital twin to compute safe reachable exit corridors."
+        },
+        {
+            "num": "45",
+            "title": "Energy-Harvesting-Aware Adaptive Gain Scaling",
+            "desc": "Dynamically throttles controller gains and MPC horizons based on real-time solar/piezoelectric energy harvesting rates."
+        },
+        {
+            "num": "46",
+            "title": "Holographic State Projection for Multi-UAV Swarms",
+            "desc": "Models swarms as continuous density fluid fields to achieve instant collision-free navigation through cluttered urban tunnels."
+        },
+        {
+            "num": "47",
+            "title": "Multi-Objective Pareto Frontier Auto-Pruning",
+            "desc": "Weights energy minimization during transit, tracking precision during combat, and disturbance rejection during wind shear."
+        },
+        {
+            "num": "48",
+            "title": "Cyber-Attack Signature Synthesizer & Dynamic Rule Emitter",
+            "desc": "Converts detected intrusions into Snort rules and firewall filters on the fly, inoculating the remaining swarm agents."
+        },
+        {
+            "num": "49",
+            "title": "Dual-Rate Hybrid Sampling Synchronization Protocol",
+            "desc": "1 kHz inner loop for state feedback and barrier enforcement coupled with a 20 Hz outer loop for genetic evolution."
+        },
+        {
+            "num": "50",
+            "title": "Elastic Gain Envelope (EGE) with Saturation Clamping",
+            "desc": "Dynamically expands or contracts controller gain boundaries based on motor temperature, voltage sag, and structural strain."
+        },
+        {
+            "num": "51",
+            "title": "Adaptive Dead-Band Neural Feedforward Injection",
+            "desc": "Suppresses neural hunting oscillations near steady-state by adapting a dead-band threshold to sensor quantization noise."
+        },
+        {
+            "num": "52",
+            "title": "Distributed Hash-Chain Actuator Instruction Verification",
+            "desc": "Each control packet embeds the cryptographic hash of the preceding command, preventing injected out-of-sequence packets."
+        },
+        {
+            "num": "53",
+            "title": "Dynamic Graph Edge Pruning based on Signal-to-Noise Ratio",
+            "desc": "Disconnects inter-agent communication links when packet loss exceeds 12%, preventing corrupted consensus updates."
+        },
+        {
+            "num": "54",
+            "title": "Autonomous Controller Rollback & Safe-State Fallback",
+            "desc": "Instantly reverts to a provably stable classical PID fallback if an evolved controller violates barrier limits."
+        },
+        {
+            "num": "55",
+            "title": "Non-Stationary Stochastic Kalman Innovation Filter",
+            "desc": "Tracks non-stationary measurement covariance changes dynamically during rain, fog, and sensor lens obstruction."
+        },
+        {
+            "num": "56",
+            "title": "Multi-Agent Flocking with Reynolds Boid Guidance",
+            "desc": "Blends cohesion, separation, and alignment velocity fields with control barrier collision avoidance spheres."
+        },
+        {
+            "num": "57",
+            "title": "Zero-Bias Active Disturbance Rejection Control (ADRC)",
+            "desc": "Estimates both external aerodynamic buffeting and internal parameter mismatch as a unified generalized disturbance."
+        },
+        {
+            "num": "58",
+            "title": "Recursive Least Squares with Directional Forgetting",
+            "desc": "Selectively updates parameter estimates along informative excitation directions while preserving unexcited gains."
+        },
+        {
+            "num": "59",
+            "title": "High-Frequency Sensor Replay Attack Neutralizer",
+            "desc": "Computes differential entropy across consecutive telemetry frames to detect stale replayed sensor packets."
+        },
+        {
+            "num": "60",
+            "title": "Decentralized Federated Model Mirror Synchronization",
+            "desc": "Synchronizes local observer matrices across distributed edge drones without exchanging raw sensor time series."
+        }
     ],
-    mechanisms: [
-      { num: "31", title: "Dual-Rate Hybrid Sampling Protocol", desc: "1 kHz inner loop for state feedback and barrier enforcement coupled with a 20 Hz outer loop for genetic evolution and neural updates." },
-      { num: "32", title: "Elastic Gain Envelope (EGE) with Saturation Clamping", desc: "Dynamically expands or contracts controller gain boundaries based on motor temperature, voltage sag, and structural strain." },
-      { num: "33", title: "Multi-Agent Leaderless Virtual Beacon Mechanism", desc: "A virtual geometric centroid computed by local consensus acting as a guide point, eliminating single-leader failure vulnerability." },
-      { num: "34", title: "Real-Time Eigenvalue Migration Velocity Tracker", desc: "Monitors the velocity of closed-loop poles across the complex plane, predicting instability before crossing the imaginary axis." },
-      { num: "35", title: "Adaptive Dead-Band Neural Feedforward Injection", desc: "Suppresses neural hunting oscillations near steady-state by adapting a dead-band threshold to sensor quantization noise." },
-      { num: "36", title: "Distributed Hash-Chain Actuator Instruction Verification", desc: "Each control packet embeds the cryptographic hash of the preceding command, preventing injected out-of-sequence packets." },
-      { num: "37", title: "Dynamic Graph Edge Pruning based on SNR", desc: "Disconnects inter-agent communication links when packet loss exceeds 12%, preventing corrupted consensus updates." },
-      { num: "38", title: "Autonomous Controller Rollback & Safe-State Fallback", desc: "Instantly reverts to a provably stable classical PID fallback if an evolved controller violates barrier limits in its first 100 ms." },
-      { num: "39", title: "Multi-Objective Pareto Frontier Auto-Pruning", desc: "Weights energy minimization during transit, tracking precision during combat, and disturbance rejection during wind shear." },
-      { num: "40", title: "Cyber-Attack Signature Synthesizer & Dynamic Rule Emitter", desc: "Converts detected intrusions into Snort rules and firewall filters on the fly, inoculating the remaining swarm agents." }
+    "mechanisms": [
+        {
+            "num": "61",
+            "title": "4-Tier Guarded Evolution Gate (CBF + Lyapunov + Limits + DT)",
+            "desc": "Hierarchical gating pipeline filtering all candidate controllers through barrier margins, contraction decay, limits, and DT rollouts."
+        },
+        {
+            "num": "62",
+            "title": "Bumpless Actuator Transfer Filter (\u03c4 = 0.05s)",
+            "desc": "First-order low-pass actuator interpolation preventing step discontinuities when switching controllers."
+        },
+        {
+            "num": "63",
+            "title": "Dwell-Time Hysteresis Governor (T_min = 0.5s)",
+            "desc": "Enforces minimum dwell time between controller reconfigurations to guarantee switched-system stability."
+        },
+        {
+            "num": "64",
+            "title": "Adaptive Barrier Margin Multiplier",
+            "desc": "Scales safety barrier constraint conservatism dynamically with measured sensor variance and wind velocity."
+        },
+        {
+            "num": "65",
+            "title": "Predict-and-Correct Digital Twin State Observer",
+            "desc": "Computes 1-step ahead state projections and injects Kalman innovation correction factors L*r(t) at 60 Hz."
+        },
+        {
+            "num": "66",
+            "title": "Continuous-Discrete Nucleotide Crossover Operator",
+            "desc": "Exchanges discrete architectural genes (lead/lag/PID) and continuous matrix genes (LQR/MPC) simultaneously."
+        },
+        {
+            "num": "67",
+            "title": "CUSUM Statistical Cumulative Sum Anomaly Trigger",
+            "desc": "Accumulates small persistent sensor biases to trigger fault diagnosis long before hard thresholds are breached."
+        },
+        {
+            "num": "68",
+            "title": "Anti-Windup Integrator Clamping & Back-Calculation",
+            "desc": "Freezes the PID integral state during actuator torque saturation to prevent overshoot-induced hunting cycles."
+        },
+        {
+            "num": "69",
+            "title": "Graph Attention Weight Decay Regularizer",
+            "desc": "Penalizes communication attention weights directed towards swarm agents with high packet retransmission counts."
+        },
+        {
+            "num": "70",
+            "title": "Multi-Agent Collision Avoidance Barrier Invariance",
+            "desc": "Constructs pairwise quadratic barrier functions between all swarm drones to guarantee minimum safe separation."
+        },
+        {
+            "num": "71",
+            "title": "Thermal Derating Controller Gain Scaler",
+            "desc": "Monitors electronic speed controller (ESC) MOSFET temperature and derates high-gain control effort."
+        },
+        {
+            "num": "72",
+            "title": "Extended State Observer High-Gain Peaking Suppressor",
+            "desc": "Saturates ESO observer state estimates during initial power-on transients to prevent actuator saturation peaking."
+        },
+        {
+            "num": "73",
+            "title": "Singularity-Robust Inverse Kinematics Damping",
+            "desc": "Adds Levenberg-Marquardt damping to robotic Jacobian inversions near kinematic singular boundaries."
+        },
+        {
+            "num": "74",
+            "title": "Dynamic Watermarking Cryptographic Session Rotator",
+            "desc": "Rotates pseudo-random watermarking seeds every 5 seconds using synchronized cryptographic time-based keys."
+        },
+        {
+            "num": "75",
+            "title": "Multi-Horizon Prediction Residual Trend Estimator",
+            "desc": "Fits polynomial trends to prediction residuals over 10-step, 50-step, and 200-step lookaheads to identify slow drift."
+        },
+        {
+            "num": "76",
+            "title": "Safe-State Autonomous Return-to-Home Trim Controller",
+            "desc": "Trims all control channels to aerodynamic equilibrium glide slope if primary control communication drops."
+        },
+        {
+            "num": "77",
+            "title": "Model-Reference Adaptive Error Augmentation Law",
+            "desc": "Augments tracking error with filtered control signal differences to stabilize plants with non-strictly positive real dynamics."
+        },
+        {
+            "num": "78",
+            "title": "Sliding Mode Boundary Layer Boundary Thickness Modulator",
+            "desc": "Expands boundary layer during turbulence to protect physical servos, narrowing to zero near setpoint."
+        },
+        {
+            "num": "79",
+            "title": "State-Space Controllability Gramian Energy Monitor",
+            "desc": "Continuously integrates the controllability Gramian matrix to detect loss of actuator control authority."
+        },
+        {
+            "num": "80",
+            "title": "Zero-Lag Phase-Lead Cascaded Compensation Network",
+            "desc": "Cascades multiple first-order lead stages to recover up to 75 degrees of phase margin around crossover frequency."
+        }
     ],
-    features: [
-      { num: "41", title: "Live Interactive Web Dashboard & WebGL Swarm Visualizer", desc: "A full mission control dashboard with real-time state plotting, 3D drone flocking, and live telemetry feeds." },
-      { num: "42", title: "Hardware-in-the-Loop (HIL) Emulation Playground", desc: "Interactive sliders for inertia, motor burnout, noise, and wind gusts with instant live closed-loop adaptation." },
-      { num: "43", title: "One-Click Automated Controller Code Generation", desc: "Compiles evolved hybrid controllers into MISRA-C compliant C code, MATLAB .m scripts, and Python/ROS2 nodes." },
-      { num: "44", title: "Interactive Explainable AI Reasoning Terminal", desc: "Natural-language streaming console explaining why controllers switch and displaying mathematical Lyapunov certificates." },
-      { num: "45", title: "Real-Time Fault Injection Simulator", desc: "Interactive triggers for sensor bias, 40% actuator loss, and communication drops with real-time recovery verification." },
-      { num: "46", title: "Cyber-Attack War Room", desc: "Simulates False Data Injection (FDI), Replay Attacks, and DoS latency with live mitigation curves." },
-      { num: "47", title: "Swarm Formation Morphing Suite", desc: "Reconfigures between V-Formation, Circular Perimeter, Hexagonal Shield, and Dispersed Mesh with collision avoidance." },
-      { num: "48", title: "Digital Twin Divergence Gauge & Residual Inspector", desc: "Measures Euclidean distance between physical plant and digital twin state, alerting if divergence exceeds 3-sigma." },
-      { num: "49", title: "Genetic Evolution Race Visualizer", desc: "Visualizes chromosome fitness across generations, displaying Pareto front trade-offs and gene mutation trees." },
-      { num: "50", title: "Mission Scenario Presets Library", desc: "Pre-configured benchmarks: Quadrotor Wind Shear, LEO Satellite Collision Avoidance, and Exothermic Chemical Reactor." }
+    "features": [
+        {
+            "num": "81",
+            "title": "Universal Plant Substrate (12 Real-World Dynamics + Custom)",
+            "desc": "Supports UAVs, Inverted Pendulums, DC Servos, Robot Arms, Wind Turbines, Maglev, CSTRs, Satellites, and Custom G(s)."
+        },
+        {
+            "num": "82",
+            "title": "Real-Time Remote Sensing Telemetry Ingestion",
+            "desc": "Ingests live streaming sensor data with variable measurement noise, calibration bias, and drift without fixed values."
+        },
+        {
+            "num": "83",
+            "title": "Continuous 70% Train / 10% Validate / 20% Test Pipeline",
+            "desc": "Partitions online sensor trajectories into Train/Val/Test buffers with live loss convergence monitoring."
+        },
+        {
+            "num": "84",
+            "title": "Visual Digital Twin Multi-Controller Comparison",
+            "desc": "Visualizes and benchmarks PID, Lead-Lag, LQR, MPC, SMC, ADRC, FO-PID, and Hybrid side-by-side on Digital Twin."
+        },
+        {
+            "num": "85",
+            "title": "Dynamic Controller-Based Ambient Background Themes",
+            "desc": "The entire UI ambient lighting and background color shifts dynamically to match the active controller paradigm."
+        },
+        {
+            "num": "86",
+            "title": "Self-Contained Client-Side Execution (Zero Backend Required)",
+            "desc": "Runs 100% client-side in any browser or mobile device, enabling standalone offline operation."
+        },
+        {
+            "num": "87",
+            "title": "Progressive Web App (PWA) Standalone Mobile Installation",
+            "desc": "Installable as a standalone app on iPhone, iPad, Android, and PC via Service Worker and Web App Manifest."
+        },
+        {
+            "num": "88",
+            "title": "Real-Time 60 FPS Oscilloscope Telemetry Canvas",
+            "desc": "High-performance canvas rendering Target Setpoint, Sensed Plant, Digital Twin, and Control Effort."
+        },
+        {
+            "num": "89",
+            "title": "Interactive 3D Flocking Swarm & GAT Attention Visualizer",
+            "desc": "Real-time multi-drone swarm simulation showing GAT attention links, jammed node indicators, and self-healing."
+        },
+        {
+            "num": "90",
+            "title": "Cyber & FDI Threat Injection War Room",
+            "desc": "Interactive triggers for False Data Injection, Sensor Replay, Actuator Loss, and DoS latency with live mitigation."
+        },
+        {
+            "num": "91",
+            "title": "550+ Searchable MATLAB Modules Explorer",
+            "desc": "Searchable code browser with syntax highlighting, copy-to-clipboard, and one-click .m file download."
+        },
+        {
+            "num": "92",
+            "title": "Live Recursive Least Squares (RLS) Parameter Tracker",
+            "desc": "Identifies plant gain b0 and damping pole a1 in real time with updating numeric telemetry."
+        },
+        {
+            "num": "93",
+            "title": "Real-Time Analytical Lyapunov Stability Certification",
+            "desc": "Calculates closed-loop eigenvalues and solves Lyapunov equations V_dot < -alpha*V on the fly."
+        },
+        {
+            "num": "94",
+            "title": "Interactive Physics & Disturbance Sliders",
+            "desc": "Real-time sliders for Wind Gusts, 40% Actuator Loss, Sensor Bias, Noise, and Neural Adaptation."
+        },
+        {
+            "num": "95",
+            "title": "Explainable AI Autonomous Reasoning Narrative Stream",
+            "desc": "Live natural-language terminal streaming timestamped causal diagnoses, safety barrier audits, and actions."
+        },
+        {
+            "num": "96",
+            "title": "Custom Polynomial Transfer Function Analyzer",
+            "desc": "Enter arbitrary Numerator and Denominator polynomials to compute poles, zeros, damping, and controllers."
+        },
+        {
+            "num": "97",
+            "title": "Genetic Chromosome Fitness Race Visualizer",
+            "desc": "Visualizes Pareto-optimal evolution curves across generations with top evolving chromosome genome tables."
+        },
+        {
+            "num": "98",
+            "title": "10-Domain Multi-Dataset Corpus Selector",
+            "desc": "Switch training corpus across Wind Shear, Actuator Wear, CSTR, Satellite Jitter, Hypersonic, AUV, and Tokamak."
+        },
+        {
+            "num": "99",
+            "title": "Cross-Platform Responsive Mobile & Tablet Layout",
+            "desc": "Custom touch-optimized CSS layouts designed for iPhone, iPad, Android tablets, and multi-monitor setups."
+        },
+        {
+            "num": "100",
+            "title": "Deterministic Experiment Configuration & Seed Manager",
+            "desc": "Fixed random seeds and repeatable simulation profiles ensuring zero nondeterministic discrepancy."
+        }
     ]
-  }
+}
 };
-
-
-
-
