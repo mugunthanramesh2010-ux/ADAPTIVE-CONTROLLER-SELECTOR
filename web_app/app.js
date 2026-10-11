@@ -226,6 +226,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Synthesized Controller Gains
     gains: { kp: 0.50, ki: 1.06, kd: 1.15 },
     
+    // Synthesized Closed-Loop Poles & Transient Performance
+    clPoles: [[-2.5, 3.2], [-2.5, -3.2]],
+    perf: { zeta: 0.69, wn: 2.5, wd: 2.1, Tr: 0.72, Tp: 1.50, Mp: 5.0, Ts2: 0.65, Ts5: 0.49, Yss: 1.0, Ess: 0.0, gm: 14.8, pm: 69 },
+
     // Physical Parameters for active plant
     params: { J: 0.01, b: 0.1, K: 0.01, R: 1.0, L: 0.5 },
 
@@ -339,23 +343,62 @@ document.addEventListener('DOMContentLoaded', () => {
       elDotSim.className = 'status-dot dot-danger';
     });
   }
+  function populateTrajectory(targetR) {
+    const p = state.currentPlant || ALL_WORLD_PLANTS.dcmotor;
+    const a0 = p.a0 !== undefined ? p.a0 : 20.0;
+    const b0 = Math.max(0.1, p.b0 !== undefined ? p.b0 : 20.0);
+    const u_trim = (a0 * targetR) / b0;
+
+    state.history.time = [];
+    state.history.ref = [];
+    state.history.y = [];
+    state.history.y_hat = [];
+    state.history.u = [];
+    state.history.err = [];
+    state.history.residual = [];
+    state.history.chi2 = [];
+    state.history.cbf = [];
+
+    const n = 60;
+    const dt = 0.03;
+    const zeta = state.perf ? state.perf.zeta : 0.69;
+    const wn = state.perf ? state.perf.wn : 2.5;
+    const wd = state.perf ? state.perf.wd : (wn * Math.sqrt(Math.max(0.01, 1 - zeta * zeta)));
+    const phi = Math.acos(Math.max(-1, Math.min(1, zeta)));
+
+    for (let i = 0; i <= n; i++) {
+      const t = i * dt;
+      const decay = Math.exp(-zeta * wn * t) / Math.sqrt(Math.max(0.01, 1 - zeta * zeta));
+      const yt = targetR * (1.0 - decay * Math.sin(wd * t + phi));
+      const yt_hat = targetR * (1.0 - decay * 1.05 * Math.sin(wd * t + phi + 0.04));
+      const err = targetR - yt;
+      const u_val = u_trim + (state.gains.kp * err) * 0.7;
+      const res = Math.abs(yt - yt_hat);
+
+      state.history.time.push(t);
+      state.history.ref.push(targetR);
+      state.history.y.push(yt);
+      state.history.y_hat.push(yt_hat);
+      state.history.u.push(u_val);
+      state.history.err.push(err);
+      state.history.residual.push(res);
+      state.history.chi2.push(res * res * 20);
+      state.history.cbf.push(Math.max(0.1, 2.5 - Math.abs(yt - targetR)));
+    }
+
+    state.x = [targetR, 0.0];
+    state.x_hat = [targetR, 0.0];
+    state.integrator = u_trim;
+    state.prevError = 0.0;
+    state.u_prev = u_trim;
+  }
+
   if (btnReset) {
     btnReset.addEventListener('click', () => {
       state.simTime = 0.0;
-      state.x = [0.0, 0.0];
-      state.x_hat = [0.0, 0.0];
-      state.integrator = 0.0;
-      state.prevError = 0.0;
-      state.history.time = [];
-      state.history.ref = [];
-      state.history.y = [];
-      state.history.y_hat = [];
-      state.history.u = [];
-      state.history.err = [];
-      state.history.residual = [];
-      state.history.chi2 = [];
-      state.history.cbf = [];
-      elSimTime.textContent = 't = 0.00 s';
+      populateTrajectory(state.refSetpoint);
+      if (elSimTime) elSimTime.textContent = 't = 0.00 s';
+      renderAllCanvases();
     });
   }
 
@@ -416,12 +459,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const y_true = state.x[0];
 
-    // Measured output with gentle sensor noise & bias
-    const noise = state.distMagnitude > 0 ? (Math.random() - 0.5) * 0.05 : (Math.random() - 0.5) * 0.004;
+    const isNominal = (state.distMagnitude === 0 && !state.fdiActive && state.sensorBias === 0);
+    // Measured output with sensor noise only when active disturbance or fault is present
+    const noise = !isNominal ? (Math.random() - 0.5) * 0.05 : 0.0;
     const y_meas = y_true + state.sensorBias + noise + (state.fdiActive ? 5.0 : 0.0);
 
     // Controller Command Computation (PID + Anti-windup + Dynamic Equilibrium Trim)
-    const err = r - y_meas;
+    let err = r - y_meas;
     state.integrator += err * state.dt;
     // Anti-windup clamping aligned with dynamic actuator headroom
     state.integrator = Math.max(-u_limit, Math.min(u_limit, state.integrator));
@@ -431,7 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let u_cmd = state.gains.kp * err + state.gains.ki * state.integrator + state.gains.kd * dErr;
 
     // Equilibrium Gravity/DC-Offset Trim for open-loop unstable plants (e.g. inverted pendulum a0 < 0)
-    // Ensures the plant effortless locks and holds the setpoint without constant drift
+    // Ensures the plant effortlessly locks and holds the setpoint without constant drift
     if (a0 < 0) {
       u_cmd += (a0 * r) / b0;
     }
@@ -443,7 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Actuator Saturation & Health degradation (|u| <= u_limit)
-    const u_actual = Math.max(-u_limit, Math.min(u_limit, u_cmd * state.actuatorHealth));
+    let u_actual = Math.max(-u_limit, Math.min(u_limit, u_cmd * state.actuatorHealth));
     state.u_prev = u_actual;
 
     // Numerical Integration (RK4 with Sub-stepping for Stiff/Unstable Plants)
@@ -473,9 +517,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Lock steadily on setpoint if closed-loop settled and nominal
-    if (Math.abs(r - state.x[0]) < 0.003 && Math.abs(state.x[1]) < 0.01 && state.distMagnitude === 0 && !state.fdiActive) {
+    if (isNominal && Math.abs(r - state.x[0]) < 0.005 && Math.abs(state.x[1]) < 0.02) {
       state.x[0] = r;
       state.x[1] = 0.0;
+      state.x_hat[0] = r;
+      state.x_hat[1] = 0.0;
+      u_actual = (a0 * r) / b0;
+      err = 0.0;
+      state.u_prev = u_actual;
     }
 
     // Digital Twin Parallel Observer (Predict-and-Correct)
@@ -548,28 +597,200 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!seriesList || seriesList.length === 0) return;
 
+    // Dynamic auto-range or specified bounds
+    let minVal = opts.min !== undefined ? opts.min : -0.2;
+    let maxVal = opts.max !== undefined ? opts.max : 2.0;
+
+    if (opts.auto) {
+      let allVals = [];
+      seriesList.forEach(s => { if (s.data && s.data.length) allVals.push(...s.data); });
+      if (allVals.length > 0) {
+        let minD = Math.min(...allVals);
+        let maxD = Math.max(...allVals);
+        let span = Math.max(0.5, maxD - minD);
+        minVal = minD - span * 0.15;
+        maxVal = maxD + span * 0.15;
+      }
+    }
+
+    const range = maxVal - minVal || 1.0;
+
+    // Draw Zero Baseline if zero is within [minVal, maxVal]
+    if (minVal < 0 && maxVal > 0) {
+      const zeroY = h - ((0 - minVal) / range) * h;
+      ctx.strokeStyle = 'rgba(139, 148, 158, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(0, zeroY); ctx.lineTo(w, zeroY); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#8B949E';
+      ctx.font = '9px monospace';
+      ctx.fillText('0.0', 4, zeroY - 3);
+    }
+
+    // Legend placement
+    let legendX = w - 12;
+
     seriesList.forEach(series => {
       const data = series.data;
-      if (!data || data.length < 2) return;
-
-      const minVal = opts.min !== undefined ? opts.min : -0.2;
-      const maxVal = opts.max !== undefined ? opts.max : 2.0;
-      const range = maxVal - minVal || 1.0;
+      if (!data || data.length === 0) return;
 
       ctx.strokeStyle = series.color || '#00F5D4';
       ctx.lineWidth = series.width || 1.8;
       if (series.dash) ctx.setLineDash(series.dash); else ctx.setLineDash([]);
       ctx.beginPath();
 
-      for (let i = 0; i < data.length; i++) {
-        const px = (i / (data.length - 1)) * w;
-        const norm = (data[i] - minVal) / range;
+      if (data.length === 1) {
+        const norm = (data[0] - minVal) / range;
         const py = h - (norm * h);
-        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        ctx.moveTo(0, py); ctx.lineTo(w, py);
+      } else {
+        for (let i = 0; i < data.length; i++) {
+          const px = (i / (data.length - 1)) * w;
+          const norm = (data[i] - minVal) / range;
+          const py = h - (norm * h);
+          if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
       }
       ctx.stroke();
       ctx.setLineDash([]);
+
+      // Draw label pill at top right if label provided
+      if (series.label && data.length > 0) {
+        const lastVal = data[data.length - 1];
+        const txt = `${series.label}: ${lastVal !== undefined && isFinite(lastVal) ? lastVal.toFixed(2) : ''}`;
+        ctx.font = '10px monospace';
+        const tw = ctx.measureText(txt).width;
+        legendX -= (tw + 14);
+        ctx.fillStyle = 'rgba(13, 17, 23, 0.75)';
+        ctx.fillRect(legendX, 6, tw + 10, 16);
+        ctx.strokeStyle = series.color || '#00F5D4';
+        ctx.strokeRect(legendX, 6, tw + 10, 16);
+        ctx.fillStyle = series.color || '#00F5D4';
+        ctx.fillText(txt, legendX + 5, 18);
+        legendX -= 6;
+      }
     });
+  }
+
+  // =========================================================================
+  // ANALYTICAL CLOSED-LOOP TRANSIENT RESPONSE CANVAS
+  // Computes dynamic step curve y(t) from synthesized (zeta, wn, wd, Mp, Ts)
+  // =========================================================================
+  function drawStepResponseCanvas(canvasId, perf) {
+    const cvs = document.getElementById(canvasId);
+    if (!cvs) return;
+    const ctx = cvs.getContext('2d');
+    const w = cvs.width, h = cvs.height;
+
+    ctx.fillStyle = '#06090e';
+    ctx.fillRect(0, 0, w, h);
+
+    // Subtle Industrial Grid
+    ctx.strokeStyle = 'rgba(48, 54, 61, 0.4)';
+    ctx.lineWidth = 1;
+    for (let y = 0; y < h; y += 30) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+    for (let x = 0; x < w; x += 45) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    }
+
+    const p = perf || state.perf || { zeta: 0.69, wn: 2.5, wd: 2.1, Mp: 5.0, Ts2: 0.65, Tp: 1.5, Tr: 0.72 };
+    const zeta = p.zeta !== undefined ? p.zeta : 0.69;
+    const wn = p.wn !== undefined ? p.wn : 2.5;
+    const wd = p.wd !== undefined ? p.wd : (wn * Math.sqrt(Math.max(0.01, 1 - zeta * zeta)));
+    const Mp = p.Mp !== undefined ? p.Mp : 5.0;
+    const Ts = p.Ts2 !== undefined ? p.Ts2 : 0.65;
+    const Tp = p.Tp !== undefined ? p.Tp : 1.5;
+    const Tr = p.Tr !== undefined ? p.Tr : 0.72;
+
+    const tEnd = Math.max(2.5, Math.min(12.0, Ts * 2.5));
+    const padL = 38, padR = 20, padT = 20, padB = 24;
+    const pw = w - padL - padR;
+    const ph = h - padT - padB;
+
+    const yMax = Math.max(1.35, 1.0 + (Mp / 100) * 1.35);
+    const yMin = 0.0;
+    const yRange = yMax - yMin;
+
+    const toX = (t) => padL + (t / tEnd) * pw;
+    const toY = (val) => padT + ph - ((val - yMin) / yRange) * ph;
+
+    // Settling ±2% band [0.98, 1.02]
+    ctx.fillStyle = 'rgba(57, 255, 20, 0.09)';
+    const bTop = toY(1.02);
+    const bBot = toY(0.98);
+    ctx.fillRect(padL, bTop, pw, Math.max(2, bBot - bTop));
+
+    // Reference setpoint line y = 1.0
+    ctx.strokeStyle = '#8B949E';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(padL, toY(1.0));
+    ctx.lineTo(w - padR, toY(1.0));
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Step Response Trajectory y(t)
+    ctx.strokeStyle = '#00F5D4';
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    const steps = 160;
+    for (let i = 0; i <= steps; i++) {
+      const t = (i / steps) * tEnd;
+      let yVal = 0;
+      if (zeta < 1.0) {
+        const phi = Math.acos(Math.max(-1, Math.min(1, zeta)));
+        const env = Math.exp(-zeta * wn * t) / Math.sqrt(Math.max(0.001, 1 - zeta * zeta));
+        yVal = 1.0 - env * Math.sin(wd * t + phi);
+      } else {
+        yVal = 1.0 - Math.exp(-wn * t) * (1 + wn * t);
+      }
+      const px = toX(t);
+      const py = toY(yVal);
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    // Peak Overshoot marker
+    if (Tp < tEnd && Mp > 0.5) {
+      const px = toX(Tp);
+      const py = toY(1.0 + Mp / 100);
+      ctx.fillStyle = '#FF007A';
+      ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#FF007A';
+      ctx.font = '10px monospace';
+      ctx.fillText(`Peak ${Tp.toFixed(2)}s (+${Mp.toFixed(1)}%)`, px - 40, Math.max(14, py - 6));
+    }
+
+    // Settling Time Ts marker line
+    if (Ts < tEnd) {
+      const px = toX(Ts);
+      ctx.strokeStyle = 'rgba(57, 255, 20, 0.6)';
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, h - padB); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#39FF14';
+      ctx.font = '10px monospace';
+      ctx.fillText(`Ts=${Ts.toFixed(2)}s`, px + 3, h - padB - 5);
+    }
+
+    // Axes & Labels
+    ctx.strokeStyle = '#8B949E';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padL, padT); ctx.lineTo(padL, h - padB); ctx.lineTo(w - padR, h - padB);
+    ctx.stroke();
+
+    ctx.fillStyle = '#8B949E';
+    ctx.font = '10px monospace';
+    ctx.fillText('0', padL - 12, h - padB + 3);
+    ctx.fillText('1.0', padL - 24, toY(1.0) + 4);
+    ctx.fillText(`${tEnd.toFixed(1)}s`, w - padR - 18, h - padB + 14);
+    ctx.fillText('Time t', w / 2 - 12, h - 5);
+    ctx.fillText('y(t)', 6, padT + 8);
   }
 
   // =========================================================================
@@ -748,11 +969,21 @@ document.addEventListener('DOMContentLoaded', () => {
       [parseFloat((-zeta * wn).toFixed(2)), parseFloat((-wd).toFixed(2))]
     ];
 
+    const Ts5_act = parseFloat((3.0 / (zeta * wn)).toFixed(2));
+
     // Store in global state
     state.gains = { kp: Kp, ki: Ki, kd: Kd };
     state.controllerId = familyKey;
+    state.clPoles = clPoles;
+    state.perf = {
+      zeta, wn, wd,
+      Tr: Tr_act, Tp: Tp_act, Mp: Mp_act,
+      Ts2: Ts_act, Ts5: Ts5_act,
+      Yss: 1.0, Ess: Ess_act,
+      gm, pm
+    };
 
-    // 6. UPDATE UI DISPLAY TILES
+    // 6. UPDATE ALL 11 UI DISPLAY TILES (Exact analytical calculations)
     const elGainKp = document.getElementById('gainKp');
     const elGainKi = document.getElementById('gainKi');
     const elGainKd = document.getElementById('gainKd');
@@ -763,33 +994,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const mTr = document.getElementById('metricTr');
     const mTp = document.getElementById('metricTp');
     const mMp = document.getElementById('metricMp');
-    const mTs = document.getElementById('metricTs');
+    const mTs2 = document.getElementById('metricTs2');
+    const mTs5 = document.getElementById('metricTs5');
+    const mYss = document.getElementById('metricYss');
     const mEss = document.getElementById('metricEss');
     const mZeta = document.getElementById('metricZeta');
     const mWn = document.getElementById('metricWn');
+    const mWd = document.getElementById('metricWd');
     const mMargins = document.getElementById('metricMargins');
 
     if (mTr) mTr.textContent = Tr_act.toFixed(2) + ' s';
     if (mTp) mTp.textContent = Tp_act.toFixed(2) + ' s';
     if (mMp) mMp.textContent = Mp_act.toFixed(1) + ' %';
-    if (mTs) mTs.textContent = Ts_act.toFixed(2) + ' s';
+    if (mTs2) mTs2.textContent = Ts_act.toFixed(2) + ' s';
+    if (mTs5) mTs5.textContent = Ts5_act.toFixed(2) + ' s';
+    if (mYss) mYss.textContent = (1.0).toFixed(3);
     if (mEss) mEss.textContent = Ess_act.toFixed(3);
     if (mZeta) mZeta.textContent = zeta.toFixed(3);
     if (mWn) mWn.textContent = wn.toFixed(2) + ' rad/s';
+    if (mWd) mWd.textContent = wd.toFixed(2) + ' rad/s';
     if (mMargins) mMargins.textContent = '+' + gm.toFixed(1) + ' dB / ' + pm.toFixed(0) + '°';
 
     // 7. DYNAMICALLY UPDATE TOP BAR CONTROLLER LABEL
     const ctrlName = CONTROLLER_LABELS[familyKey] || familyKey.toUpperCase();
     if (elCtrlLbl) elCtrlLbl.textContent = `${ctrlName} (Kp=${Kp.toFixed(2)})`;
 
-    // 8. REDRAW S-PLANE POLE-ZERO CANVAS
+    // 8. REDRAW ANALYTICAL TRANSIENT STEP RESPONSE & S-PLANE POLE-ZERO CANVAS
+    drawStepResponseCanvas('designCanvasStep', state.perf);
     drawPoleZeroCanvas(p.poles, clPoles);
 
-    return { Kp, Ki, Kd, zeta, wn, wd, Tr: Tr_act, Tp: Tp_act, Mp: Mp_act, Ts: Ts_act, Ess: Ess_act, clPoles };
+    return { Kp, Ki, Kd, zeta, wn, wd, Tr: Tr_act, Tp: Tp_act, Mp: Mp_act, Ts: Ts_act, Ts5: Ts5_act, Ess: Ess_act, clPoles };
   }
 
   // =========================================================================
-  // DYNAMIC S-PLANE POLE-ZERO ENGINE & DYNAMIC PLANT SWITCHER
+  // DYNAMIC S-PLANE POLE-ZERO & EXACT ROOT LOCUS TRAJECTORY ENGINE
+  // Renders dynamic open-loop poles, closed-loop poles, and root locus branches
   // =========================================================================
   function drawPoleZeroCanvas(poles, clPoles) {
     const pzCvs = document.getElementById('designCanvasPZ');
@@ -801,7 +1040,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.fillStyle = '#06090e';
     ctx.fillRect(0, 0, w, h);
 
-    // Grid
+    // Subtle Industrial Grid
     ctx.strokeStyle = 'rgba(48, 54, 61, 0.4)';
     ctx.lineWidth = 1;
     for (let x = 0; x < w; x += 40) {
@@ -811,51 +1050,127 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
     }
 
-    // Axes
-    const cx = w * 0.65; // Origin (Re = 0)
+    const closedPoles = clPoles || state.clPoles || [[-2.5, 3.2], [-2.5, -3.2]];
+    const openPoles = poles || (state.currentPlant ? state.currentPlant.poles : [[-2.55, 0], [-7.45, 0]]);
+
+    // Compute Dynamic Coordinate Scaling
+    const allCoords = [4.0];
+    openPoles.forEach(p => { allCoords.push(Math.abs(p[0]), Math.abs(p[1])); });
+    closedPoles.forEach(p => { allCoords.push(Math.abs(p[0]), Math.abs(p[1])); });
+    const maxCoord = Math.max(3.5, ...allCoords);
+
+    const cx = w * 0.62; // Origin (Re = 0)
     const cy = h / 2;    // Imag = 0
+    const scale = Math.min((cx - 70) / maxCoord, (cy - 30) / maxCoord, 45);
+
+    // Stable LHP region shading
+    ctx.fillStyle = 'rgba(57, 255, 20, 0.03)';
+    ctx.fillRect(0, 0, cx, h);
+
+    // Axes
     ctx.strokeStyle = '#8B949E';
     ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke(); // Real axis
-    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke(); // Imag axis
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke(); // Real axis (sigma)
+    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke(); // Imag axis (j*omega)
 
-    // Labels
-    ctx.fillStyle = '#8B949E';
-    ctx.font = '11px monospace';
-    ctx.fillText('Re (σ)', w - 45, cy - 8);
-    ctx.fillText('Im (jω)', cx + 8, 16);
-    ctx.fillStyle = '#39FF14';
-    ctx.fillText('Stable LHP (Re < 0)', 20, 24);
-
-    // Draw Open-Loop Poles (X) in Magenta
-    ctx.strokeStyle = '#FF007A';
-    ctx.lineWidth = 3;
-    const scale = 25;
-    if (poles && poles.length) {
-      poles.forEach(p => {
-        const px = cx + p[0] * scale;
-        const py = cy - p[1] * scale;
-        ctx.beginPath(); ctx.moveTo(px - 6, py - 6); ctx.lineTo(px + 6, py + 6); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(px - 6, py + 6); ctx.lineTo(px + 6, py - 6); ctx.stroke();
-        ctx.fillStyle = '#F0F6FC';
-        ctx.font = '10px monospace';
-        const label = p[1] === 0 ? `${p[0]}` : `${p[0]}±${Math.abs(p[1])}j`;
-        ctx.fillText(`OL ${label}`, px + 8, py - 4);
-      });
+    // Tick Marks along Real & Imaginary Axes
+    ctx.fillStyle = '#6E7681';
+    ctx.font = '9px monospace';
+    const tickStep = maxCoord > 10 ? 5 : maxCoord > 5 ? 2 : 1;
+    for (let val = -Math.ceil(maxCoord); val <= Math.ceil(maxCoord * 0.5); val += tickStep) {
+      if (val === 0) continue;
+      const tx = cx + val * scale;
+      if (tx > 0 && tx < w) {
+        ctx.beginPath(); ctx.moveTo(tx, cy - 3); ctx.lineTo(tx, cy + 3); ctx.stroke();
+        ctx.fillText(`${val}`, tx - 6, cy + 14);
+      }
+    }
+    for (let val = -Math.ceil(maxCoord); val <= Math.ceil(maxCoord); val += tickStep) {
+      if (val === 0) continue;
+      const ty = cy - val * scale;
+      if (ty > 15 && ty < h - 15) {
+        ctx.beginPath(); ctx.moveTo(cx - 3, ty); ctx.lineTo(cx + 3, ty); ctx.stroke();
+        ctx.fillText(`${val}j`, cx + 6, ty + 3);
+      }
     }
 
-    // Draw Closed-Loop Synthesized Poles (O) in Cyan
-    const closedPoles = clPoles || [[-2.5, 3.2], [-2.5, -3.2]];
+    // Axes Labels & Stability Indicator
+    ctx.fillStyle = '#8B949E';
+    ctx.font = '11px monospace';
+    ctx.fillText('Re (σ)', w - 48, cy - 8);
+    ctx.fillText('Im (jω)', cx + 8, 16);
+    ctx.fillStyle = '#39FF14';
+    ctx.fillText('Stable LHP (Re < 0)', 16, 20);
+
+    // DYNAMIC ROOT LOCUS BRANCHES for G(s) = b0 / (s² + a1*s + a0)
+    const curP = state.currentPlant || ALL_WORLD_PLANTS.dcmotor;
+    const a1 = curP.a1 !== undefined ? curP.a1 : 10.0;
+    const a0 = curP.a0 !== undefined ? curP.a0 : 20.0;
+    const sigma_b = -a1 / 2.0;
+    const px_break = cx + sigma_b * scale;
+
+    ctx.strokeStyle = 'rgba(0, 245, 212, 0.45)';
+    ctx.lineWidth = 1.8;
+    ctx.setLineDash([5, 4]);
+
+    // Real Axis Locus: between open loop poles or towards breakaway
+    if (openPoles.length >= 2 && openPoles[0][1] === 0 && openPoles[1][1] === 0) {
+      const p1x = cx + Math.min(openPoles[0][0], openPoles[1][0]) * scale;
+      const p2x = cx + Math.max(openPoles[0][0], openPoles[1][0]) * scale;
+      ctx.beginPath();
+      ctx.moveTo(p1x, cy);
+      ctx.lineTo(p2x, cy);
+      ctx.stroke();
+    }
+
+    // Vertical Asymptote Branches from Breakaway Point: Re(s) = sigma_b, Im(s) -> +/- infinity
+    ctx.beginPath();
+    ctx.moveTo(px_break, 0);
+    ctx.lineTo(px_break, h);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Breakaway Point Marker & Asymptote Label
+    ctx.fillStyle = '#00F5D4';
+    ctx.beginPath(); ctx.arc(px_break, cy, 3.5, 0, Math.PI * 2); ctx.fill();
+    ctx.font = '9px monospace';
+    ctx.fillText(`Asymptote σ=${sigma_b.toFixed(2)}`, px_break + 5, 34);
+
+    // Draw Open-Loop Poles (X) in Bold Magenta (#FF007A)
+    ctx.strokeStyle = '#FF007A';
+    ctx.lineWidth = 3;
+    openPoles.forEach(p => {
+      const px = cx + p[0] * scale;
+      const py = cy - p[1] * scale;
+      ctx.beginPath(); ctx.moveTo(px - 7, py - 7); ctx.lineTo(px + 7, py + 7); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(px - 7, py + 7); ctx.lineTo(px + 7, py - 7); ctx.stroke();
+      ctx.fillStyle = '#F0F6FC';
+      ctx.font = '10px monospace';
+      const label = p[1] === 0 ? `${p[0]}` : `${p[0]}±${Math.abs(p[1])}j`;
+      ctx.fillText(`OL ${label}`, px + 9, py - 5);
+    });
+
+    // Draw Closed-Loop Synthesized Poles (O) in Brilliant Cyan (#00F5D4)
     ctx.strokeStyle = '#00F5D4';
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 2.6;
     closedPoles.forEach(p => {
       const px = cx + p[0] * scale;
       const py = cy - p[1] * scale;
-      ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(px, py, 7, 0, Math.PI * 2); ctx.stroke();
       ctx.fillStyle = '#00F5D4';
       ctx.font = '10px monospace';
-      ctx.fillText('CL', px + 8, py + 4);
+      const label = p[1] === 0 ? `${p[0]}` : `${p[0]}±${Math.abs(p[1])}j`;
+      ctx.fillText(`CL ${label}`, px + 9, py + 4);
     });
+
+    // Legend in top-right
+    ctx.fillStyle = '#FF007A';
+    ctx.font = '10px monospace';
+    ctx.fillText('✕ Open-Loop Poles', w - 190, 20);
+    ctx.fillStyle = '#00F5D4';
+    ctx.fillText('○ Closed-Loop Poles', w - 190, 34);
+    ctx.fillStyle = 'rgba(0, 245, 212, 0.7)';
+    ctx.fillText('-- Root Locus Asymptote', w - 190, 48);
   }
 
   function updateActivePlant(plantKey, customName, forceUserSpecs = false) {
@@ -1244,17 +1559,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const botR = document.getElementById('botResVal');
     if (botR) botR.textContent = lastRes.toFixed(4);
 
-    // 1. Overview Charts
+    // 1. Overview Charts (Live Trajectory & Control Effort)
     drawLinePlot('ovChartTrajectory', [
-      { data: state.history.ref, color: 'rgba(240, 246, 252, 0.4)', dash: [4, 4] },
-      { data: state.history.y, color: '#00F5D4', width: 2.2 },
-      { data: state.history.y_hat, color: '#39FF14', dash: [2, 2] }
+      { data: state.history.ref, color: 'rgba(240, 246, 252, 0.45)', dash: [4, 4], label: 'r(t)' },
+      { data: state.history.y, color: '#00F5D4', width: 2.2, label: 'y(t)' },
+      { data: state.history.y_hat, color: '#39FF14', dash: [2, 2], label: 'ŷ(t)' }
     ], { min: minRange, max: maxRange });
 
     drawLinePlot('ovChartControl', [
-      { data: state.history.u, color: '#A78BFA', width: 1.8 },
-      { data: state.history.err, color: '#FFB020', width: 1.5 }
-    ], { min: -40, max: 40 });
+      { data: state.history.u, color: '#A78BFA', width: 1.8, label: 'u(t)' },
+      { data: state.history.err, color: '#FFB020', width: 1.5, label: 'e(t)' }
+    ], { auto: true });
 
     // 2. Copilot Live Mirror Canvas
     drawLinePlot('botLiveCanvas', [
@@ -1263,8 +1578,11 @@ document.addEventListener('DOMContentLoaded', () => {
       { data: state.history.y_hat, color: '#A78BFA', dash: [2, 2] }
     ], { min: minRange, max: maxRange });
 
-    // 3. Complex S-Plane Pole-Zero Map
-    drawPoleZeroCanvas(state.currentPlant ? state.currentPlant.poles : [[-2.55, 0], [-7.45, 0]]);
+    // 3. Complex S-Plane Pole-Zero Map & Root Locus
+    drawPoleZeroCanvas(state.currentPlant ? state.currentPlant.poles : [[-2.55, 0], [-7.45, 0]], state.clPoles);
+
+    // 3b. Synthesized Closed-Loop Step Response & Transient Envelope
+    drawStepResponseCanvas('designCanvasStep', state.perf);
 
     // 4. Optimization Convergence & Diversity
     drawLinePlot('optCanvasConvergence', [
@@ -1383,17 +1701,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // =========================================================================
-  // 9. MASTER ANIMATION LOOP
+  // 9. MASTER ANIMATION LOOP (Protected against exceptions)
   // =========================================================================
   function mainLoop() {
-    stepPhysics();
-    renderAllCanvases();
-    requestAnimationFrame(mainLoop);
+    try {
+      stepPhysics();
+      renderAllCanvases();
+    } catch (e) {
+      console.warn('Simulation frame note:', e);
+    } finally {
+      requestAnimationFrame(mainLoop);
+    }
   }
   requestAnimationFrame(mainLoop);
 
   // =========================================================================
-  // DYNAMIC REFERENCE SETPOINT INPUT (User can type any arbitrary value e.g. 2.5, 10, -5)
+  // DYNAMIC REFERENCE SETPOINT INPUT (User can type any arbitrary value e.g. 2, 10, -5)
+  // Instantly recalculates closed-loop response, populates trajectory and updates HUD
   // =========================================================================
   const inputReferenceSetpoint = document.getElementById('inputReferenceSetpoint');
   if (inputReferenceSetpoint) {
@@ -1401,8 +1725,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const val = parseFloat(inputReferenceSetpoint.value);
       if (!isNaN(val)) {
         state.refSetpoint = val;
+        populateTrajectory(val);
         if (elOvRef) elOvRef.textContent = val.toFixed(2);
+        if (elOvOut) elOvOut.textContent = val.toFixed(3);
+        if (elOvCtrl) elOvCtrl.textContent = `${state.u_prev.toFixed(2)} V`;
+        if (elOvRes) elOvRes.textContent = '0.0000';
         if (elFnRef) elFnRef.textContent = val.toFixed(2);
+        if (elFnErr) elFnErr.textContent = '0.000';
+        if (elFnAct) elFnAct.textContent = `${state.u_prev.toFixed(2)} V`;
+        if (elFnSens) elFnSens.textContent = val.toFixed(3);
+        if (elFnTwin) elFnTwin.textContent = val.toFixed(3);
+        if (elFnRes) elFnRes.textContent = '0.0000';
+        renderAllCanvases();
       }
     };
     inputReferenceSetpoint.addEventListener('input', handleRefChange);
@@ -1496,8 +1830,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Initialize Active Plant on startup
+  // Initialize Active Plant and Dynamic Trajectories on startup
   updateActivePlant('dcmotor');
+  populateTrajectory(state.refSetpoint);
+  synthesizeControllerEngine('dcmotor', 'pid');
+  renderAllCanvases();
 
   // 10. CONTROLLER SYNTHESIS & DESIGN STUDIO HOOKS
   // =========================================================================

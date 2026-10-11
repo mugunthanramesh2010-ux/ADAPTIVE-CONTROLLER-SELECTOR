@@ -260,6 +260,15 @@
               Plant Transfer Function G(s) = 20 / (s² + 10s + 20)
               Open-Loop Poles: λ = -2.55, -7.45 (Stable)
             </div>
+            <div style="margin-top: 12px; border: 1px solid rgba(0, 245, 212, 0.25); border-radius: 6px; padding: 10px; background: rgba(0, 245, 212, 0.02);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 12px; font-weight: 700; color: var(--accent-cyan);">📈 Synthesized Closed-Loop Transient Response [y(t) vs t]</span>
+                <span class="badge badge-cyan" id="badgeStepSettled">Analytical Step ODE</span>
+              </div>
+              <div class="canvas-wrapper" style="height: 180px;">
+                <canvas id="designCanvasStep" width="540" height="180"></canvas>
+              </div>
+            </div>
           </div>
 
           <div class="panel">
