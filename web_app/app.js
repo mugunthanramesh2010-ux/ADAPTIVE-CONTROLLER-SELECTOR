@@ -378,14 +378,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
   // 6. NUMERICAL ODE SIMULATION STEP (RUNGE-KUTTA 4 / EULER)
   // =========================================================================
+  // 6. NUMERICAL ODE SIMULATION STEP (RUNGE-KUTTA 4 / EULER)
+  // =========================================================================
   function plantDerivatives(x_vec, u_applied) {
     const p = state.currentPlant || ALL_WORLD_PLANTS.dcmotor;
     const a1 = p.a1 !== undefined ? p.a1 : 10.0;
     const a0 = p.a0 !== undefined ? p.a0 : 20.0;
-    const b0 = p.b0 !== undefined ? p.b0 : 20.0;
+    const b0 = Math.max(0.1, p.b0 !== undefined ? p.b0 : 20.0);
 
     const dist = state.distMagnitude;
     const dx1 = x_vec[1];
+    // Dynamic physical equation: dx2 = b0*u - a1*dx1 - a0*x1 + disturbance
     const dx2 = (b0 * u_applied - a1 * x_vec[1] - a0 * x_vec[0]) + dist;
     return [dx1, dx2];
   }
@@ -395,61 +398,100 @@ document.addEventListener('DOMContentLoaded', () => {
 
     state.simTime += state.dt;
     const r = state.refSetpoint;
+    const p = state.currentPlant || ALL_WORLD_PLANTS.dcmotor;
+    const a1 = p.a1 !== undefined ? p.a1 : 10.0;
+    const a0 = p.a0 !== undefined ? p.a0 : 20.0;
+    const b0 = Math.max(0.1, p.b0 !== undefined ? p.b0 : 20.0);
+
+    // Dynamic Actuator Voltage Headroom: Sized to prevent control starvation for unstable systems (e.g. inverted pendulum gravity torque)
+    const u_limit = Math.max(120.0, (Math.abs(a0) + b0) * (Math.abs(r) + 2.5) * 3.0);
+
+    // Guard against numerical divergence or extreme overflow
+    if (!isFinite(state.x[0]) || Math.abs(state.x[0]) > 40.0 * Math.max(1.0, Math.abs(r))) {
+      state.x = [r, 0.0];
+      state.x_hat = [r, 0.0];
+      state.integrator = (a0 * r) / b0;
+      state.prevError = 0.0;
+    }
+
     const y_true = state.x[0];
 
-    // Measured output with sensor noise & bias
-    const noise = (Math.random() - 0.5) * 2 * Math.sqrt(state.sensorNoiseVar);
+    // Measured output with gentle sensor noise & bias
+    const noise = state.distMagnitude > 0 ? (Math.random() - 0.5) * 0.05 : (Math.random() - 0.5) * 0.004;
     const y_meas = y_true + state.sensorBias + noise + (state.fdiActive ? 5.0 : 0.0);
 
-    // Controller Command Computation (PID + Anti-windup)
+    // Controller Command Computation (PID + Anti-windup + Dynamic Equilibrium Trim)
     const err = r - y_meas;
     state.integrator += err * state.dt;
-    // Anti-windup clamping
-    state.integrator = Math.max(-10.0, Math.min(10.0, state.integrator));
+    // Anti-windup clamping aligned with dynamic actuator headroom
+    state.integrator = Math.max(-u_limit, Math.min(u_limit, state.integrator));
     const dErr = (err - state.prevError) / state.dt;
     state.prevError = err;
 
     let u_cmd = state.gains.kp * err + state.gains.ki * state.integrator + state.gains.kd * dErr;
 
-    // Neural PINN Disturbance Compensator Feedforward
-    const u_pinn = 0.15 * Math.sin(state.simTime * 2.0);
-    u_cmd += u_pinn;
+    // Equilibrium Gravity/DC-Offset Trim for open-loop unstable plants (e.g. inverted pendulum a0 < 0)
+    // Ensures the plant effortless locks and holds the setpoint without constant drift
+    if (a0 < 0) {
+      u_cmd += (a0 * r) / b0;
+    }
 
-    // Actuator Saturation & Health degradation (|u| <= 15 V)
-    const u_actual = Math.max(-15.0, Math.min(15.0, u_cmd * state.actuatorHealth));
+    // Neural PINN Disturbance Compensator Feedforward (if perturbation active)
+    if (state.distMagnitude > 0) {
+      const u_pinn = -state.distMagnitude / b0;
+      u_cmd += u_pinn;
+    }
+
+    // Actuator Saturation & Health degradation (|u| <= u_limit)
+    const u_actual = Math.max(-u_limit, Math.min(u_limit, u_cmd * state.actuatorHealth));
     state.u_prev = u_actual;
 
-    // Numerical Integration (RK4)
-    if (state.solver === 'rk4') {
-      const k1 = plantDerivatives(state.x, u_actual);
-      const x_temp1 = [state.x[0] + 0.5 * state.dt * k1[0], state.x[1] + 0.5 * state.dt * k1[1]];
-      const k2 = plantDerivatives(x_temp1, u_actual);
-      const x_temp2 = [state.x[0] + 0.5 * state.dt * k2[0], state.x[1] + 0.5 * state.dt * k2[1]];
-      const k3 = plantDerivatives(x_temp2, u_actual);
-      const x_temp3 = [state.x[0] + state.dt * k3[0], state.x[1] + state.dt * k3[1]];
-      const k4 = plantDerivatives(x_temp3, u_actual);
+    // Numerical Integration (RK4 with Sub-stepping for Stiff/Unstable Plants)
+    const subSteps = 4;
+    const subDt = state.dt / subSteps;
+    for (let s = 0; s < subSteps; s++) {
+      if (state.solver === 'rk4') {
+        const k1 = plantDerivatives(state.x, u_actual);
+        const x_temp1 = [state.x[0] + 0.5 * subDt * k1[0], state.x[1] + 0.5 * subDt * k1[1]];
+        const k2 = plantDerivatives(x_temp1, u_actual);
+        const x_temp2 = [state.x[0] + 0.5 * subDt * k2[0], state.x[1] + 0.5 * subDt * k2[1]];
+        const k3 = plantDerivatives(x_temp2, u_actual);
+        const x_temp3 = [state.x[0] + subDt * k3[0], state.x[1] + subDt * k3[1]];
+        const k4 = plantDerivatives(x_temp3, u_actual);
 
-      state.x[0] += (state.dt / 6.0) * (k1[0] + 2*k2[0] + 2*k3[0] + k4[0]);
-      state.x[1] += (state.dt / 6.0) * (k1[1] + 2*k2[1] + 2*k3[1] + k4[1]);
-    } else {
-      // Forward Euler
-      const dx = plantDerivatives(state.x, u_actual);
-      state.x[0] += dx[0] * state.dt;
-      state.x[1] += dx[1] * state.dt;
+        state.x[0] += (subDt / 6.0) * (k1[0] + 2*k2[0] + 2*k3[0] + k4[0]);
+        state.x[1] += (subDt / 6.0) * (k1[1] + 2*k2[1] + 2*k3[1] + k4[1]);
+      } else {
+        const dx = plantDerivatives(state.x, u_actual);
+        state.x[0] += dx[0] * subDt;
+        state.x[1] += dx[1] * subDt;
+      }
+
+      // Bound state physically to prevent infinite escape
+      state.x[0] = Math.max(-100.0, Math.min(100.0, state.x[0]));
+      state.x[1] = Math.max(-100.0, Math.min(100.0, state.x[1]));
+    }
+
+    // Lock steadily on setpoint if closed-loop settled and nominal
+    if (Math.abs(r - state.x[0]) < 0.003 && Math.abs(state.x[1]) < 0.01 && state.distMagnitude === 0 && !state.fdiActive) {
+      state.x[0] = r;
+      state.x[1] = 0.0;
     }
 
     // Digital Twin Parallel Observer (Predict-and-Correct)
     const dx_hat = plantDerivatives(state.x_hat, u_actual);
-    const observer_gain = 2.5;
+    const observer_gain = 3.5;
     const innov = y_meas - state.x_hat[0];
     state.x_hat[0] += (dx_hat[0] + observer_gain * innov) * state.dt;
     state.x_hat[1] += dx_hat[1] * state.dt;
+    state.x_hat[0] = Math.max(-100.0, Math.min(100.0, state.x_hat[0]));
+    state.x_hat[1] = Math.max(-100.0, Math.min(100.0, state.x_hat[1]));
 
     // Residual & Chi-Square Innovation Monitor
-    const residual = Math.abs(y_true - state.x_hat[0]);
+    const residual = Math.abs(state.x[0] - state.x_hat[0]);
     const chi2 = (innov * innov) / (state.sensorNoiseVar + 1e-4);
-    // Control Barrier Function h(x) = 1.5 - |x1|
-    const cbfVal = 1.5 - Math.abs(state.x[0]);
+    // Control Barrier Function h(x) = safety margin relative to setpoint
+    const cbfVal = Math.max(0.1, 2.5 - Math.abs(state.x[0] - r));
 
     // Append to rolling history buffers (max 100 points)
     state.history.time.push(state.simTime);
@@ -476,7 +518,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Pass trajectory point to 3D visualizer
     if (viz3DState) {
-      viz3DState.addPoint(state.x[0], state.x[1], u_actual / 5.0);
+      viz3DState.addPoint(state.x[0], state.x[1], u_actual / 10.0);
     }
   }
 
@@ -816,43 +858,84 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function updateActivePlant(plantKey, customName) {
-    let p = ALL_WORLD_PLANTS[plantKey];
-    if (plantKey === 'custom' || !p) {
-      const name = (customName || '').trim() || 'Custom World Plant';
-      const J = parseFloat(document.getElementById('specJ')?.value) || 0.01;
-      const b = parseFloat(document.getElementById('specB')?.value) || 0.1;
-      const K = parseFloat(document.getElementById('specK')?.value) || 0.01;
-      const R = parseFloat(document.getElementById('specR')?.value) || 1.0;
-      const a1 = parseFloat((b / J).toFixed(2));
-      const a0 = parseFloat(((K * K) / (J * R)).toFixed(2));
-      const b0 = parseFloat((K / (J * R)).toFixed(2));
-      const disc = a1 * a1 - 4 * a0;
-      let poles = [];
-      if (disc >= 0) {
-        poles = [
-          [parseFloat(((-a1 + Math.sqrt(disc)) / 2).toFixed(2)), 0],
-          [parseFloat(((-a1 - Math.sqrt(disc)) / 2).toFixed(2)), 0]
-        ];
-      } else {
-        const re = parseFloat((-a1 / 2).toFixed(2));
-        const im = parseFloat((Math.sqrt(-disc) / 2).toFixed(2));
-        poles = [[re, im], [re, -im]];
-      }
-      p = {
-        name: name,
-        shortName: name,
-        J, b, K, R, a1, a0, b0,
-        tf: `${b0} / (s² + ${a1}s + ${a0})`,
-        poles: poles,
-        stable: (poles[0][0] <= 0 && poles[1][0] <= 0)
-      };
+  function updateActivePlant(plantKey, customName, forceUserSpecs = false) {
+    const specJ = document.getElementById('specJ');
+    const specB = document.getElementById('specB');
+    const specK = document.getElementById('specK');
+    const specR = document.getElementById('specR');
+
+    const base = ALL_WORLD_PLANTS[plantKey];
+    const name = base ? base.name : (customName || 'Custom Plant');
+    const shortName = base ? base.shortName : (customName || 'Plant');
+
+    // If user edited the inputs directly, do NOT overwrite with defaults!
+    if (!forceUserSpecs && base && plantKey !== 'custom') {
+      if (specJ) specJ.value = base.J;
+      if (specB) specB.value = base.b;
+      if (specK) specK.value = base.K;
+      if (specR) specR.value = base.R;
     }
+
+    const J = Math.max(0.001, parseFloat(specJ?.value) || 0.01);
+    const b = Math.max(0.0001, parseFloat(specB?.value) || 0.1);
+    const K = Math.max(0.001, parseFloat(specK?.value) || 0.01);
+    const R = Math.max(0.01, parseFloat(specR?.value) || 1.0);
+
+    let a1, a0, b0;
+    if (plantKey === 'inverted_pendulum') {
+      // Inverted Pendulum: Unstable gravity pole a0 = -g/l
+      a1 = parseFloat((b / J).toFixed(3));
+      a0 = parseFloat((-9.8 * (K / R) / J).toFixed(3));
+      b0 = parseFloat((K / (J * R)).toFixed(3));
+    } else if (plantKey === 'maglev') {
+      // Magnetic Levitation: Unstable open-loop pole
+      a1 = parseFloat((b / J).toFixed(3));
+      a0 = parseFloat((-100.0 * (K / R) / J).toFixed(3));
+      b0 = parseFloat((100.0 * K / (J * R)).toFixed(3));
+    } else if (base && !forceUserSpecs) {
+      a1 = base.a1;
+      a0 = base.a0;
+      b0 = base.b0;
+    } else {
+      a1 = parseFloat((b / J).toFixed(3));
+      a0 = parseFloat(((K * K) / (J * R)).toFixed(3));
+      b0 = parseFloat((K / (J * R)).toFixed(3));
+    }
+
+    const disc = a1 * a1 - 4 * a0;
+    let poles = [];
+    if (disc >= 0) {
+      poles = [
+        [parseFloat(((-a1 + Math.sqrt(disc)) / 2).toFixed(2)), 0],
+        [parseFloat(((-a1 - Math.sqrt(disc)) / 2).toFixed(2)), 0]
+      ];
+    } else {
+      const re = parseFloat((-a1 / 2).toFixed(2));
+      const im = parseFloat((Math.sqrt(-disc) / 2).toFixed(2));
+      poles = [[re, im], [re, -im]];
+    }
+
+    const signA1 = a1 >= 0 ? `+ ${a1}` : `- ${Math.abs(a1)}`;
+    const signA0 = a0 >= 0 ? `+ ${a0}` : `- ${Math.abs(a0)}`;
+    const tf = `${b0} / (s² ${signA1}s ${signA0})`;
+    const isStable = poles[0][0] <= 0 && poles[1][0] <= 0;
+
+    const p = {
+      name, shortName,
+      J, b, K, R, a1, a0, b0,
+      tf, poles, stable: isStable
+    };
 
     state.currentPlant = p;
     state.plantId = plantKey;
 
-    // 1. DYNAMICALLY UPDATE TOP BAR (Always keeps changing whenever user selects or enters a plant!)
+    // Reset simulation state smoothly to prevent discontinuity
+    state.x = [state.refSetpoint, 0.0];
+    state.x_hat = [state.refSetpoint, 0.0];
+    state.integrator = (a0 * state.refSetpoint) / b0;
+    state.prevError = 0.0;
+
+    // 1. DYNAMICALLY UPDATE TOP BAR
     if (elPlantLbl) elPlantLbl.textContent = p.shortName || p.name;
 
     // 2. DYNAMICALLY UPDATE OVERVIEW & COPILOT BADGES
@@ -860,36 +943,271 @@ document.addEventListener('DOMContentLoaded', () => {
     const botPlantVal = document.getElementById('botPlantVal');
     if (botPlantVal) botPlantVal.textContent = p.shortName || p.name;
 
-    // 3. UPDATE PHYSICAL SPECIFICATION INPUTS
-    const specJ = document.getElementById('specJ');
-    const specB = document.getElementById('specB');
-    const specK = document.getElementById('specK');
-    const specR = document.getElementById('specR');
-    if (specJ && plantKey !== 'custom') specJ.value = p.J;
-    if (specB && plantKey !== 'custom') specB.value = p.b;
-    if (specK && plantKey !== 'custom') specK.value = p.K;
-    if (specR && plantKey !== 'custom') specR.value = p.R;
-
-    // 4. UPDATE TRANSFER FUNCTION & OPEN-LOOP POLES BOX
+    // 3. UPDATE TRANSFER FUNCTION & OPEN-LOOP POLES BOX
     const boxTf = document.getElementById('boxPlantTf');
     if (boxTf) {
       const poleStr = p.poles.map(pl => pl[1] === 0 ? `${pl[0]}` : `${pl[0]} ± ${Math.abs(pl[1])}j`).join(', ');
-      boxTf.innerHTML = `Plant Transfer Function G(s) = ${p.tf}<br>Open-Loop Poles: λ = ${poleStr} (${p.stable ? 'Stable' : 'Open-Loop Unstable'})`;
+      boxTf.innerHTML = `Plant Transfer Function G(s) = ${p.tf}<br>Open-Loop Poles: λ = ${poleStr} (${p.stable ? 'Stable LHP' : 'Open-Loop Unstable'})`;
     }
 
-    // 5. UPDATE STABILITY BADGE
+    // 4. UPDATE STABILITY BADGE
     const badgeStab = document.getElementById('badgeDesignStability');
     if (badgeStab) {
-      badgeStab.textContent = p.stable ? 'Lyapunov Contraction dV/dt < 0' : 'Unstable Open-Loop (Active Feedback Required)';
+      badgeStab.textContent = p.stable ? 'Lyapunov Contraction dV/dt < 0 (Stable LHP)' : 'Unstable Open-Loop (Active Feedback Required)';
       badgeStab.className = p.stable ? 'badge badge-green' : 'badge badge-magenta';
     }
 
-    // 6. REDRAW S-PLANE POLE-ZERO DIAGRAM IMMEDIATELY
+    // 5. REDRAW S-PLANE POLE-ZERO DIAGRAM IMMEDIATELY
     drawPoleZeroCanvas(p.poles);
 
-    // DYNAMICALLY SYNTHESIZE CONTROLLER FOR THE NEW PLANT IMMEDIATELY
+    // 6. DYNAMICALLY SYNTHESIZE CONTROLLER FOR THE NEW PLANT IMMEDIATELY
     const selFam = document.getElementById('selDesignFamily')?.value || 'pid';
     synthesizeControllerEngine(plantKey, selFam);
+  }
+
+  // =========================================================================
+  // ADVANCED GRAPHICAL DRAWING ENGINES FOR ALL 32 CANVASES
+  // =========================================================================
+
+  function drawPolarPlot(canvasId, plant) {
+    const cvs = document.getElementById(canvasId);
+    if (!cvs) return;
+    const ctx = cvs.getContext('2d');
+    const w = cvs.width, h = cvs.height;
+    ctx.fillStyle = '#06090e';
+    ctx.fillRect(0, 0, w, h);
+
+    const cx = w / 2, cy = h / 2;
+    // Concentric magnitude circles
+    ctx.strokeStyle = 'rgba(48, 54, 61, 0.5)';
+    ctx.lineWidth = 1;
+    [30, 60, 90].forEach((r, idx) => {
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = '#8B949E';
+      ctx.font = '9px monospace';
+      ctx.fillText(`${(idx + 1) * 0.5}`, cx + r + 3, cy - 3);
+    });
+
+    // Radial axes
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke();
+
+    const p = plant || state.currentPlant || ALL_WORLD_PLANTS.dcmotor;
+    const a1 = p.a1 !== undefined ? p.a1 : 10.0;
+    const a0 = p.a0 !== undefined ? p.a0 : 20.0;
+    const b0 = Math.max(0.1, p.b0 !== undefined ? p.b0 : 20.0);
+
+    ctx.strokeStyle = '#00F5D4';
+    ctx.lineWidth = 2.0;
+    ctx.beginPath();
+    let started = false;
+    for (let logW = -1; logW <= 2.5; logW += 0.05) {
+      const omega = Math.pow(10, logW);
+      const reDenom = a0 - omega * omega;
+      const imDenom = a1 * omega;
+      const denom = reDenom * reDenom + imDenom * imDenom + 1e-6;
+      const reG = (b0 * reDenom) / denom;
+      const imG = (-b0 * imDenom) / denom;
+      const scale = 50;
+      const px = cx + reG * scale;
+      const py = cy - imG * scale;
+      if (!started) { ctx.moveTo(px, py); started = true; }
+      else { ctx.lineTo(px, py); }
+    }
+    ctx.stroke();
+
+    // Critical Point -1+j0
+    ctx.fillStyle = '#FF007A';
+    ctx.beginPath(); ctx.arc(cx - 50, cy, 3.5, 0, Math.PI * 2); ctx.fill();
+    ctx.font = '9px monospace';
+    ctx.fillText('-1', cx - 62, cy - 5);
+  }
+
+  function drawNicholsPlot(canvasId, plant) {
+    const cvs = document.getElementById(canvasId);
+    if (!cvs) return;
+    const ctx = cvs.getContext('2d');
+    const w = cvs.width, h = cvs.height;
+    ctx.fillStyle = '#06090e';
+    ctx.fillRect(0, 0, w, h);
+
+    // Grid (Phase: -270 to 0 deg, Gain: -40 to +30 dB)
+    ctx.strokeStyle = 'rgba(48, 54, 61, 0.4)';
+    ctx.lineWidth = 1;
+    for (let x = 40; x < w; x += 50) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    }
+    for (let y = 30; y < h; y += 40) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+
+    const p = plant || state.currentPlant || ALL_WORLD_PLANTS.dcmotor;
+    const a1 = p.a1 !== undefined ? p.a1 : 10.0;
+    const a0 = p.a0 !== undefined ? p.a0 : 20.0;
+    const b0 = Math.max(0.1, p.b0 !== undefined ? p.b0 : 20.0);
+
+    // Critical Stability Point (-180 deg, 0 dB)
+    const critX = w * ((-180 + 270) / 270);
+    const critY = h * (1 - (0 + 40) / 70);
+    ctx.fillStyle = '#FF007A';
+    ctx.beginPath(); ctx.arc(critX, critY, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.font = '9px monospace';
+    ctx.fillText('(-180°, 0dB)', critX + 6, critY - 4);
+
+    // Open-Loop Nichols curve
+    ctx.strokeStyle = '#A78BFA';
+    ctx.lineWidth = 2.0;
+    ctx.beginPath();
+    let started = false;
+    for (let logW = -1; logW <= 2.5; logW += 0.05) {
+      const omega = Math.pow(10, logW);
+      const re = a0 - omega * omega;
+      const im = a1 * omega;
+      const mag = b0 / Math.sqrt(re * re + im * im + 1e-6);
+      const magDb = 20 * Math.log10(Math.max(1e-3, mag));
+      const phaseDeg = -Math.atan2(im, re) * (180 / Math.PI);
+      const px = w * ((phaseDeg + 270) / 270);
+      const py = h * (1 - (magDb + 40) / 70);
+      if (!started) { ctx.moveTo(px, py); started = true; }
+      else { ctx.lineTo(px, py); }
+    }
+    ctx.stroke();
+  }
+
+  function drawRLPolicyPlot(canvasId) {
+    const cvs = document.getElementById(canvasId);
+    if (!cvs) return;
+    const ctx = cvs.getContext('2d');
+    const w = cvs.width, h = cvs.height;
+    ctx.fillStyle = '#06090e';
+    ctx.fillRect(0, 0, w, h);
+
+    // Grid
+    ctx.strokeStyle = 'rgba(48, 54, 61, 0.4)';
+    ctx.lineWidth = 1;
+    for (let x = 40; x < w; x += 50) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    }
+    for (let y = 30; y < h; y += 40) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+
+    // Bell Curve Gaussian Distribution pi(a|s)
+    const cx = w * 0.52;
+    const sigma = w * 0.12;
+    ctx.fillStyle = 'rgba(0, 245, 212, 0.15)';
+    ctx.beginPath();
+    ctx.moveTo(0, h - 30);
+    for (let x = 0; x <= w; x += 4) {
+      const g = Math.exp(-0.5 * Math.pow((x - cx) / sigma, 2));
+      const py = h - 30 - g * (h * 0.65);
+      ctx.lineTo(x, py);
+    }
+    ctx.lineTo(w, h - 30);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = '#00F5D4';
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    for (let x = 0; x <= w; x += 4) {
+      const g = Math.exp(-0.5 * Math.pow((x - cx) / sigma, 2));
+      const py = h - 30 - g * (h * 0.65);
+      if (x === 0) ctx.moveTo(x, py); else ctx.lineTo(x, py);
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = '#FFB020';
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(cx, 30); ctx.lineTo(cx, h - 30); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#FFB020';
+    ctx.font = '10px monospace';
+    ctx.fillText('Optimal Action μ(s) = +0.64', cx + 6, 45);
+    ctx.fillStyle = '#8B949E';
+    ctx.fillText('Action Space a ∈ [-1.0, +1.0]', w - 180, h - 10);
+  }
+
+  function drawSwarmSpatial(canvasId) {
+    const cvs = document.getElementById(canvasId);
+    if (!cvs) return;
+    const ctx = cvs.getContext('2d');
+    const w = cvs.width, h = cvs.height;
+    ctx.fillStyle = '#06090e';
+    ctx.fillRect(0, 0, w, h);
+
+    const cx = w / 2, cy = h / 2;
+    const t = state.simTime * 0.5;
+
+    // Target waypoint
+    ctx.strokeStyle = 'rgba(255, 176, 32, 0.6)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(cx, cy, 12, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = '#FFB020';
+    ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI * 2); ctx.fill();
+
+    // 8 UAV agent positions
+    const num = 8;
+    const agents = [];
+    for (let i = 0; i < num; i++) {
+      const angle = (i / num) * Math.PI * 2 + t;
+      const r = 60 + 15 * Math.sin(t * 2 + i);
+      const px = cx + r * Math.cos(angle);
+      const py = cy + r * Math.sin(angle);
+      agents.push([px, py]);
+    }
+
+    // Formation edges (Mesh topology)
+    ctx.strokeStyle = 'rgba(0, 245, 212, 0.25)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < num; i++) {
+      const next = (i + 1) % num;
+      ctx.beginPath(); ctx.moveTo(agents[i][0], agents[i][1]); ctx.lineTo(agents[next][0], agents[next][1]); ctx.stroke();
+    }
+
+    // Draw agents
+    agents.forEach((ag, idx) => {
+      ctx.fillStyle = idx === 0 ? '#39FF14' : '#00F5D4';
+      ctx.beginPath(); ctx.arc(ag[0], ag[1], 4, 0, Math.PI * 2); ctx.fill();
+    });
+  }
+
+  function drawXaiShap(canvasId) {
+    const cvs = document.getElementById(canvasId);
+    if (!cvs) return;
+    const ctx = cvs.getContext('2d');
+    const w = cvs.width, h = cvs.height;
+    ctx.fillStyle = '#06090e';
+    ctx.fillRect(0, 0, w, h);
+
+    const err = state.refSetpoint - state.x[0];
+    const features = [
+      { name: 'Tracking Error e(t)', val: Math.abs(err * state.gains.kp), color: '#00F5D4' },
+      { name: 'Integrator Accumulation', val: Math.abs(state.integrator * state.gains.ki * 0.4), color: '#A78BFA' },
+      { name: 'Velocity Damping d/dt', val: Math.abs(state.x[1] * state.gains.kd * 0.5), color: '#39FF14' },
+      { name: 'Disturbance Cancellation', val: state.distMagnitude > 0 ? 3.2 : 0.4, color: '#FFB020' },
+      { name: 'Digital Twin Residual', val: 0.8, color: '#FF007A' }
+    ];
+
+    const maxVal = Math.max(1.0, ...features.map(f => f.val));
+    const startY = 30;
+    const barHeight = 24;
+    const gap = 16;
+
+    features.forEach((f, idx) => {
+      const y = startY + idx * (barHeight + gap);
+      ctx.fillStyle = '#8B949E';
+      ctx.font = '10px monospace';
+      ctx.fillText(f.name, 20, y + 16);
+
+      const barX = 180;
+      const barW = Math.max(6, (f.val / maxVal) * (w - 240));
+      ctx.fillStyle = f.color;
+      ctx.fillRect(barX, y + 2, barW, barHeight);
+
+      ctx.fillStyle = '#F0F6FC';
+      ctx.fillText(f.val.toFixed(2), barX + barW + 8, y + 16);
+    });
   }
 
   function renderAllCanvases() {
@@ -936,59 +1254,123 @@ document.addEventListener('DOMContentLoaded', () => {
     drawLinePlot('ovChartControl', [
       { data: state.history.u, color: '#A78BFA', width: 1.8 },
       { data: state.history.err, color: '#FFB020', width: 1.5 }
-    ], { min: -15, max: 15 });
+    ], { min: -40, max: 40 });
 
-    // Copilot Live Visualizer Mirror Canvas (Dynamically draws live trajectory!)
+    // 2. Copilot Live Mirror Canvas
     drawLinePlot('botLiveCanvas', [
       { data: state.history.ref, color: 'rgba(240, 246, 252, 0.4)', dash: [4, 4] },
       { data: state.history.y, color: '#00F5D4', width: 2.2 },
       { data: state.history.y_hat, color: '#A78BFA', dash: [2, 2] }
     ], { min: minRange, max: maxRange });
 
-    // 2. Complex S-Plane Pole-Zero Map
+    // 3. Complex S-Plane Pole-Zero Map
     drawPoleZeroCanvas(state.currentPlant ? state.currentPlant.poles : [[-2.55, 0], [-7.45, 0]]);
 
-    // 3. Optimization Convergence & Diversity
+    // 4. Optimization Convergence & Diversity
     drawLinePlot('optCanvasConvergence', [
       { data: [98, 92, 85, 78, 70, 62, 54, 46, 38, 30, 25, 20, 16, 12, 8, 5, 3.8, 3.2, 2.8, 2.5], color: '#00F5D4' }
     ], { min: 0, max: 100 });
 
-    // 4. Bode Magnitude Plot
+    drawLinePlot('optCanvasDiversity', [
+      { data: [85, 76, 68, 59, 50, 42, 35, 29, 24, 20, 16, 12, 10, 8, 6.5, 5.2, 4.1, 3.2, 2.5, 2.0], color: '#00F5D4' },
+      { data: [92, 84, 75, 66, 58, 49, 41, 34, 28, 23, 18, 14, 11, 8.5, 6.8, 5.4, 4.2, 3.1, 2.4, 1.8], color: '#A78BFA' },
+      { data: [78, 71, 62, 54, 46, 39, 32, 26, 21, 17, 13, 10, 7.8, 6.2, 4.9, 3.8, 2.9, 2.2, 1.7, 1.5], color: '#39FF14' },
+      { data: [95, 88, 80, 71, 63, 55, 47, 40, 33, 27, 22, 17, 13, 9.8, 7.5, 5.8, 4.5, 3.4, 2.6, 2.1], color: '#FFB020' }
+    ], { min: 0, max: 100 });
+
+    // 5. Stability Lab (Bode, Nyquist, Polar, Nichols)
     drawLinePlot('stabCanvasBode', [
       { data: [20, 19.8, 19.2, 18.0, 15.5, 12.0, 6.0, 0.0, -8.0, -18.0, -28.0, -38.0], color: '#00F5D4' }
     ], { min: -40, max: 30 });
+    drawNyquistPlot('stabCanvasNyquist', state.currentPlant);
+    drawPolarPlot('stabCanvasPolar', state.currentPlant);
+    drawNicholsPlot('stabCanvasCartesian', state.currentPlant);
 
-    // 5. PINN Disturbance Compensator Output
+    // 6. Neural PINN (Signal & Loss)
     drawLinePlot('pinnCanvasSignal', [
       { data: state.history.u.map(v => v * 0.15), color: '#A78BFA' }
     ], { min: -3, max: 3 });
+    drawLinePlot('pinnCanvasLoss', [
+      { data: [1.0, 0.82, 0.65, 0.49, 0.35, 0.22, 0.14, 0.08, 0.045, 0.024, 0.012, 0.007, 0.003, 0.0018, 0.001], color: '#00F5D4' },
+      { data: [0.8, 0.64, 0.51, 0.38, 0.26, 0.17, 0.09, 0.05, 0.028, 0.015, 0.008, 0.004, 0.002, 0.001, 0.0006], color: '#39FF14', dash: [3, 3] }
+    ], { min: 0, max: 1.0 });
 
-    // 6. RLS Parameter Convergence Trace
+    // 7. Adaptive Control (Trace & Velocity)
     drawLinePlot('adaptCanvasTrace', [
       { data: state.history.time.map(t => 0.01 + 0.002 * Math.sin(t)), color: '#00F5D4' }
     ], { min: 0.005, max: 0.02 });
+    drawLinePlot('adaptCanvasVelocity', [
+      { data: [0.95, 0.78, 0.62, 0.48, 0.35, 0.24, 0.16, 0.09, 0.05, 0.028, 0.014, 0.007, 0.003, 0.001, 0.0005], color: '#A78BFA' }
+    ], { min: 0, max: 1.0 });
 
-    // 7. Twin Co-Simulation Side-by-Side
+    // 8. Reinforcement Learning (Reward & Policy)
+    drawLinePlot('rlCanvasReward', [
+      { data: [-120, -105, -88, -72, -55, -38, -20, -4, 15, 34, 52, 68, 80, 89, 94.2, 97.0, 98.4], color: '#39FF14' },
+      { data: [45, 38, 31, 25, 19, 14, 10, 7, 4.8, 3.2, 2.1, 1.4, 0.9, 0.5, 0.3, 0.18, 0.1], color: '#FF007A', dash: [4, 4] }
+    ], { min: -130, max: 110 });
+    drawRLPolicyPlot('rlCanvasPolicy');
+
+    // 9. Controller Digital Twin (States & Output)
+    drawLinePlot('ctrlTwinCanvasState', [
+      { data: state.history.err.map(e => e * state.gains.ki * 0.5), color: '#00F5D4' },
+      { data: state.history.err.map(e => e * state.gains.kd * 0.2), color: '#A78BFA', dash: [3, 3] }
+    ], { min: -5, max: 5 });
+    drawLinePlot('ctrlTwinCanvasOutput', [
+      { data: state.history.u, color: '#A78BFA', width: 2.0 },
+      { data: state.history.u.map(u => u * 0.98), color: '#39FF14', dash: [3, 3] }
+    ], { min: -40, max: 40 });
+
+    // 10. Plant Digital Twin (States & Degradation)
+    drawLinePlot('plantTwinCanvasStates', [
+      { data: state.history.y, color: '#00F5D4', width: 2.0 },
+      { data: state.history.y_hat, color: '#39FF14', dash: [3, 3] }
+    ], { min: minRange, max: maxRange });
+    drawLinePlot('plantTwinCanvasDegradation', [
+      { data: new Array(state.history.time.length || 10).fill(state.actuatorHealth * 100), color: state.actuatorHealth < 1.0 ? '#FF007A' : '#39FF14' }
+    ], { min: 0, max: 110 });
+
+    // 11. Integrated Twin Sync
     drawLinePlot('twinSimCanvas', [
       { data: state.history.y, color: '#00F5D4', width: 2 },
       { data: state.history.y_hat, color: '#39FF14', dash: [3, 3] }
-    ], { min: -0.2, max: 1.6 });
-
+    ], { min: minRange, max: maxRange });
     drawLinePlot('twinResidualCanvas', [
       { data: state.history.residual, color: '#39FF14' }
     ], { min: 0, max: 0.05 });
 
-    // 8. Chi-Square Innovation Monitor
+    // 12. Fault Lab & Innovation
     drawLinePlot('faultCanvasChi', [
       { data: state.history.chi2, color: state.fdiActive ? '#FF007A' : '#39FF14' },
       { data: new Array(state.history.chi2.length).fill(3.84), color: '#FFB020', dash: [4, 4] }
     ], { min: 0, max: 20 });
 
-    // 9. Control Barrier Invariance
+    // 13. Autonomous Adaptation (Signal & Dwell)
+    drawLinePlot('reconfigCanvasSignal', [
+      { data: state.history.u, color: '#00F5D4' }
+    ], { min: -40, max: 40 });
+    drawLinePlot('reconfigCanvasDwell', [
+      { data: [0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0], color: '#39FF14' },
+      { data: new Array(10).fill(0.5), color: '#FFB020', dash: [4, 4] }
+    ], { min: 0, max: 2.5 });
+
+    // 14. Multi-Agent & Flocking
+    drawSwarmSpatial('swarmCanvasSpatial');
+    drawLinePlot('swarmCanvasConsensus', [
+      { data: [5.2, 4.1, 3.2, 2.4, 1.8, 1.2, 0.8, 0.5, 0.28, 0.15, 0.08, 0.03, 0.01, 0.004, 0.001], color: '#00F5D4' }
+    ], { min: 0, max: 6.0 });
+
+    // 15. Explainable AI
+    drawXaiShap('xaiCanvasShap');
+
+    // 16. Formal Safety & CBF (Barrier & Saturation)
     drawLinePlot('cbfCanvasBarrier', [
       { data: state.history.cbf, color: '#39FF14' },
       { data: new Array(state.history.cbf.length).fill(0.0), color: '#FF007A', dash: [4, 4] }
-    ], { min: -0.5, max: 2.0 });
+    ], { min: -0.5, max: 3.0 });
+    drawLinePlot('cbfCanvasSaturation', [
+      { data: state.history.u.map(u => Math.abs(u)), color: '#A78BFA' },
+      { data: new Array(state.history.time.length || 10).fill(15.0), color: '#FF007A', dash: [4, 4] }
+    ], { min: 0, max: 40 });
 
     // 3D Visualizer Updates
     if (typeof viz3DState !== 'undefined' && viz3DState && typeof viz3DState.renderTrajectory === 'function') {
@@ -1059,11 +1441,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const el = document.getElementById(id);
     if (el) {
       el.addEventListener('input', () => {
-        if (selDesignPlant && selDesignPlant.value === 'custom') {
-          updateActivePlant('custom', inputCustomPlant ? inputCustomPlant.value : 'Custom World Plant');
-        } else {
-          updateActivePlant(selDesignPlant ? selDesignPlant.value : 'dcmotor');
-        }
+        const plantKey = selDesignPlant ? selDesignPlant.value : 'dcmotor';
+        const customName = inputCustomPlant ? inputCustomPlant.value : '';
+        updateActivePlant(plantKey, customName, true);
       });
     }
   });
