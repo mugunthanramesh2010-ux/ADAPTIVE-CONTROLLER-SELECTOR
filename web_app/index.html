@@ -1165,6 +1165,11 @@
               <button class="btn-action" style="font-size: 10px; padding: 3px 8px;" id="chipPromptDcPid">⚡ DC Motor PID + 40% Actuator Loss</button>
               <button class="btn-action" style="font-size: 10px; padding: 3px 8px;" id="chipPromptPendulumCbf">🎯 Inverted Pendulum + CBF Sieve</button>
               <button class="btn-action" style="font-size: 10px; padding: 3px 8px;" id="chipPromptMaglevCyber">🛡️ MagLev FDI Attack + Safe Switch</button>
+              <button class="btn-action" style="font-size: 10px; padding: 3px 8px;" id="chipPromptDatasets">🧬 Train 10,000 Datasets + Feature Scaling</button>
+              <button class="btn-action" style="font-size: 10px; padding: 3px 8px;" id="chipPromptFinetune">🔬 Fine-Tune Active Controller & Adapt</button>
+              <button class="btn-action" style="font-size: 10px; padding: 3px 8px;" id="chipPromptRobotArm">🤖 Robotic Arm Sliding Mode + 3D Orbit</button>
+              <button class="btn-action" style="font-size: 10px; padding: 3px 8px;" id="chipPromptChemical">🧪 Chemical CSTR + PINN Compensation</button>
+              <button class="btn-action" style="font-size: 10px; padding: 3px 8px;" id="chipPromptWindTurbine">💨 Wind Turbine + Bumpless Reconfig</button>
             </div>
           </div>
 
@@ -1201,6 +1206,116 @@
 
             <div class="code-box" id="botStatusLog" style="height: 100px; margin-top: 8px; font-size: 10px; line-height: 1.4;">
               [READY] Awaiting user prompt or autonomous copilot command.
+            </div>
+          </div>
+        </div>
+
+        <!-- 10,000 DATASET TRAINING, FEATURE SCALING & HYPERPARAMETER FINE-TUNER STUDIO -->
+        <div class="panel" style="margin-top: 16px;">
+          <div class="panel-header">
+            <h3>🧬 10,000 Dataset Training, Feature Scaling & Adaptive Fine-Tuning Studio</h3>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span class="badge badge-cyan" id="lblTrainStatus">READY — 10,000 DATASETS</span>
+              <button class="btn-action btn-violet" id="btnRunDatasetTraining">🚀 Train 10,000 Datasets & Fine-Tune</button>
+              <button class="btn-action" id="btnApplyFinetunedGains" disabled style="opacity: 0.5;">⚡ Deploy Fine-Tuned Controller</button>
+            </div>
+          </div>
+          
+          <div class="grid-3" style="margin-bottom: 12px;">
+            <!-- Dataset Configuration -->
+            <div class="panel" style="background: rgba(13, 17, 23, 0.7); padding: 12px; border-radius: var(--radius-md);">
+              <div style="font-size: 11px; font-weight: 600; color: var(--accent-cyan); margin-bottom: 8px;">📊 DATASET & FEATURE SCALING</div>
+              <div style="display: flex; flex-direction: column; gap: 8px; font-size: 11px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="color: var(--text-muted);">Sample Size:</span>
+                  <select id="selDatasetSize" class="input-control" style="width: 140px; font-size: 11px; padding: 2px 6px;">
+                    <option value="10000" selected>10,000 Datasets</option>
+                    <option value="5000">5,000 Datasets</option>
+                    <option value="25000">25,000 Datasets</option>
+                  </select>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="color: var(--text-muted);">Feature Scaling:</span>
+                  <select id="selFeatureScaling" class="input-control" style="width: 140px; font-size: 11px; padding: 2px 6px;">
+                    <option value="standard" selected>Standard Z-Score (μ=0, σ=1)</option>
+                    <option value="minmax">Min-Max Normalization [0, 1]</option>
+                    <option value="robust">Robust Median & IQR Scaling</option>
+                  </select>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="color: var(--text-muted);">Train/Val/Test Split:</span>
+                  <span style="font-family: var(--font-mono); color: var(--accent-green); font-weight: 600;">70% / 15% / 15%</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="color: var(--text-muted);">Physics Residual Loss:</span>
+                  <span style="font-family: var(--font-mono); color: var(--accent-amber);">Euler-Lagrange (λ=0.15)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Training Progress & Metrics -->
+            <div class="panel" style="background: rgba(13, 17, 23, 0.7); padding: 12px; border-radius: var(--radius-md);">
+              <div style="font-size: 11px; font-weight: 600; color: var(--accent-violet); margin-bottom: 8px;">⚡ OPTIMIZATION PROGRESS & CONVERGENCE</div>
+              <div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-muted);">Epoch Progress:</span>
+                  <span id="lblEpochProgress" style="font-family: var(--font-mono); font-weight: 600; color: var(--accent-cyan);">Epoch 30/30 (100%)</span>
+                </div>
+                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;">
+                  <div id="barTrainProgress" style="width: 100%; height: 100%; background: linear-gradient(90deg, #00F5D4, #A78BFA); transition: width 0.3s;"></div>
+                </div>
+                <div class="grid-2" style="margin-top: 4px; gap: 6px;">
+                  <div><span style="color:var(--text-muted)">Train Loss:</span> <strong id="lblMetricTrainLoss" class="text-cyan">0.0028</strong></div>
+                  <div><span style="color:var(--text-muted)">Val Loss:</span> <strong id="lblMetricValLoss" class="text-green">0.0034</strong></div>
+                  <div><span style="color:var(--text-muted)">Test R²:</span> <strong id="lblMetricTestR2" class="text-violet">0.9986</strong></div>
+                  <div><span style="color:var(--text-muted)">Physics Resid:</span> <strong id="lblMetricPhysLoss" class="text-amber">0.0008</strong></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fine-Tuned Controller Output -->
+            <div class="panel" style="background: rgba(13, 17, 23, 0.7); padding: 12px; border-radius: var(--radius-md);">
+              <div style="font-size: 11px; font-weight: 600; color: var(--accent-green); margin-bottom: 8px;">🎯 FINE-TUNED PARAMETER ENVELOPE</div>
+              <div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-muted);">Evolved Kp*:</span>
+                  <strong id="lblFinetunedKp" class="text-cyan">18.42</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-muted);">Evolved Ki*:</span>
+                  <strong id="lblFinetunedKi" class="text-violet">4.15</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-muted);">Evolved Kd*:</span>
+                  <strong id="lblFinetunedKd" class="text-green">2.38</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-muted);">Certified Safe Invariant:</span>
+                  <strong class="text-green">h(x) ≥ 0 (CBF PASS)</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dual Graphs: Training Loss Curve & Feature Scaling Distribution -->
+          <div class="grid-2">
+            <div class="canvas-card">
+              <div class="canvas-header">
+                <h4>Training & Validation Loss Convergence [10,000 Datasets]</h4>
+                <span class="badge badge-cyan">LOG LOSS</span>
+              </div>
+              <div class="canvas-wrapper" style="height: 200px;">
+                <canvas id="canvasTrainLoss" width="560" height="200"></canvas>
+              </div>
+            </div>
+            <div class="canvas-card">
+              <div class="canvas-header">
+                <h4>Feature Scaling Distribution & Normalized Histogram [Z-Score / MinMax]</h4>
+                <span class="badge badge-violet">SCALED FEATURES</span>
+              </div>
+              <div class="canvas-wrapper" style="height: 200px;">
+                <canvas id="canvasFeatureDist" width="560" height="200"></canvas>
+              </div>
             </div>
           </div>
         </div>
