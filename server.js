@@ -117,6 +117,70 @@ const PLANT_MODELS = {
     poles: [0.0, -0.1], wn: 0.32, zeta: 0.16, stable: true,
     states: ['Yaw Angle ψ (rad)', 'Yaw Rate r (rad/s)'],
     input: 'Reaction Wheel Torque τ (N·m)', output: 'Yaw Angle ψ (rad)'
+  },
+  aircraft: {
+    name: 'Commercial Aircraft Longitudinal Pitch Dynamics',
+    order: 2, num: [3], den: [1, 1.5, 4.0],
+    A: [[0, 1], [-4.0, -1.5]], B: [0, 3], C: [1, 0], D: [0],
+    poles: ['-0.75 ± 1.85j'], wn: 2.0, zeta: 0.375, stable: true,
+    states: ['Pitch Angle θ (rad)', 'Pitch Rate q (rad/s)'],
+    input: 'Elevator Deflection δ_e (deg)', output: 'Pitch Angle θ (rad)'
+  },
+  ev_powertrain: {
+    name: 'Electric Vehicle Powertrain & Traction',
+    order: 2, num: [15], den: [1, 5.0, 15.0],
+    A: [[0, 1], [-15.0, -5.0]], B: [0, 15], C: [1, 0], D: [0],
+    poles: ['-2.50 ± 2.96j'], wn: 3.87, zeta: 0.645, stable: true,
+    states: ['Wheel Velocity v (m/s)', 'Traction Slip λ'],
+    input: 'Inverter Torque Request T_m (N·m)', output: 'Wheel Velocity v (m/s)'
+  },
+  ball_beam: {
+    name: 'Ball and Beam Balancing Mechanism',
+    order: 2, num: [2.5], den: [1, 0.5, 0],
+    A: [[0, 1], [0, -0.5]], B: [0, 2.5], C: [1, 0], D: [0],
+    poles: [0.0, -0.5], wn: 0.5, zeta: 0.5, stable: true,
+    states: ['Ball Position r (m)', 'Ball Velocity dr (m/s)'],
+    input: 'Beam Angle α (rad)', output: 'Ball Position r (m)'
+  },
+  suspension: {
+    name: 'Active Vehicle Quarter-Car Suspension',
+    order: 2, num: [1.2], den: [1, 2.0, 8.0],
+    A: [[0, 1], [-8.0, -2.0]], B: [0, 1.2], C: [1, 0], D: [0],
+    poles: ['-1.00 ± 2.65j'], wn: 2.83, zeta: 0.353, stable: true,
+    states: ['Suspension Travel z_s (m)', 'Body Velocity dz_s (m/s)'],
+    input: 'Actuator Force F_a (N)', output: 'Suspension Travel z_s (m)'
+  },
+  flexible_joint: {
+    name: 'Flexible Joint Robotic Link',
+    order: 2, num: [20], den: [1, 1.6, 30.0],
+    A: [[0, 1], [-30.0, -1.6]], B: [0, 20], C: [1, 0], D: [0],
+    poles: ['-0.80 ± 5.42j'], wn: 5.48, zeta: 0.146, stable: true,
+    states: ['Link Deflection θ_l (rad)', 'Link Velocity dθ_l (rad/s)'],
+    input: 'Motor Torque τ_m (N·m)', output: 'Link Deflection θ_l (rad)'
+  },
+  power_grid: {
+    name: 'Power Grid Synchronous Generator (Swing Eq)',
+    order: 2, num: [2.5], den: [1, 0.5, 2.5],
+    A: [[0, 1], [-2.5, -0.5]], B: [0, 2.5], C: [1, 0], D: [0],
+    poles: ['-0.25 ± 1.56j'], wn: 1.58, zeta: 0.158, stable: true,
+    states: ['Rotor Angle δ (rad)', 'Frequency Deviation Δω (rad/s)'],
+    input: 'Mechanical Power P_m (MW)', output: 'Frequency Deviation Δω'
+  },
+  bioreactor: {
+    name: 'Bioreactor / Chemostat Fermentation',
+    order: 2, num: [0.8], den: [1, 1.2, 0.8],
+    A: [[0, 1], [-0.8, -1.2]], B: [0, 0.8], C: [1, 0], D: [0],
+    poles: ['-0.60 ± 0.66j'], wn: 0.89, zeta: 0.671, stable: true,
+    states: ['Biomass Concentration X (g/L)', 'Substrate S (g/L)'],
+    input: 'Dilution Rate D (1/h)', output: 'Biomass Concentration X'
+  },
+  nuclear: {
+    name: 'Boiling Water Nuclear Reactor Core Point Kinetics',
+    order: 2, num: [2.0], den: [1, 1.5, 2.0],
+    A: [[0, 1], [-2.0, -1.5]], B: [0, 2.0], C: [1, 0], D: [0],
+    poles: ['-0.75 ± 1.20j'], wn: 1.41, zeta: 0.53, stable: true,
+    states: ['Neutron Flux Deviation Δn', 'Precursor Concentration C'],
+    input: 'Control Rod Reactivity ρ (pcm)', output: 'Neutron Flux Deviation Δn'
   }
 };
 

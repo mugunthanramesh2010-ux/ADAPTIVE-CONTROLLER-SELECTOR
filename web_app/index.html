@@ -205,16 +205,32 @@
             <div class="panel-header">
               <h3>Plant Dynamics & Physical Specifications</h3>
               <select class="input-control" id="selDesignPlant">
-                <option value="dcmotor">DC Servomotor (Electromechanical)</option>
-                <option value="quadrotor">UAV Quadrotor (Pitch/Attitude)</option>
-                <option value="inverted_pendulum">Inverted Pendulum on Cart</option>
-                <option value="maglev">Magnetic Levitation (SISO)</option>
-                <option value="robot_arm">Two-Link Robotic Manipulator</option>
-                <option value="thermal">Industrial Thermal Process</option>
-                <option value="chemostat">Bioreactor / Chemostat Process</option>
-                <option value="wind_turbine">Wind Turbine Pitch Regulator</option>
-                <option value="water_level">Coupled Quadruple Tank Process</option>
+                <option value="dcmotor">Precision Industrial DC Servomotor</option>
+                <option value="quadrotor">UAV Quadrotor (Pitch/Attitude & Altitude)</option>
+                <option value="inverted_pendulum">Inverted Pendulum on Cart (Underactuated)</option>
+                <option value="maglev">Active Magnetic Levitation Bearing (SISO)</option>
+                <option value="robot_arm">Two-Link Flexible Robotic Manipulator</option>
+                <option value="chemical">Exothermic Chemical Batch Reactor (CSTR)</option>
+                <option value="thermal">Industrial Thermal Heat Exchanger Process</option>
+                <option value="wind_turbine">Wind Turbine Blade Pitch & Rotor Speed</option>
+                <option value="water_level">Coupled Dual/Quadruple Tank Water Level System</option>
+                <option value="satellite">LEO Satellite Reaction Wheel Attitude</option>
+                <option value="aircraft">Commercial Aircraft Pitch Dynamics (Boeing 747 / F-16)</option>
+                <option value="ev_powertrain">Electric Vehicle Powertrain & Traction</option>
+                <option value="ball_beam">Ball and Beam Balancing Mechanism</option>
+                <option value="suspension">Active Vehicle Quarter-Car Suspension</option>
+                <option value="flexible_joint">Flexible Joint Robotic Link</option>
+                <option value="power_grid">Power Grid Synchronous Generator (Swing Eq)</option>
+                <option value="bioreactor">Bioreactor / Chemostat Fermentation</option>
+                <option value="autonomous_ship">Marine Vessel Course-Keeping Autopilot</option>
+                <option value="nuclear">Boiling Water Nuclear Reactor Core</option>
+                <option value="piezo">Nanopositioning Piezoelectric Actuator</option>
+                <option value="custom">➕ [Enter Any Custom Plant in the World...]</option>
               </select>
+            </div>
+            <div id="rowCustomPlant" style="display: none; margin-top: 8px; padding: 8px 12px; background: rgba(0, 245, 212, 0.05); border: 1px dashed rgba(0, 245, 212, 0.3); border-radius: 6px;">
+              <label style="font-size: 11px; color: var(--accent-cyan); font-weight: 600; display: block; margin-bottom: 4px;">Enter Any Custom Plant in the World:</label>
+              <input type="text" class="input-control" id="inputCustomPlantName" placeholder="e.g. SpaceX Falcon 9 Booster, Submarine Depth Control, Fusion Plasma..." value="Custom Engineering Plant">
             </div>
             <div class="grid-2" style="margin-top: 8px;">
               <div class="form-group">

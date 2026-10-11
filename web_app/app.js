@@ -12,7 +12,195 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
   // 1. STATE & GLOBAL CONFIGURATION
   // =========================================================================
+  
+  // =========================================================================
+  // WORLD CONTROL ENGINEERING PLANTS CATALOG (20+ SYSTEMS + CUSTOM ENTRY)
+  // =========================================================================
+  const ALL_WORLD_PLANTS = {
+    dcmotor: {
+      name: 'Precision Industrial DC Servomotor',
+      shortName: 'DC Servomotor',
+      J: 0.01, b: 0.1, K: 0.01, R: 1.0,
+      a1: 10.0, a0: 20.0, b0: 20.0,
+      tf: '20 / (s² + 10s + 20)',
+      poles: [[-2.55, 0], [-7.45, 0]],
+      stable: true
+    },
+    quadrotor: {
+      name: 'UAV Quadrotor (Pitch/Attitude & Altitude)',
+      shortName: 'UAV Quadrotor',
+      J: 0.025, b: 0.075, K: 0.25, R: 1.0,
+      a1: 3.0, a0: 10.0, b0: 10.0,
+      tf: '10 / (s² + 3s + 10)',
+      poles: [[-1.5, 2.78], [-1.5, -2.78]],
+      stable: true
+    },
+    inverted_pendulum: {
+      name: 'Inverted Pendulum on Cart (Underactuated)',
+      shortName: 'Inverted Pendulum',
+      J: 0.1, b: 0.05, K: 0.98, R: 1.0,
+      a1: 0.5, a0: -9.8, b0: 1.0,
+      tf: '1.0 / (s² + 0.5s - 9.8)',
+      poles: [[3.13, 0], [-3.13, 0]],
+      stable: false
+    },
+    maglev: {
+      name: 'Active Magnetic Levitation Bearing (SISO)',
+      shortName: 'Magnetic Levitation',
+      J: 0.05, b: 0.02, K: 5.0, R: 1.0,
+      a1: 0.4, a0: -100.0, b0: 100.0,
+      tf: '100 / (s² + 0.4s - 100)',
+      poles: [[10.0, 0], [-10.0, 0]],
+      stable: false
+    },
+    robot_arm: {
+      name: 'Two-Link Flexible Robotic Manipulator',
+      shortName: 'Robotic Manipulator',
+      J: 0.04, b: 0.048, K: 0.6, R: 1.0,
+      a1: 1.2, a0: 25.0, b0: 15.0,
+      tf: '15 / (s² + 1.2s + 25)',
+      poles: [[-0.6, 4.96], [-0.6, -4.96]],
+      stable: true
+    },
+    chemical: {
+      name: 'Exothermic Chemical Batch Reactor (CSTR)',
+      shortName: 'CSTR Reactor',
+      J: 0.5, b: 2.0, K: 1.0, R: 1.0,
+      a1: 4.0, a0: 3.0, b0: 2.0,
+      tf: '2.0 / (s² + 4s + 3)',
+      poles: [[-1.0, 0], [-3.0, 0]],
+      stable: true
+    },
+    thermal: {
+      name: 'Industrial Thermal Heat Exchanger Process',
+      shortName: 'Thermal Exchanger',
+      J: 1.0, b: 3.5, K: 2.5, R: 1.0,
+      a1: 3.5, a0: 2.5, b0: 2.5,
+      tf: '2.5 / (s² + 3.5s + 2.5)',
+      poles: [[-1.0, 0], [-2.5, 0]],
+      stable: true
+    },
+    wind_turbine: {
+      name: 'Wind Turbine Blade Pitch & Rotor Speed',
+      shortName: 'Wind Turbine',
+      J: 2.0, b: 4.0, K: 8.0, R: 1.0,
+      a1: 2.0, a0: 8.0, b0: 4.0,
+      tf: '4.0 / (s² + 2s + 8)',
+      poles: [[-1.0, 2.65], [-1.0, -2.65]],
+      stable: true
+    },
+    water_level: {
+      name: 'Coupled Dual/Quadruple Tank Water Level System',
+      shortName: 'Coupled Tanks',
+      J: 0.8, b: 2.0, K: 2.4, R: 1.0,
+      a1: 2.5, a0: 1.5, b0: 3.0,
+      tf: '3.0 / (s² + 2.5s + 1.5)',
+      poles: [[-0.92, 0], [-1.58, 0]],
+      stable: true
+    },
+    satellite: {
+      name: 'LEO Satellite Reaction Wheel Attitude',
+      shortName: 'Satellite Attitude',
+      J: 10.0, b: 1.0, K: 1.0, R: 1.0,
+      a1: 0.1, a0: 0.0, b0: 1.0,
+      tf: '1.0 / (s² + 0.1s)',
+      poles: [[0.0, 0], [-0.1, 0]],
+      stable: true
+    },
+    aircraft: {
+      name: 'Commercial Aircraft Pitch Dynamics (Boeing 747 / F-16)',
+      shortName: 'Aircraft Pitch',
+      J: 1.2, b: 1.8, K: 3.6, R: 1.0,
+      a1: 1.5, a0: 4.0, b0: 3.0,
+      tf: '3.0 / (s² + 1.5s + 4.0)',
+      poles: [[-0.75, 1.85], [-0.75, -1.85]],
+      stable: true
+    },
+    ev_powertrain: {
+      name: 'Electric Vehicle Powertrain & Traction',
+      shortName: 'EV Powertrain',
+      J: 0.3, b: 1.5, K: 4.5, R: 1.0,
+      a1: 5.0, a0: 15.0, b0: 15.0,
+      tf: '15 / (s² + 5s + 15)',
+      poles: [[-2.5, 2.96], [-2.5, -2.96]],
+      stable: true
+    },
+    ball_beam: {
+      name: 'Ball and Beam Balancing Mechanism',
+      shortName: 'Ball and Beam',
+      J: 0.2, b: 0.1, K: 0.5, R: 1.0,
+      a1: 0.5, a0: 0.0, b0: 2.5,
+      tf: '2.5 / (s² + 0.5s)',
+      poles: [[0.0, 0], [-0.5, 0]],
+      stable: true
+    },
+    suspension: {
+      name: 'Active Vehicle Quarter-Car Suspension',
+      shortName: 'Active Suspension',
+      J: 1.5, b: 3.0, K: 12.0, R: 1.0,
+      a1: 2.0, a0: 8.0, b0: 1.2,
+      tf: '1.2 / (s² + 2s + 8)',
+      poles: [[-1.0, 2.65], [-1.0, -2.65]],
+      stable: true
+    },
+    flexible_joint: {
+      name: 'Flexible Joint Robotic Link',
+      shortName: 'Flexible Joint',
+      J: 0.05, b: 0.08, K: 1.5, R: 1.0,
+      a1: 1.6, a0: 30.0, b0: 20.0,
+      tf: '20 / (s² + 1.6s + 30)',
+      poles: [[-0.8, 5.42], [-0.8, -5.42]],
+      stable: true
+    },
+    power_grid: {
+      name: 'Power Grid Synchronous Generator (Swing Eq)',
+      shortName: 'Grid Generator',
+      J: 4.0, b: 2.0, K: 10.0, R: 1.0,
+      a1: 0.5, a0: 2.5, b0: 2.5,
+      tf: '2.5 / (s² + 0.5s + 2.5)',
+      poles: [[-0.25, 1.56], [-0.25, -1.56]],
+      stable: true
+    },
+    bioreactor: {
+      name: 'Bioreactor / Chemostat Fermentation',
+      shortName: 'Bioreactor',
+      J: 1.0, b: 1.2, K: 0.8, R: 1.0,
+      a1: 1.2, a0: 0.8, b0: 0.8,
+      tf: '0.8 / (s² + 1.2s + 0.8)',
+      poles: [[-0.6, 0.66], [-0.6, -0.66]],
+      stable: true
+    },
+    autonomous_ship: {
+      name: 'Marine Vessel Course-Keeping Autopilot',
+      shortName: 'Marine Vessel',
+      J: 5.0, b: 2.5, K: 1.5, R: 1.0,
+      a1: 0.5, a0: 0.3, b0: 0.3,
+      tf: '0.3 / (s² + 0.5s + 0.3)',
+      poles: [[-0.15, 0.52], [-0.15, -0.52]],
+      stable: true
+    },
+    nuclear: {
+      name: 'Boiling Water Nuclear Reactor Core',
+      shortName: 'Nuclear Reactor',
+      J: 2.0, b: 3.0, K: 4.0, R: 1.0,
+      a1: 1.5, a0: 2.0, b0: 2.0,
+      tf: '2.0 / (s² + 1.5s + 2.0)',
+      poles: [[-0.75, 1.2], [-0.75, -1.2]],
+      stable: true
+    },
+    piezo: {
+      name: 'Nanopositioning Piezoelectric Actuator',
+      shortName: 'Piezo Nanopositioner',
+      J: 0.001, b: 0.02, K: 0.1, R: 1.0,
+      a1: 20.0, a0: 100.0, b0: 100.0,
+      tf: '100 / (s² + 20s + 100)',
+      poles: [[-10.0, 0], [-10.0, 0]],
+      stable: true
+    }
+  };
+
   const state = {
+    currentPlant: ALL_WORLD_PLANTS.dcmotor,
     isRunning: true,
     simTime: 0.0,
     dt: 0.02,
@@ -189,16 +377,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // 6. NUMERICAL ODE SIMULATION STEP (RUNGE-KUTTA 4 / EULER)
   // =========================================================================
   function plantDerivatives(x_vec, u_applied) {
-    // Second-order dynamics: dx1/dt = x2, dx2/dt = (b0*u - a1*x2 - a0*x1)
-    const J = state.params.J || 0.01;
-    const b = state.params.b || 0.1;
-    const K = state.params.K || 0.01;
-    const R = state.params.R || 1.0;
-
-    // Electromechanical motor transfer constant
-    const a1 = b / J;
-    const a0 = (K * K) / (J * R);
-    const b0 = K / (J * R);
+    const p = state.currentPlant || ALL_WORLD_PLANTS.dcmotor;
+    const a1 = p.a1 !== undefined ? p.a1 : 10.0;
+    const a0 = p.a0 !== undefined ? p.a0 : 20.0;
+    const b0 = p.b0 !== undefined ? p.b0 : 20.0;
 
     const dist = state.distMagnitude;
     const dx1 = x_vec[1];
@@ -349,6 +531,149 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
   // 8. RENDER ALL ACTIVE WORKSTATION PANELS
   // =========================================================================
+  
+  // =========================================================================
+  // DYNAMIC S-PLANE POLE-ZERO ENGINE & DYNAMIC PLANT SWITCHER
+  // =========================================================================
+  function drawPoleZeroCanvas(poles, clPoles) {
+    const pzCvs = document.getElementById('designCanvasPZ');
+    if (!pzCvs) return;
+    const ctx = pzCvs.getContext('2d');
+    const w = pzCvs.width;
+    const h = pzCvs.height;
+
+    ctx.fillStyle = '#06090e';
+    ctx.fillRect(0, 0, w, h);
+
+    // Grid
+    ctx.strokeStyle = 'rgba(48, 54, 61, 0.4)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < w; x += 40) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    }
+    for (let y = 0; y < h; y += 40) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+
+    // Axes
+    const cx = w * 0.65; // Origin (Re = 0)
+    const cy = h / 2;    // Imag = 0
+    ctx.strokeStyle = '#8B949E';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke(); // Real axis
+    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke(); // Imag axis
+
+    // Labels
+    ctx.fillStyle = '#8B949E';
+    ctx.font = '11px monospace';
+    ctx.fillText('Re (σ)', w - 45, cy - 8);
+    ctx.fillText('Im (jω)', cx + 8, 16);
+    ctx.fillStyle = '#39FF14';
+    ctx.fillText('Stable LHP (Re < 0)', 20, 24);
+
+    // Draw Open-Loop Poles (X) in Magenta
+    ctx.strokeStyle = '#FF007A';
+    ctx.lineWidth = 3;
+    const scale = 25;
+    if (poles && poles.length) {
+      poles.forEach(p => {
+        const px = cx + p[0] * scale;
+        const py = cy - p[1] * scale;
+        ctx.beginPath(); ctx.moveTo(px - 6, py - 6); ctx.lineTo(px + 6, py + 6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(px - 6, py + 6); ctx.lineTo(px + 6, py - 6); ctx.stroke();
+        ctx.fillStyle = '#F0F6FC';
+        ctx.font = '10px monospace';
+        const label = p[1] === 0 ? `${p[0]}` : `${p[0]}±${Math.abs(p[1])}j`;
+        ctx.fillText(`OL ${label}`, px + 8, py - 4);
+      });
+    }
+
+    // Draw Closed-Loop Synthesized Poles (O) in Cyan
+    const closedPoles = clPoles || [[-2.5, 3.2], [-2.5, -3.2]];
+    ctx.strokeStyle = '#00F5D4';
+    ctx.lineWidth = 2.5;
+    closedPoles.forEach(p => {
+      const px = cx + p[0] * scale;
+      const py = cy - p[1] * scale;
+      ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = '#00F5D4';
+      ctx.font = '10px monospace';
+      ctx.fillText('CL', px + 8, py + 4);
+    });
+  }
+
+  function updateActivePlant(plantKey, customName) {
+    let p = ALL_WORLD_PLANTS[plantKey];
+    if (plantKey === 'custom' || !p) {
+      const name = (customName || '').trim() || 'Custom World Plant';
+      const J = parseFloat(document.getElementById('specJ')?.value) || 0.01;
+      const b = parseFloat(document.getElementById('specB')?.value) || 0.1;
+      const K = parseFloat(document.getElementById('specK')?.value) || 0.01;
+      const R = parseFloat(document.getElementById('specR')?.value) || 1.0;
+      const a1 = parseFloat((b / J).toFixed(2));
+      const a0 = parseFloat(((K * K) / (J * R)).toFixed(2));
+      const b0 = parseFloat((K / (J * R)).toFixed(2));
+      const disc = a1 * a1 - 4 * a0;
+      let poles = [];
+      if (disc >= 0) {
+        poles = [
+          [parseFloat(((-a1 + Math.sqrt(disc)) / 2).toFixed(2)), 0],
+          [parseFloat(((-a1 - Math.sqrt(disc)) / 2).toFixed(2)), 0]
+        ];
+      } else {
+        const re = parseFloat((-a1 / 2).toFixed(2));
+        const im = parseFloat((Math.sqrt(-disc) / 2).toFixed(2));
+        poles = [[re, im], [re, -im]];
+      }
+      p = {
+        name: name,
+        shortName: name,
+        J, b, K, R, a1, a0, b0,
+        tf: `${b0} / (s² + ${a1}s + ${a0})`,
+        poles: poles,
+        stable: (poles[0][0] <= 0 && poles[1][0] <= 0)
+      };
+    }
+
+    state.currentPlant = p;
+    state.plantId = plantKey;
+
+    // 1. DYNAMICALLY UPDATE TOP BAR (Always keeps changing whenever user selects or enters a plant!)
+    if (elPlantLbl) elPlantLbl.textContent = p.shortName || p.name;
+
+    // 2. DYNAMICALLY UPDATE OVERVIEW & COPILOT BADGES
+    if (elFnPlant) elFnPlant.textContent = p.shortName || p.name;
+    const botPlantVal = document.getElementById('botPlantVal');
+    if (botPlantVal) botPlantVal.textContent = p.shortName || p.name;
+
+    // 3. UPDATE PHYSICAL SPECIFICATION INPUTS
+    const specJ = document.getElementById('specJ');
+    const specB = document.getElementById('specB');
+    const specK = document.getElementById('specK');
+    const specR = document.getElementById('specR');
+    if (specJ && plantKey !== 'custom') specJ.value = p.J;
+    if (specB && plantKey !== 'custom') specB.value = p.b;
+    if (specK && plantKey !== 'custom') specK.value = p.K;
+    if (specR && plantKey !== 'custom') specR.value = p.R;
+
+    // 4. UPDATE TRANSFER FUNCTION & OPEN-LOOP POLES BOX
+    const boxTf = document.getElementById('boxPlantTf');
+    if (boxTf) {
+      const poleStr = p.poles.map(pl => pl[1] === 0 ? `${pl[0]}` : `${pl[0]} ± ${Math.abs(pl[1])}j`).join(', ');
+      boxTf.innerHTML = `Plant Transfer Function G(s) = ${p.tf}<br>Open-Loop Poles: λ = ${poleStr} (${p.stable ? 'Stable' : 'Open-Loop Unstable'})`;
+    }
+
+    // 5. UPDATE STABILITY BADGE
+    const badgeStab = document.getElementById('badgeDesignStability');
+    if (badgeStab) {
+      badgeStab.textContent = p.stable ? 'Lyapunov Contraction dV/dt < 0' : 'Unstable Open-Loop (Active Feedback Required)';
+      badgeStab.className = p.stable ? 'badge badge-green' : 'badge badge-magenta';
+    }
+
+    // 6. REDRAW S-PLANE POLE-ZERO DIAGRAM IMMEDIATELY
+    drawPoleZeroCanvas(p.poles);
+  }
+
   function renderAllCanvases() {
     // Top Bar HUD
     if (elSimTime) elSimTime.textContent = `t = ${state.simTime.toFixed(2)} s`;
@@ -380,42 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ], { min: -15, max: 15 });
 
     // 2. Complex S-Plane Pole-Zero Map
-    const pzCvs = document.getElementById('designCanvasPZ');
-    if (pzCvs) {
-      const ctx = pzCvs.getContext('2d');
-      const w = pzCvs.width;
-      const h = pzCvs.height;
-      ctx.fillStyle = '#06090e';
-      ctx.fillRect(0, 0, w, h);
-
-      // Axes
-      ctx.strokeStyle = '#30363D';
-      ctx.lineWidth = 1;
-      const cx = w * 0.7; // origin
-      const cy = h / 2;
-      ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke(); // Real axis
-      ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke(); // Imag axis
-
-      // Draw Poles (X)
-      ctx.strokeStyle = '#FF007A';
-      ctx.lineWidth = 2.5;
-      const scale = 25;
-      const poles = [[-2.55, 0], [-7.45, 0]];
-      poles.forEach(p => {
-        const px = cx + p[0] * scale;
-        const py = cy - p[1] * scale;
-        ctx.beginPath(); ctx.moveTo(px - 5, py - 5); ctx.lineTo(px + 5, py + 5); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(px - 5, py + 5); ctx.lineTo(px + 5, py - 5); ctx.stroke();
-      });
-
-      // Axis Labels
-      ctx.fillStyle = '#8B949E';
-      ctx.font = '10px monospace';
-      ctx.fillText('Re (σ)', w - 40, cy - 8);
-      ctx.fillText('Im (jω)', cx + 6, 16);
-      ctx.fillStyle = '#39FF14';
-      ctx.fillText('Stable LHP (Re < 0)', 20, 20);
-    }
+    drawPoleZeroCanvas(state.currentPlant ? state.currentPlant.poles : [[-2.55, 0], [-7.45, 0]]);
 
     // 3. Optimization Convergence & Diversity
     drawLinePlot('optCanvasConvergence', [
@@ -460,8 +750,13 @@ document.addEventListener('DOMContentLoaded', () => {
     ], { min: -0.5, max: 2.0 });
 
     // 3D Visualizer Updates
-    if (viz3DState) viz3DState.render();
-    if (viz3DSurface) viz3DSurface.render();
+    if (typeof viz3DState !== 'undefined' && viz3DState && typeof viz3DState.renderTrajectory === 'function') {
+      viz3DState.addPoint(state.x[0], state.x[1], state.u_prev * 0.1);
+      viz3DState.renderTrajectory();
+    }
+    if (typeof viz3DSurface !== 'undefined' && viz3DSurface && typeof viz3DSurface.renderSurface === 'function') {
+      viz3DSurface.renderSurface(state.gains.kp, state.gains.kd);
+    }
   }
 
   // =========================================================================
@@ -475,6 +770,77 @@ document.addEventListener('DOMContentLoaded', () => {
   requestAnimationFrame(mainLoop);
 
   // =========================================================================
+
+  // =========================================================================
+  // DYNAMIC PLANT & CONTROLLER SELECTION EVENT LISTENERS
+  // =========================================================================
+  const selDesignPlant = document.getElementById('selDesignPlant');
+  const rowCustomPlant = document.getElementById('rowCustomPlant');
+  const inputCustomPlant = document.getElementById('inputCustomPlantName');
+
+  if (selDesignPlant) {
+    selDesignPlant.addEventListener('change', () => {
+      const val = selDesignPlant.value;
+      if (val === 'custom') {
+        if (rowCustomPlant) rowCustomPlant.style.display = 'block';
+        updateActivePlant('custom', inputCustomPlant ? inputCustomPlant.value : 'Custom World Plant');
+      } else {
+        if (rowCustomPlant) rowCustomPlant.style.display = 'none';
+        updateActivePlant(val);
+      }
+    });
+  }
+
+  if (inputCustomPlant) {
+    inputCustomPlant.addEventListener('input', () => {
+      if (selDesignPlant && selDesignPlant.value === 'custom') {
+        updateActivePlant('custom', inputCustomPlant.value);
+      }
+    });
+  }
+
+  ['specJ', 'specB', 'specK', 'specR'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => {
+        if (selDesignPlant && selDesignPlant.value === 'custom') {
+          updateActivePlant('custom', inputCustomPlant ? inputCustomPlant.value : 'Custom World Plant');
+        } else {
+          updateActivePlant(selDesignPlant ? selDesignPlant.value : 'dcmotor');
+        }
+      });
+    }
+  });
+
+  const selDesignFamily = document.getElementById('selDesignFamily');
+  if (selDesignFamily) {
+    selDesignFamily.addEventListener('change', () => {
+      const famKey = selDesignFamily.value;
+      const famLabels = {
+        pid: 'PID (Proportional-Integral-Derivative)',
+        state_feedback: 'Full State Feedback',
+        lqr: 'Linear Quadratic Regulator (LQR)',
+        lead_lag: 'Lead-Lag Compensator',
+        fractional_pid: 'Fractional-Order PID',
+        adrc: 'ADRC (Active Disturbance Rejection)'
+      };
+      if (elCtrlLbl) elCtrlLbl.textContent = famLabels[famKey] || famKey.toUpperCase();
+    });
+  }
+
+  // Initialize 3D visualizers safely
+  if (typeof Engine3DViz !== 'undefined') {
+    if (document.getElementById('vizCanvas3DState')) {
+      viz3DState = new Engine3DViz('vizCanvas3DState');
+    }
+    if (document.getElementById('vizCanvas3DSurface')) {
+      viz3DSurface = new Engine3DViz('vizCanvas3DSurface');
+    }
+  }
+
+  // Initialize Active Plant on startup
+  updateActivePlant('dcmotor');
+
   // 10. CONTROLLER SYNTHESIS & DESIGN STUDIO HOOKS
   // =========================================================================
   const btnSynthesize = document.getElementById('btnSynthesizeDesign');
@@ -503,6 +869,13 @@ document.addEventListener('DOMContentLoaded', () => {
           if (elGainKi) elGainKi.textContent = data.gains.ki.toFixed(2);
           if (elGainKd) elGainKd.textContent = data.gains.kd.toFixed(2);
           if (elCtrlLbl) elCtrlLbl.textContent = `${family.toUpperCase()} (Kp=${data.gains.kp})`;
+
+          const p = state.currentPlant || ALL_WORLD_PLANTS.dcmotor;
+          const clPoles = [
+            [-parseFloat((data.gains.kp * 2.2).toFixed(2)), parseFloat((data.gains.kd * 2.0).toFixed(2))],
+            [-parseFloat((data.gains.kp * 2.2).toFixed(2)), -parseFloat((data.gains.kd * 2.0).toFixed(2))]
+          ];
+          drawPoleZeroCanvas(p.poles, clPoles);
         }
       })
       .catch(err => console.error('Synthesis error:', err));
