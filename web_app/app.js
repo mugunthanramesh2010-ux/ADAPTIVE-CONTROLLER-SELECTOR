@@ -965,5 +965,13 @@ document.addEventListener('DOMContentLoaded', () => {
   renderPoleZeroMap();
   updateDerivationTrace();
 
+  try {
+    if (window.ACEP_ENGINES) {
+      window.ACEP_ENGINES.renderMatrix('enginesMatrixContainer');
+    }
+  } catch (err) {
+    console.warn('Next-gen engines initialization:', err);
+  }
+
   requestAnimationFrame(loop);
 });
