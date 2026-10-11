@@ -123,15 +123,21 @@
         </div>
 
         <div class="grid-4">
-          <div class="metric-tile">
-            <span class="label">Reference Input r(t)</span>
-            <span class="val" id="ovRefVal">1.00</span>
-            <span class="sub text-secondary">Step Setpoint</span>
+          <div class="metric-tile" style="border: 1px solid rgba(0, 245, 212, 0.4); background: rgba(0, 245, 212, 0.04);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="label" style="color: var(--accent-cyan);">Reference Input r(t)</span>
+              <span class="badge badge-cyan" style="font-size: 8px;">USER INPUT</span>
+            </div>
+            <div style="margin-top: 4px;">
+              <input type="number" class="input-control" id="inputReferenceSetpoint" value="1.00" step="0.1" placeholder="Enter any setpoint..." style="width: 100%; font-size: 16px; font-weight: 700; color: #00F5D4; font-family: var(--font-mono); background: #06090e; border: 1px solid rgba(0, 245, 212, 0.4); padding: 4px 8px; border-radius: 4px;">
+            </div>
+            <span class="sub text-secondary" style="font-size: 10px;">Enter Any Arbitrary Value (e.g. 2.5, 10, -5)</span>
+            <span class="val" id="ovRefVal" style="display: none;">1.00</span>
           </div>
           <div class="metric-tile">
             <span class="label">Plant Output y(t)</span>
             <span class="val text-cyan" id="ovOutVal">0.998</span>
-            <span class="sub" style="color:var(--state-success)">Tracking Normal</span>
+            <span class="sub" style="color:var(--state-success)">Dynamic Tracking</span>
           </div>
           <div class="metric-tile">
             <span class="label">Control Effort u(t)</span>
@@ -141,7 +147,7 @@
           <div class="metric-tile">
             <span class="label">State Divergence |y - ŷ|</span>
             <span class="val text-green" id="ovResidualVal">0.003</span>
-            <span class="sub text-secondary">Holographic Residual</span>
+            <span class="sub text-secondary">Live Residual</span>
           </div>
         </div>
 
@@ -1016,9 +1022,13 @@
           <div class="view-title-group">
             <h2>📑 Experiments, Results & Traceable Reports</h2>
           </div>
-          <div class="topbar-right">
-            <button class="btn-action btn-primary" id="btnExportTelemetryCsv">💾 Export Telemetry (CSV)</button>
-            <button class="btn-action btn-violet" id="btnExportReportJson">📊 Export Audit Report (JSON)</button>
+          <div class="topbar-right" style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn-action btn-primary" id="btnExportPdf">📄 Download PDF Report</button>
+            <button class="btn-action btn-cyan" id="btnExportDocx">📝 Download DOCX Dossier</button>
+            <button class="btn-action btn-green" id="btnExportExcel">📊 Download Excel (.xlsx)</button>
+            <button class="btn-action btn-violet" id="btnExportJpeg">🖼️ Download JPEG Visual</button>
+            <button class="btn-action" id="btnExportTelemetryCsv">💾 Download CSV</button>
+            <button class="btn-action" id="btnExportReportJson">📋 Audit JSON</button>
           </div>
         </div>
 
@@ -1212,5 +1222,6 @@
       });
     }
   </script>
+  <div id="toastContainer" style="position: fixed; bottom: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 8px; pointer-events: none;"></div>
 </body>
 </html>
