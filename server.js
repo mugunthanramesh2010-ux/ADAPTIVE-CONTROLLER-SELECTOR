@@ -4,7 +4,7 @@ const path = require('path');
 const os = require('os');
 const zlib = require('zlib');
 
-const PORT = parseInt(process.env.PORT, 10) || 8080;
+const PORT = parseInt(process.env.PORT, 10) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
 const MIME_TYPES = {
