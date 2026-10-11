@@ -392,23 +392,14 @@ const server = http.createServer((req, res) => {
           ]
         };
 
-        answer = `Autonomous AI Copilot initialized execution plan for **${targetPlant.toUpperCase()}** using **${targetFamily.toUpperCase()}**.\n\n` +
-          `• **Plant Dynamics:** Loaded nominal state-space matrices A, B, C.\n` +
-          `• **Controller Synthesis:** Analytical synthesis computed target damping ζ = 0.707 and natural frequency ω_n = 4.47 rad/s.\n` +
-          `• **Digital Twin Validation:** 100-step lookahead verified Control Barrier Function forward invariance $h(x) \\ge 0$.\n` +
-          `• **Plant Operation:** Deployed to active virtual plant with ${willShow3D ? '3D state-space trajectory' : '2D/3D synchronized telemetry'}.\n` +
-          (willAdapt ? `• **Adaptive Recovery:** Automated supervisor initialized with dwell-time hysteresis to handle ${faultType}.\n` : '');
+        answer = `[EXECUTION INITIALIZED] Target: ${targetPlant.toUpperCase()} | Controller: ${targetFamily.toUpperCase()}\n` +
+          `• Plant State: Dynamic state-space model loaded.\n` +
+          `• Synthesis: Gains computed analytically via closed-loop solver.\n` +
+          `• Digital Twin: 100-step lookahead verified forward invariance (h(x) >= 0).\n` +
+          `• Plant Operation: Active in ${willShow3D ? '3D' : '2D/3D'} real-time visualization.\n` +
+          (willAdapt ? `• Adaptation: Supervisory adaptation active for ${faultType}.\n` : '');
       } else {
-        // Standard authoritative Q&A
-        if (q.includes('overshoot')) {
-          answer = `High overshoot occurs when closed-loop damping ratio ζ is below 0.707. For ${targetPlant}, increase derivative gain Kd or advance phase lead zero to add phase margin at crossover frequency.`;
-        } else if (q.includes('twin') || q.includes('residual')) {
-          answer = `The Digital Twin observer runs in parallel with the virtual plant. When prediction residual ||x - x̂|| exceeds threshold 0.15, the model drift detector isolates parameter variance or actuator wear before closed-loop destabilization occurs.`;
-        } else if (q.includes('lyapunov') || q.includes('stability')) {
-          answer = `Lyapunov formal certification solves A_cl^T P + P A_cl = -Q. Since maximum eigenvalue λ_max(P) < 0, energy function V(x) = x^T P x strictly decays: dV/dt < -0.42 V(x), proving asymptotic stability.`;
-        } else {
-          answer = `ACEP Autonomous AI Engineering Bot ready for ${targetPlant}. You can provide natural language prompts like: "Design an LQR controller for UAV quadrotor with rise time 0.5s, test in digital twin 3D, and adapt to wind gust".`;
-        }
+        answer = `[OPERATIONAL READY] System active for ${targetPlant.toUpperCase()}. Execute controller synthesis, digital twin test, plant operation, or adaptive recovery directly.`;
       }
 
       res.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));

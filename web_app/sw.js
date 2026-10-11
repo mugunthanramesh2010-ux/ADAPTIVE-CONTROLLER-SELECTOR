@@ -5,7 +5,6 @@ const ASSETS_TO_CACHE = [
   './index.html',
   './styles.css',
   './simulation_engine.js',
-  './acep_paper_content.js',
   './app.js',
   './manifest.json'
 ];

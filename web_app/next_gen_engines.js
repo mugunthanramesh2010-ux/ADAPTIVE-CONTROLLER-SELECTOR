@@ -589,21 +589,18 @@
         card.className = 'engine-card';
         card.id = `card_${eng.id}`;
         card.innerHTML = `
-          <div class="engine-card-header">
-            <div>
-              <h3 style="font-size: 13px; font-weight: 600; color: #f0f6fc; margin: 0 0 4px 0;">${eng.name}</h3>
-              <span class="engine-folder-tag">${eng.folder}</span>
-            </div>
+          <div class="engine-card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <code style="font-size: 11px; color: #00F5D4; font-family: monospace;">${eng.folder}</code>
             <span class="badge-param" style="font-size: 9px;">${eng.category}</span>
           </div>
-          <p class="engine-card-desc" style="font-size: 11px; color: #8b949e; line-height: 1.4; margin: 8px 0;">${eng.desc}</p>
-          <div class="engine-card-preview" style="height: 80px; background: #03060c; border-radius: 6px; overflow: hidden; position: relative;">
-            <canvas id="canvas_${eng.id}" width="320" height="80" style="width: 100%; height: 100%; display: block;"></canvas>
+          <div class="engine-card-preview" style="height: 75px; background: #03060c; border-radius: 6px; overflow: hidden; position: relative;">
+            <canvas id="canvas_${eng.id}" width="320" height="75" style="width: 100%; height: 100%; display: block;"></canvas>
           </div>
-          <div class="engine-card-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 11px; font-family: monospace;">
+          <div class="engine-card-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 10px; font-family: monospace;">
             <span class="engine-latency" style="color: #8b949e;">Latency: <strong id="lat_${eng.id}" style="color: #79c0ff;">${eng.baseLat} ms</strong></span>
             <span class="engine-status-badge badge-certified" id="badge_${eng.id}">ACTIVE CO-SIM</span>
           </div>
+          <button class="btn-action btn-primary" style="font-size: 10px; padding: 4px 8px; margin-top: 6px; width: 100%;" onclick="window.runSubsystemEngine('${eng.folder}')">▶ Execute Subsystem Implementation</button>
         `;
         grid.appendChild(card);
       });

@@ -72,14 +72,10 @@
 │       ├── distributed_meta_learning.m   # MAML Rapid Single-Step Swarm Adaptation
 │       ├── autonomous_mission_planner.m  # 4D RRT* Trajectory Optimizer with No-Fly Zones
 │       └── self_evolving_swarm_controller.m # Genetic Chromosome Evolution Engine
-├── papers/
-│   ├── IEEE_ACEP_Research_Paper.md       # Complete 11-Section IEEE Publication Paper
-│   └── ACEP_50_Breakthrough_Innovations_Inventions.md # Catalog of 50 Novel Breakthroughs
 ├── web_app/                              # Modern Interactive Web Application & Dashboard
 │   ├── index.html                        # Mission Control & Visualizer Interface
 │   ├── styles.css                        # Glassmorphic Dark-Mode Design System
 │   ├── simulation_engine.js              # Real-Time Physics, Digital Twin & Swarm Engine
-│   ├── acep_paper_content.js             # Data Store for 35 Scripts & Paper Content
 │   └── app.js                            # UI Event Controller & Canvas Visualizers
 ├── package.json
 └── README.md
@@ -92,23 +88,18 @@
 Start the web application locally:
 
 ```bash
-# Option 1: Via Node.js
-npm run serve
-
-# Option 2: Via Python
+# Via Node.js
 npm start
 ```
-Then open `http://localhost:8080` in your web browser.
+Then open `http://localhost:3000` in your web browser.
 
 ### Key Interactive Features in the Web App:
-- **Mission Control Cockpit:** Real-time 60 FPS oscilloscope plotting physical plant $y(t)$, digital twin $\hat{y}(t)$, reference $r(t)$, and control effort $u(t)$ across 5 benchmark plants (Quadrotor, Inverted Pendulum, DC Motor, Chemical Reactor, LEO Satellite).
-- **Interactive Controller Selector:** Instantly compare Conventional PID vs Lead-Lag vs LQR vs MPC vs Robust $H_\infty$ vs SMC vs **ACEP Evolved Hybrid**.
-- **Swarm & GNN Visualizer:** 8-UAV drone swarm simulation featuring GAT attention links, formation morphing (Hexagon, V-Formation, Circular, Dispersed), node jamming, and self-healing.
+- **Mission Control Cockpit:** Real-time 60 FPS oscilloscope plotting physical plant $y(t)$, digital twin $\hat{y}(t)$, reference $r(t)$, and control effort $u(t)$ across benchmark plants (Quadrotor, Inverted Pendulum, DC Motor, Robotics, Thermal).
+- **Interactive Controller Selector:** Instantly compare Conventional PID vs Lead-Lag vs LQR vs MPC vs Robust $H_\infty$ vs SMC.
+- **Swarm & Multi-Agent Visualizer:** Drone swarm simulation featuring consensus dynamics and self-healing.
 - **Genetic Evolution Engine:** Live interactive genetic algorithm with chromosome genomes, generation counter, and Pareto fitness curve.
 - **Cyber-Physical War Room:** Interactive injection triggers for False Data Injection (FDI), Sensor Replay, 40% Actuator Burnout, and DoS latency with Chi-Square innovation monitoring.
-- **35 MATLAB Scripts Explorer:** Interactive code viewer with syntax styling, 1-click code copying, and script downloads.
-- **50 Breakthroughs Catalog:** Tabbed showcase of 10 Innovations, 10 Inventions, 10 Out-of-the-Box Solutions, 10 Mechanisms, and 10 Features.
-- **Full IEEE Research Paper:** Comprehensive publication manuscript with LaTeX mathematics, benchmark tables, and Markdown export.
+- **MATLAB Modules Explorer:** Interactive code viewer with syntax styling and real-time execution across all 81 subsystems.
 
 ---
 

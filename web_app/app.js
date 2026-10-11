@@ -578,15 +578,16 @@ document.addEventListener('DOMContentLoaded', () => {
       const card = document.createElement('div');
       card.className = 'module-item-card';
       card.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-          <strong style="font-size:12px; color:var(--text-main); font-family:var(--font-mono);">${m.name}</strong>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong style="font-size:11px; color:var(--accent-cyan); font-family:var(--font-mono);">${m.name}</strong>
           <span class="badge badge-cyan" style="font-size:9px;">${m.category}</span>
         </div>
-        <p style="font-size:11px; color:var(--text-secondary); line-height:1.4; margin:4px 0;">${m.purpose || 'ACEP Control Algorithm'}</p>
-        <span style="font-size:10px; color:var(--text-dim); font-family:var(--font-mono);">${m.path}</span>
+        <div style="font-size:10px; color:var(--text-secondary); font-family:var(--font-mono); margin:6px 0;">
+          Path: <code>${m.path}</code>
+        </div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-          <button class="btn-action btn-primary" style="font-size:10px; padding:3px 8px;" onclick="runMatlabModule('${m.path}')">▶ Run Module</button>
-          <span style="font-size:10px; color:var(--state-success); font-family:var(--font-mono);">VERIFIED</span>
+          <button class="btn-action btn-primary" style="font-size:10px; padding:3px 8px;" onclick="runMatlabModule('${m.path}')">▶ Execute Implementation</button>
+          <span style="font-size:10px; color:var(--state-success); font-family:var(--font-mono);">EXECUTABLE</span>
         </div>
       `;
       modContainer.appendChild(card);
@@ -605,7 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
     inputSearchMod.addEventListener('input', () => {
       const q = inputSearchMod.value.toLowerCase();
       const filtered = state.modulesList.filter(m => 
-        m.name.toLowerCase().includes(q) || m.path.toLowerCase().includes(q) || (m.purpose && m.purpose.toLowerCase().includes(q))
+        m.name.toLowerCase().includes(q) || m.path.toLowerCase().includes(q)
       );
       renderModulesList(filtered);
     });
@@ -619,9 +620,18 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .then(r => r.json())
     .then(res => {
-      alert(`[MATLAB EXECUTION SUCCESS]\nModule: ${res.module}\nLatency: ${res.executionLatencyMs} ms\nVerdict: ${res.verdict}`);
+      const logBox = document.getElementById('botStatusLog');
+      if (logBox) {
+        logBox.textContent = `[EXECUTION] ${res.path} | Latency: ${res.executionLatencyMs} ms | ${res.verdict}\n` + logBox.textContent;
+      }
     })
-    .catch(err => alert('Module execution failed: ' + err));
+    .catch(err => console.error('Module execution failed:', err));
+  };
+
+  window.runSubsystemEngine = function(folderPath) {
+    const matched = state.modulesList.find(m => m.path.startsWith(folderPath));
+    const targetPath = matched ? matched.path : (folderPath + '/engine.m');
+    window.runMatlabModule(targetPath);
   };
 
   // =========================================================================
