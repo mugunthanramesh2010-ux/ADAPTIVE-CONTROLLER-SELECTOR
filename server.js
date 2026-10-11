@@ -111,12 +111,10 @@ const server = http.createServer((req, res) => {
     'Referrer-Policy': 'strict-origin-when-cross-origin'
   };
 
-  // Caching strategy: Static assets get 1 day, HTML/telemetry get no-cache
-  if (['.js', '.css', '.png', '.svg', '.ico'].includes(ext)) {
-    headers['Cache-Control'] = 'public, max-age=86400';
-  } else {
-    headers['Cache-Control'] = 'no-cache';
-  }
+  // Caching strategy: Never cache in development/live mode so edits update instantly
+  headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+  headers['Pragma'] = 'no-cache';
+  headers['Expires'] = '0';
 
   // Gzip compression for text assets
   const compressible = ['.html', '.css', '.js', '.json', '.csv', '.md', '.tex', '.m'].includes(ext);

@@ -470,12 +470,17 @@ class SimulationEngine {
     return auditEntry;
   }
 
-  updateSwarm() {
+  updateSwarm(canvasW = 900, canvasH = 480) {
+    if (!this.agents || this.agents.length === 0) return;
     const leader = this.agents[0];
-    const t = this.time * 0.8;
-    leader.x = 450 + 140 * Math.sin(t);
-    leader.y = 240 + 80 * Math.sin(2 * t);
+    const t = this.time * 0.7;
+    const cx = canvasW / 2;
+    const cy = canvasH / 2;
 
+    leader.x = cx + 130 * Math.sin(t);
+    leader.y = cy + 65 * Math.sin(2 * t);
+
+    // Dynamic formation targets relative to centered leader
     for (let i = 1; i < this.agents.length; i++) {
       const agent = this.agents[i];
       if (agent.isJammed) continue;
@@ -484,28 +489,59 @@ class SimulationEngine {
       let offsetY = 0;
 
       if (this.swarmTopology === 'hexagon') {
+        // Hexagonal Shield formation
         const angle = (2 * Math.PI * (i - 1)) / (this.numAgents - 1);
-        offsetX = 100 * Math.cos(angle);
-        offsetY = 100 * Math.sin(angle);
+        offsetX = 110 * Math.cos(angle);
+        offsetY = 95 * Math.sin(angle);
       } else if (this.swarmTopology === 'v_formation') {
+        // V-Formation Delta Strike
         const side = i % 2 === 0 ? 1 : -1;
         const rank = Math.ceil(i / 2);
-        offsetX = -rank * 55;
-        offsetY = side * rank * 45;
+        offsetX = -rank * 60;
+        offsetY = side * rank * 48;
       } else if (this.swarmTopology === 'circular') {
-        const angle = (2 * Math.PI * (i - 1)) / (this.numAgents - 1) + t * 0.5;
-        offsetX = 130 * Math.cos(angle);
-        offsetY = 130 * Math.sin(angle);
+        // Orbital Dual-Ring
+        const isInner = i <= 4;
+        const radius = isInner ? 75 : 140;
+        const speed = isInner ? 0.6 : -0.4;
+        const angle = (2 * Math.PI * (i - 1)) / 4 + t * speed;
+        offsetX = radius * Math.cos(angle);
+        offsetY = radius * Math.sin(angle);
+      } else if (this.swarmTopology === 'escort') {
+        // Dynamic Escort Convoy
+        const angles = [-0.6, 0.6, -1.8, 1.8, -2.6, 2.6, 3.14];
+        const dists = [70, 70, 110, 110, 150, 150, 180];
+        const a = angles[(i - 1) % angles.length];
+        const d = dists[(i - 1) % dists.length];
+        offsetX = d * Math.cos(a + t * 0.2);
+        offsetY = d * Math.sin(a + t * 0.2);
       } else {
-        offsetX = ((i * 47) % 240) - 120;
-        offsetY = ((i * 31) % 180) - 90;
+        // Distributed Mesh Patrol
+        const baseAngle = ((i - 1) / (this.numAgents - 1)) * Math.PI * 2;
+        offsetX = 120 * Math.cos(baseAngle + Math.sin(t * 0.5 + i) * 0.4);
+        offsetY = 100 * Math.sin(baseAngle + Math.cos(t * 0.5 + i) * 0.4);
       }
 
       const tx = leader.x + offsetX;
       const ty = leader.y + offsetY;
 
-      agent.vx += (tx - agent.x) * 0.08 - agent.vx * 0.2;
-      agent.vy += (ty - agent.y) * 0.08 - agent.vy * 0.2;
+      // Reynolds Flocking: Formation Tracking
+      agent.vx += (tx - agent.x) * 0.08 - agent.vx * 0.22;
+      agent.vy += (ty - agent.y) * 0.08 - agent.vy * 0.22;
+
+      // Reynolds Flocking: Inter-agent Collision Avoidance Repulsion
+      for (let j = 0; j < this.agents.length; j++) {
+        if (i === j) continue;
+        const other = this.agents[j];
+        const dx = agent.x - other.x;
+        const dy = agent.y - other.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist > 0 && dist < 42) {
+          const repel = (42 - dist) * 0.035;
+          agent.vx += (dx / dist) * repel;
+          agent.vy += (dy / dist) * repel;
+        }
+      }
 
       agent.x += agent.vx;
       agent.y += agent.vy;
