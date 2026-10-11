@@ -54,9 +54,6 @@
       </div>
 
       <div class="topbar-right">
-        <div class="meta-pill">
-          <span>EXP: <strong id="lblExpId">EXP-2026-X81</strong></span>
-        </div>
         <button class="btn-action btn-violet" id="btnToggleAiBot" style="font-size: 11px; padding: 4px 10px; margin-right: 8px;"><span class="icon">🤖</span> AI Copilot Bot <span class="nav-badge" style="background:var(--accent-violet);color:#0D1117;font-weight:700">AUTO</span></button>
         <button class="btn-icon" id="btnThemeToggle" title="Toggle Light/Dark Theme">🌓</button>
       </div>
@@ -101,7 +98,6 @@
       <div class="sidebar-category">Studio & Repository</div>
       <nav class="sidebar-nav-list">
         <a class="nav-item" data-view="viewVizCenter"><span class="nav-icon">🌌</span> 2D/3D Visualization Center</a>
-        <a class="nav-item" data-view="viewModuleExplorer"><span class="nav-icon">📦</span> MATLAB Module Explorer <span class="nav-badge">697</span></a>
         <a class="nav-item" data-view="viewBenchmarks"><span class="nav-icon">🏁</span> Experiments & Benchmarks</a>
         <a class="nav-item" data-view="viewReports"><span class="nav-icon">📑</span> Results & Reports</a>
         <a class="nav-item" data-view="viewSettings"><span class="nav-icon">⚙️</span> Settings & Feature Flags</a>
@@ -928,8 +924,8 @@
         </div>
       </section>
 
-      <!-- 17. MATLAB MODULE EXPLORER -->
-      <section class="view-pane" id="viewModuleExplorer">
+      <!-- 17. MATLAB MODULE EXPLORER (HIDDEN FROM UI AS REQUESTED, FULLY IMPLEMENTED IN BACKGROUND ENGINE) -->
+      <section class="view-pane" id="viewModuleExplorer" style="display: none !important;">
         <div class="view-header">
           <div class="view-title-group">
             <h2>📦 MATLAB Module Explorer — Complete 81 Subsystem Inventory</h2>
