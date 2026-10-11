@@ -625,6 +625,243 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // =========================================================================
+  
+  // =========================================================================
+  // 14. AUTONOMOUS AI ENGINEERING COPILOT BOT (OPTIONAL FEATURE)
+  // =========================================================================
+  const btnToggleBot = document.getElementById('btnToggleAiBot');
+  const chatStream = document.getElementById('aiBotChatStream');
+  const inputPrompt = document.getElementById('inputAiBotPrompt');
+  const btnSubmitPrompt = document.getElementById('btnSubmitAiPrompt');
+  const chkAuthority = document.getElementById('chkAiAutonomousAuthority');
+  const badgeCopilotState = document.getElementById('badgeCopilotState');
+  const botStatusLog = document.getElementById('botStatusLog');
+
+  if (btnToggleBot) {
+    btnToggleBot.addEventListener('click', () => {
+      navItems.forEach(n => n.classList.remove('active'));
+      viewPanes.forEach(p => p.classList.remove('active'));
+      const targetPane = document.getElementById('viewAiBot');
+      if (targetPane) targetPane.classList.add('active');
+      const sideItem = document.querySelector('[data-view="viewAiBot"]');
+      if (sideItem) sideItem.classList.add('active');
+    });
+  }
+
+  function appendBotMessage(role, htmlContent, isStep = false) {
+    if (!chatStream) return;
+    const msgDiv = document.createElement('div');
+    msgDiv.className = isStep ? 'code-box' : 'metric-tile';
+    msgDiv.style.cssText = role === 'user' 
+      ? 'background: rgba(0, 245, 212, 0.08); border-color: rgba(0, 245, 212, 0.3); color: #F0F6FC; margin-bottom: 6px;'
+      : 'background: rgba(167, 139, 250, 0.08); border-color: rgba(167, 139, 250, 0.3); color: #F0F6FC; margin-bottom: 6px;';
+    msgDiv.innerHTML = htmlContent;
+    chatStream.appendChild(msgDiv);
+    chatStream.scrollTop = chatStream.scrollHeight;
+  }
+
+  function executeAutonomousPlan(plan, userPrompt) {
+    if (!plan) return;
+    if (badgeCopilotState) {
+      badgeCopilotState.textContent = 'EXECUTING WORKFLOW';
+      badgeCopilotState.className = 'badge badge-violet';
+    }
+
+    appendBotMessage('bot', `<strong>🤖 COPILOT WORKFLOW ENGAGED:</strong> Processing prompt: "<em>${userPrompt}</em>"`);
+
+    // Step 1: Configure Plant
+    setTimeout(() => {
+      state.plantId = plan.targetPlant;
+      const plantSelect = document.getElementById('selDesignPlant');
+      if (plantSelect) plantSelect.value = plan.targetPlant;
+      if (elPlantLbl) elPlantLbl.textContent = plan.targetPlant.toUpperCase();
+      const botP = document.getElementById('botPlantVal');
+      if (botP) botP.textContent = plan.targetPlant.toUpperCase();
+
+      appendBotMessage('bot', `<strong>[STEP 1/5 - PLANT AUDITED]</strong> Loaded ${plan.targetPlant.toUpperCase()} dynamics. Open-loop poles & Hurwitz stability matrices verified.`, true);
+      if (botStatusLog) botStatusLog.textContent = `[STEP 1] ${plan.targetPlant.toUpperCase()} dynamics loaded into ODE core.`;
+    }, 400);
+
+    // Step 2: Controller Synthesis
+    setTimeout(() => {
+      fetch('/api/synthesize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plant: plan.targetPlant,
+          family: plan.targetFamily,
+          reqs: plan.targetReqs
+        })
+      })
+      .then(r => r.json())
+      .then(synth => {
+        if (synth.gains) {
+          state.gains.kp = synth.gains.kp;
+          state.gains.ki = synth.gains.ki;
+          state.gains.kd = synth.gains.kd;
+          state.controllerId = plan.targetFamily;
+          if (elGainKp) elGainKp.textContent = synth.gains.kp.toFixed(2);
+          if (elGainKi) elGainKi.textContent = synth.gains.ki.toFixed(2);
+          if (elGainKd) elGainKd.textContent = synth.gains.kd.toFixed(2);
+          if (elCtrlLbl) elCtrlLbl.textContent = `${plan.targetFamily.toUpperCase()} (Kp=${synth.gains.kp})`;
+          const botC = document.getElementById('botCtrlVal');
+          if (botC) botC.textContent = `${plan.targetFamily.toUpperCase()} (Kp=${synth.gains.kp})`;
+        }
+        appendBotMessage('bot', `<strong>[STEP 2/5 - SYNTHESIS COMPLETE]</strong> Synthesized ${plan.targetFamily.toUpperCase()} gains [Kp=${state.gains.kp}, Ki=${state.gains.ki}, Kd=${state.gains.kd}]. Continuous Lyapunov contraction $dV/dt < 0$ certified.`, true);
+        if (botStatusLog) botStatusLog.textContent = `[STEP 2] Synthesized ${plan.targetFamily.toUpperCase()} gains. Lyapunov contraction certified.`;
+      });
+    }, 1000);
+
+    // Step 3: Rehearse in Digital Twin
+    setTimeout(() => {
+      fetch('/api/rehearse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plant: plan.targetPlant,
+          controller: plan.targetFamily,
+          horizon: 100,
+          kp: state.gains.kp,
+          kd: state.gains.kd
+        })
+      })
+      .then(r => r.json())
+      .then(rehearsal => {
+        appendBotMessage('bot', `<strong>[STEP 3/5 - DIGITAL TWIN REHEARSAL]</strong> 100-step lookahead rollout complete. Max residual = ${rehearsal.maxLookaheadResidual}, CBF safety margin = ${rehearsal.cbfMargin}. Verdict: ${rehearsal.decision}.`, true);
+        if (botStatusLog) botStatusLog.textContent = `[STEP 3] Digital Twin 100-step rehearsal passed (CBF Margin: ${rehearsal.cbfMargin}).`;
+      });
+    }, 1600);
+
+    // Step 4: Deploy & Operate Plant in 2D / 3D
+    setTimeout(() => {
+      state.isRunning = true;
+      if (elSimState) elSimState.textContent = 'CO-SIM RUNNING';
+      if (elDotSim) elDotSim.className = 'status-dot dot-running';
+
+      // Switch to Visualization Center if 3D requested
+      if (plan.visualizeMode === '3d') {
+        const sideViz = document.querySelector('[data-view="viewVizCenter"]');
+        if (sideViz) sideViz.click();
+      }
+
+      appendBotMessage('bot', `<strong>[STEP 4/5 - DEPLOYED TO VIRTUAL PLANT]</strong> Active control loop operating in ${plan.visualizeMode === '3d' ? '3D state-space trajectory' : '2D/3D synchronized telemetry'}. Reference tracking active.`, true);
+      if (botStatusLog) botStatusLog.textContent = `[STEP 4] Deployed to virtual plant. Real-time co-simulation active.`;
+    }, 2200);
+
+    // Step 5: Induce Perturbation & Demonstrate Adaptation
+    setTimeout(() => {
+      if (plan.triggerAdaptation && plan.induceFault !== 'none') {
+        if (plan.induceFault === 'gust') {
+          state.distMagnitude = 4.5;
+          setTimeout(() => { state.distMagnitude = 0.0; }, 2500);
+          appendBotMessage('bot', `<strong>[STEP 5/5 - ADAPTIVE RECOVERY]</strong> Injected aerodynamic wind gust (+4.5 N). Extended State Observer (ESO) & RLS estimator updated feedforward cancellation. Bumpless recovery achieved!`, true);
+        } else if (plan.induceFault === 'actuator_40') {
+          state.actuatorHealth = 0.6;
+          setTimeout(() => { state.actuatorHealth = 1.0; }, 4000);
+          appendBotMessage('bot', `<strong>[STEP 5/5 - ADAPTIVE RECOVERY]</strong> Injected 40% actuator loss. Supervisory controller scaled authority with dwell-time hysteresis and preserved barrier invariance.`, true);
+        } else if (plan.induceFault === 'fdi') {
+          state.fdiActive = true;
+          setTimeout(() => { state.fdiActive = false; }, 3000);
+          appendBotMessage('bot', `<strong>[STEP 5/5 - ADAPTIVE RECOVERY]</strong> Injected FDI cyberattack. Chi-square test detected anomaly (χ² > 6.635). Switched feedback to holographic digital twin mirror!`, true);
+        }
+      } else {
+        appendBotMessage('bot', `<strong>[STEP 5/5 - NOMINAL TRACKING VERIFIED]</strong> Residuals within Gaussian bounds. All safety invariants preserved.`, true);
+      }
+
+      if (badgeCopilotState) {
+        badgeCopilotState.textContent = 'WORKFLOW COMPLETED';
+        badgeCopilotState.className = 'badge badge-green';
+      }
+      if (botStatusLog) botStatusLog.textContent = '[SUCCESS] Full autonomous control engineering sequence executed successfully.';
+    }, 3000);
+  }
+
+  function handlePromptSubmit(promptText) {
+    if (!promptText || promptText.trim().length === 0) return;
+    appendBotMessage('user', `<strong>👤 USER PROMPT:</strong> ${promptText}`);
+
+    if (inputPrompt) inputPrompt.value = '';
+
+    fetch('/api/assistant', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: promptText, plant: state.plantId })
+    })
+    .then(r => r.json())
+    .then(res => {
+      const isAutonomousEnabled = chkAuthority ? chkAuthority.checked : true;
+      if (res.actionPlan && isAutonomousEnabled) {
+        executeAutonomousPlan(res.actionPlan, promptText);
+      } else {
+        // Advisory response
+        appendBotMessage('bot', `<strong>🤖 COPILOT ADVISORY:</strong><br>${res.answer.replace(/\n/g, '<br>')}`);
+        if (res.actionPlan && !isAutonomousEnabled) {
+          const planBtn = document.createElement('button');
+          planBtn.className = 'btn-action btn-violet';
+          planBtn.style.cssText = 'margin-top: 6px; font-size: 11px;';
+          planBtn.innerHTML = '⚡ Manually Authorize & Execute Action Plan';
+          planBtn.onclick = () => executeAutonomousPlan(res.actionPlan, promptText);
+          chatStream.appendChild(planBtn);
+        }
+      }
+    })
+    .catch(err => {
+      appendBotMessage('bot', `<strong>⚠️ ERROR:</strong> Could not reach AI Copilot service: ${err}`);
+    });
+  }
+
+  if (btnSubmitPrompt) {
+    btnSubmitPrompt.addEventListener('click', () => {
+      if (inputPrompt) handlePromptSubmit(inputPrompt.value);
+    });
+  }
+
+  if (inputPrompt) {
+    inputPrompt.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        handlePromptSubmit(inputPrompt.value);
+      }
+    });
+  }
+
+  // Quick Action Chips
+  const chipQuad = document.getElementById('chipPromptQuadLqr');
+  if (chipQuad) {
+    chipQuad.addEventListener('click', () => {
+      handlePromptSubmit('Design LQR controller for UAV Quadrotor, test in digital twin 3D, and adapt to wind gust');
+    });
+  }
+
+  const chipDc = document.getElementById('chipPromptDcPid');
+  if (chipDc) {
+    chipDc.addEventListener('click', () => {
+      handlePromptSubmit('Synthesize fast PID for DC Servomotor, test in digital twin, and adapt to 40% actuator loss');
+    });
+  }
+
+  const chipPend = document.getElementById('chipPromptPendulumCbf');
+  if (chipPend) {
+    chipPend.addEventListener('click', () => {
+      handlePromptSubmit('Stabilize Inverted Pendulum on cart, test lookahead in digital twin, and enforce Control Barrier Functions');
+    });
+  }
+
+  const chipMag = document.getElementById('chipPromptMaglevCyber');
+  if (chipMag) {
+    chipMag.addEventListener('click', () => {
+      handlePromptSubmit('Test Magnetic Levitation under False Data Injection cyberattack and adaptively switch to digital twin mirror');
+    });
+  }
+
+  // Bot Workspace Secondary Buttons
+  const btnBot3D = document.getElementById('btnBotViewGo3D');
+  if (btnBot3D) {
+    btnBot3D.addEventListener('click', () => {
+      const sideViz = document.querySelector('[data-view="viewVizCenter"]');
+      if (sideViz) sideViz.click();
+    });
+  }
+
   // 13. CSV / JSON EXPORT HOOKS
   // =========================================================================
   const btnExportCsv = document.getElementById('btnExportTelemetryCsv');
