@@ -1,12 +1,12 @@
 /**
- * ACEP Knowledge & Paper Content Store
- * Contains complete catalog of 697 MATLAB research modules,
- * 50 Breakthroughs, and full IEEE Paper metadata.
+ * ACEP Knowledge & Algorithm Module Store
+ * Contains complete catalog of 697 Autonomous Control Engineering Modules,
+ * 100 Architectural Breakthroughs, and Systems Verification Metadata.
  */
 
 window.ACEP_DATA = {
   // =========================================================================
-  // 697 RESEARCH-GRADE MATLAB MODULES CATALOG
+  // 697 AUTONOMOUS CONTROL ENGINEERING MODULES CATALOG
   // =========================================================================
   matlabModules: [
   {

@@ -44,23 +44,23 @@
       <button class="nav-tab" data-target="swarmTab" id="navSwarmBtn">Swarm & GNN</button>
       <button class="nav-tab" data-target="evolutionTab" id="navEvolutionBtn">Genetic Evolution</button>
       <button class="nav-tab" data-target="warroomTab" id="navWarroomBtn">Cyber & FDI War Room</button>
-      <button class="nav-tab" data-target="modulesTab" id="navModulesBtn">MATLAB Modules (500+)</button>
+      <button class="nav-tab" data-target="modulesTab" id="navModulesBtn">Autonomous Control Modules (697)</button>
       <button class="nav-tab" data-target="innovationsTab" id="navInnovationsBtn">100 Breakthroughs</button>
       <button class="nav-tab" data-target="universalStudioTab" id="navStudioBtn">Universal Plant Studio</button>
     </nav>
 
     <div class="nav-status-indicators">
-      <div class="status-pill status-network" id="networkPill" title="Network Access for iPhone, iPad, & other PCs">
+      <div class="status-pill status-network" id="networkPill" title="Network Access for Remote Devices">
         <span class="status-dot"></span> IP: 10.184.177.218:8080
       </div>
-      <div class="status-pill status-healthy" title="Plant Physical Substrate">
-        <span class="status-dot"></span> Plant: Nominal
+      <div class="status-pill status-healthy" id="plantPill" title="Plant Physical Substrate">
+        <span class="status-dot" id="plantDot"></span> <span id="plantStatusLabel">Plant: Nominal</span>
       </div>
-      <div class="status-pill status-twin" title="Bilateral Digital Twin Observer">
-        <span class="status-dot pulse"></span> Twin: Sync (99.8%)
+      <div class="status-pill status-twin" id="twinPill" title="Bilateral Digital Twin Observer">
+        <span class="status-dot pulse" id="twinDot"></span> <span id="twinSyncLabel">Twin: Sync (99.2%)</span>
       </div>
-      <div class="status-pill status-certified" title="Lyapunov Formal Safety Verification">
-        <span class="status-dot"></span> Lyapunov: Certified
+      <div class="status-pill status-certified" id="lyapPill" title="Lyapunov Formal Safety Verification">
+        <span class="status-dot" id="lyapDot"></span> <span id="lyapStatusLabel">Lyapunov: Certified</span>
       </div>
     </div>
   </header>
@@ -588,13 +588,13 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- TAB 5: MATLAB MODULES (35 SCRIPTS BROWSER) -->
+    <!-- TAB 5: AUTONOMOUS CONTROL ENGINE & MODULE EXPLORER (697) -->
     <!-- ========================================================================= -->
     <section class="tab-pane" id="modulesTab">
       <div class="modules-layout">
         <aside class="modules-sidebar">
           <div class="modules-search-box">
-            <input type="text" id="moduleSearchInput" placeholder="Filter 500+ research MATLAB scripts..." class="cyber-input">
+            <input type="text" id="moduleSearchInput" placeholder="Search 697 autonomous control modules..." class="cyber-input">
           </div>
           <div class="modules-nav-tree" id="modulesNavTree">
             <!-- Populated via Javascript -->
@@ -604,15 +604,15 @@
         <article class="module-code-viewer panel">
           <div class="code-viewer-header">
             <div class="module-info-meta">
-              <span class="module-badge" id="viewerBadge">MATLAB FUNCTION</span>
+              <span class="module-badge" id="viewerBadge">CONTROL ENGINE MODULE</span>
               <h3 id="viewerFileName">distributed_mpc_rl.m</h3>
             </div>
             <div class="viewer-actions">
-              <button class="action-btn" id="copyCodeBtn" title="Copy MATLAB code to clipboard">📋 Copy Code</button>
-              <button class="action-btn" id="downloadCodeBtn" title="Download .m script">💾 Download .m</button>
+              <button class="action-btn" id="copyCodeBtn" title="Copy module code to clipboard">📋 Copy Code</button>
+              <button class="action-btn" id="downloadCodeBtn" title="Download module source">💾 Download Module</button>
             </div>
           </div>
-          <pre class="code-pre"><code id="viewerCodeBlock" class="language-matlab"></code></pre>
+          <pre class="code-pre"><code id="viewerCodeBlock" class="language-control"></code></pre>
         </article>
       </div>
     </section>
