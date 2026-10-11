@@ -98,6 +98,28 @@ class Engine3DViz {
     }
   }
 
+  addPoint(x1, x2, x3) {
+    this.addStatePoint(x1, x2, x3);
+  }
+
+  renderTrajectory(x1, x2, u) {
+    this.renderStateSpace(x1 || 0, x2 || 0, u || 0);
+  }
+
+  renderSurface(kp, kd) {
+    this.renderParameterSurface(kp || 5.0, kd || 1.5);
+  }
+
+  setMode() {}
+
+  render() {
+    if (this.trajectory && this.trajectory.length > 0) {
+      this.renderStateSpace(0, 0, 0);
+    } else {
+      this.renderParameterSurface(5.0, 1.5);
+    }
+  }
+
   generateSurfaceMesh() {
     const grid = [];
     const steps = 14;

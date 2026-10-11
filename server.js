@@ -573,6 +573,9 @@ const server = http.createServer((req, res) => {
 
   const headers = Object.assign({
     'Content-Type': contentType,
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
     'X-Content-Type-Options': 'nosniff',
     'X-Frame-Options': 'SAMEORIGIN',
     'Referrer-Policy': 'strict-origin-when-cross-origin'

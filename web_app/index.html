@@ -27,7 +27,7 @@
         <div class="topbar-experiment-meta">
           <div class="meta-pill">
             <span class="status-dot dot-online" id="dotMatlab"></span>
-            <span>MATLAB R2026: <strong id="lblModuleCount">697 Modules</strong></span>
+            <span>STATUS: <strong class="text-green" id="lblEngineStatus">ONLINE</strong></span>
           </div>
           <div class="meta-pill">
             <span class="status-dot dot-running" id="dotSimState"></span>
@@ -260,13 +260,43 @@
             <div class="panel-header">
               <h3>Performance Requirements & Synthesized Gains</h3>
               <select class="input-control" id="selDesignFamily">
-                <option value="pid">PID (Proportional-Integral-Derivative)</option>
-                <option value="state_feedback">Full State Feedback & Pole Placement</option>
-                <option value="lqr">Linear Quadratic Regulator (LQR)</option>
-                <option value="lead_lag">Lead-Lag Frequency Compensator</option>
-                <option value="fractional_pid">Fractional-Order PID (PI^λ D^μ)</option>
-                <option value="adrc">Active Disturbance Rejection (ADRC/ESO)</option>
+                <optgroup label="Classical & Advanced Controllers">
+                  <option value="pid">PID (Proportional-Integral-Derivative)</option>
+                  <option value="state_feedback">Full State Feedback & Pole Placement</option>
+                  <option value="lqr">Linear Quadratic Regulator (LQR / Riccati)</option>
+                  <option value="mpc">Model Predictive Control (Constrained Receding Horizon)</option>
+                  <option value="adrc">Active Disturbance Rejection Control (ADRC/ESO)</option>
+                  <option value="smc">Sliding Mode Control (Super-Twisting Chattering-Free)</option>
+                  <option value="h_inf">H-Infinity (H_inf) Robust Optimal Controller</option>
+                  <option value="backstepping">Nonlinear Backstepping Adaptive Control</option>
+                  <option value="mrac">Model Reference Adaptive Control (Lyapunov MRAC)</option>
+                  <option value="lqg">Linear Quadratic Gaussian (Kalman Filter + LQR)</option>
+                  <option value="pinn_neural">Physics-Informed Neural Network (PINN Feedforward)</option>
+                  <option value="fuzzy">Adaptive Fuzzy Logic Controller</option>
+                  <option value="imc">Internal Model Control (IMC)</option>
+                  <option value="fractional_pid">Fractional-Order PID (PI^λ D^μ)</option>
+                  <option value="gpc">Generalized Predictive Control (GPC)</option>
+                  <option value="ftc">Active Fault-Tolerant Reconfigurable Control (FTC)</option>
+                  <option value="bang_bang">Bang-Bang Time-Optimal Controller</option>
+                </optgroup>
+                <optgroup label="Universal Frequency & Dynamic Compensators">
+                  <option value="lead_comp">Lead Compensator (Phase Advance / Speed Boost)</option>
+                  <option value="lag_comp">Lag Compensator (Phase Lag / Error Attenuation)</option>
+                  <option value="lead_lag">Lead-Lag Frequency Domain Compensator</option>
+                  <option value="notch_comp">Notch Filter Anti-Resonance Compensator</option>
+                  <option value="feedforward_comp">Feedforward Dynamic Decoupler Compensator</option>
+                  <option value="pz_cancel_comp">Pole-Zero Cancellation Compensator</option>
+                  <option value="cascade_comp">Cascade Dual-Loop Compensator</option>
+                  <option value="phase_shaping_comp">Robust Phase-Shaping Compensator</option>
+                </optgroup>
+                <optgroup label="Custom Engineering Paradigms">
+                  <option value="custom">➕ [Enter Any Custom Controller / Compensator in the World...]</option>
+                </optgroup>
               </select>
+            </div>
+            <div id="rowCustomCtrl" style="display: none; margin-top: 8px; padding: 8px 12px; background: rgba(167, 139, 250, 0.05); border: 1px dashed rgba(167, 139, 250, 0.3); border-radius: 6px;">
+              <label style="font-size: 11px; color: var(--accent-violet); font-weight: 600; display: block; margin-bottom: 4px;">Enter Any Custom Controller / Compensator Paradigm:</label>
+              <input type="text" class="input-control" id="inputCustomCtrlName" placeholder="e.g. Quantum Annealing Gain Optimizer, Passivity-Based Port-Hamiltonian..." value="Custom Engineering Controller">
             </div>
             <div class="grid-2" style="margin-top: 8px;">
               <div class="form-group">
@@ -298,6 +328,69 @@
               <div class="metric-tile">
                 <span class="label">Gain K_d</span>
                 <span class="val text-cyan" id="gainKd">1.15</span>
+              </div>
+            </div>
+
+            <!-- ANALYTICAL PERFORMANCE & TRANSIENT RESPONSE METRICS (ALL RESPONSE PARAMETERS) -->
+            <div class="grid-4" style="margin-top: 10px;">
+              <div class="metric-tile">
+                <span class="label">Rise Time T_r</span>
+                <span class="val text-cyan" id="metricTr">0.28 s</span>
+                <span class="sub text-secondary">10% to 90%</span>
+              </div>
+              <div class="metric-tile">
+                <span class="label">Peak Time T_p</span>
+                <span class="val text-cyan" id="metricTp">0.42 s</span>
+                <span class="sub text-secondary">t_peak = π / ω_d</span>
+              </div>
+              <div class="metric-tile">
+                <span class="label">Peak Overshoot M_p</span>
+                <span class="val text-green" id="metricMp">3.8 %</span>
+                <span class="sub text-secondary">Transient Peak</span>
+              </div>
+              <div class="metric-tile">
+                <span class="label">Settling Time (2%)</span>
+                <span class="val text-cyan" id="metricTs2">0.65 s</span>
+                <span class="sub text-secondary">T_s = 4 / (ζ ω_n)</span>
+              </div>
+            </div>
+            <div class="grid-4" style="margin-top: 8px;">
+              <div class="metric-tile">
+                <span class="label">Settling Time (5%)</span>
+                <span class="val text-cyan" id="metricTs5">0.49 s</span>
+                <span class="sub text-secondary">T_s = 3 / (ζ ω_n)</span>
+              </div>
+              <div class="metric-tile">
+                <span class="label">Steady State Output</span>
+                <span class="val text-green" id="metricYss">1.000</span>
+                <span class="sub text-secondary">y_ss = lim t→∞ y</span>
+              </div>
+              <div class="metric-tile">
+                <span class="label">Steady-State Error</span>
+                <span class="val text-green" id="metricEss">0.000</span>
+                <span class="sub text-secondary">e_ss = r - y_ss</span>
+              </div>
+              <div class="metric-tile">
+                <span class="label">Damping Ratio ζ</span>
+                <span class="val text-cyan" id="metricZeta">0.707</span>
+                <span class="sub text-secondary">Damping Ratio</span>
+              </div>
+            </div>
+            <div class="grid-3" style="margin-top: 8px;">
+              <div class="metric-tile">
+                <span class="label">Natural Freq ω_n</span>
+                <span class="val text-cyan" id="metricWn">5.20 rad/s</span>
+                <span class="sub text-secondary">Bandwidth</span>
+              </div>
+              <div class="metric-tile">
+                <span class="label">Damped Freq ω_d</span>
+                <span class="val text-cyan" id="metricWd">3.68 rad/s</span>
+                <span class="sub text-secondary">ω_d = ω_n √(1-ζ²)</span>
+              </div>
+              <div class="metric-tile">
+                <span class="label">Robust Margins</span>
+                <span class="val text-green" id="metricMargins">+14.2 dB / 58°</span>
+                <span class="sub text-secondary">GM / PM</span>
               </div>
             </div>
           </div>
@@ -389,6 +482,27 @@
             </div>
             <div class="canvas-wrapper" style="height: 250px;">
               <canvas id="stabCanvasNyquist" width="560" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top: 14px;">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Polar Plot Response [|G(jω)| vs ∠G(jω)]</h3>
+              <span class="badge badge-green">Polar Coordinate (r, θ)</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="stabCanvasPolar" width="560" height="250"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Cartesian Coordinate Nichols Chart [Phase (deg) vs Gain (dB)]</h3>
+              <span class="badge badge-cyan">Cartesian (X, Y) Grid</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="stabCanvasCartesian" width="560" height="250"></canvas>
             </div>
           </div>
         </div>
@@ -1081,14 +1195,20 @@
   </div>
 
   <!-- SCRIPTS -->
-  <script src="simulation_engine.js"></script>
-  <script src="three_engine_viz.js"></script>
-  <script src="next_gen_engines.js"></script>
-  <script src="app.js"></script>
+  <script src="simulation_engine.js?v=2026.5.4"></script>
+  <script src="three_engine_viz.js?v=2026.5.4"></script>
+  <script src="next_gen_engines.js?v=2026.5.4"></script>
+  <script src="app.js?v=2026.5.4"></script>
   <script>
+    // Force purge any old service workers or cached scripts to ensure live updates
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        for (let reg of regs) reg.unregister();
+      });
+    }
+    if ('caches' in window) {
+      caches.keys().then(keys => {
+        for (let k of keys) caches.delete(k);
       });
     }
   </script>

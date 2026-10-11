@@ -1,39 +1,29 @@
-// ACEP Studio Service Worker for Offline Execution & Mobile PWA App Support
-const CACHE_NAME = 'acep-studio-v2.0';
-const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './styles.css',
-  './simulation_engine.js',
-  './app.js',
-  './manifest.json'
-];
+// ACEP Studio Service Worker with Network-First Strategy
+const CACHE_NAME = 'acep-studio-v5.1-live';
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('[ACEP Service Worker] Caching App Shell for Mobile / Desktop...');
-      return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => self.skipWaiting())
-  );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        keys.map((key) => caches.delete(key))
       );
     }).then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', (event) => {
+  // Always fetch fresh from network first; only fallback to cache if offline
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    }).catch(() => {
-      return caches.match('./index.html');
-    })
+    fetch(event.request)
+      .then((networkResponse) => {
+        return networkResponse;
+      })
+      .catch(() => {
+        return caches.match(event.request);
+      })
   );
 });
