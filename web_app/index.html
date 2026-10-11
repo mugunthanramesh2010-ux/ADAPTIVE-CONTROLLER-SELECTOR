@@ -3,729 +3,1002 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ACEP 5.0 | Autonomous Controller Evolution Platform</title>
-  <meta name="description" content="Plant-Specific Controller Design, Executable Digital Twin, Adaptive Control, and Verification Platform.">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#07090e">
+  <title>ACEP 5.0 — Autonomous Controller Evolution Platform | Research Workstation</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="dark-theme">
-  <!-- TOP HEADER & PRIMARY WORKSPACE NAVIGATION -->
-  <header class="top-nav" id="topNav">
-    <div class="nav-brand">
-      <div class="brand-logo-glow">
-        <svg viewBox="0 0 32 32" fill="none" class="brand-icon">
-          <circle cx="16" cy="16" r="14" stroke="#00f2fe" stroke-width="2" stroke-dasharray="4 2"/>
-          <circle cx="16" cy="16" r="8" stroke="#4facfe" stroke-width="2"/>
-          <circle cx="16" cy="16" r="3" fill="#00f2fe"/>
-          <line x1="16" y1="2" x2="16" y2="8" stroke="#00f2fe" stroke-width="2"/>
-          <line x1="16" y1="24" x2="16" y2="30" stroke="#00f2fe" stroke-width="2"/>
-          <line x1="2" y1="16" x2="8" y2="16" stroke="#00f2fe" stroke-width="2"/>
-          <line x1="24" y1="16" x2="30" y2="16" stroke="#00f2fe" stroke-width="2"/>
-        </svg>
-      </div>
-      <div class="brand-titles">
-        <span class="brand-name">ACEP <span class="badge-version">v5.0 PRO</span></span>
-        <span class="brand-tagline">Autonomous Controller Evolution Platform</span>
-      </div>
-    </div>
 
-    <!-- 8 Primary Workspaces Navigation -->
-    <nav class="nav-links">
-      <button class="nav-tab active" data-target="plantStudioTab" id="navPlantBtn">1. Plant Studio</button>
-      <button class="nav-tab" data-target="controllerDesignTab" id="navCtrlBtn">2. Controller Design</button>
-      <button class="nav-tab" data-target="digitalTwinLabTab" id="navTwinBtn">3. Digital Twin Lab</button>
-      <button class="nav-tab" data-target="adaptiveControlTab" id="navAdaptBtn">4. Adaptive Control</button>
-      <button class="nav-tab" data-target="faultLabTab" id="navFaultBtn">5. Fault & Resilience</button>
-      <button class="nav-tab" data-target="analysisVerificationTab" id="navAnalysisBtn">6. Analysis & 3D</button>
-      <button class="nav-tab" data-target="experimentsReportsTab" id="navExpBtn">7. Experiments & Reports</button>
-      <button class="nav-tab" data-target="assistantTab" id="navAiBtn">8. AI Assistant</button>
-    </nav>
-
-    <!-- Dynamic Status Indicators (Derived from active simulation physics) -->
-    <div class="nav-status-indicators">
-      <div class="status-pill status-healthy" id="pillPlant">
-        <span class="status-dot"></span> <span id="labelPlant">Plant: Dynamic</span>
-      </div>
-      <div class="status-pill status-twin" id="pillTwin">
-        <span class="status-dot pulse"></span> <span id="labelTwin">Twin: Sync</span>
-      </div>
-      <div class="status-pill status-certified" id="pillLyap">
-        <span class="status-dot"></span> <span id="labelLyap">Lyapunov: Certified</span>
-      </div>
-    </div>
-  </header>
-
-  <!-- LIVE ENGINEERING TELEMETRY HUD (Active gains & performance parameters) -->
-  <aside class="live-param-hud">
-    <div class="hud-item hud-gain">
-      <span class="hud-label">Proportional Gain (K_p)</span>
-      <span class="hud-val text-cyan" id="hudKp">4.50</span>
-    </div>
-    <div class="hud-item hud-gain">
-      <span class="hud-label">Integral Gain (K_i)</span>
-      <span class="hud-val text-cyan" id="hudKi">1.20</span>
-    </div>
-    <div class="hud-item hud-gain">
-      <span class="hud-label">Derivative Gain (K_d)</span>
-      <span class="hud-val text-cyan" id="hudKd">1.10</span>
-    </div>
-    <div class="hud-item hud-gain">
-      <span class="hud-label">Adaptation Rate (η)</span>
-      <span class="hud-val text-yellow" id="hudEta">0.05</span>
-    </div>
-    <div class="hud-item hud-gain">
-      <span class="hud-label">Applied Effort u(t)</span>
-      <span class="hud-val text-pink" id="hudEffort">+0.00 N</span>
-    </div>
-    <div class="hud-item hud-twin-sync">
-      <span class="hud-label">Digital Twin Sync Rate</span>
-      <span class="hud-val text-green" id="hudTwinSync">99.2%</span>
-    </div>
-  </aside>
-
-  <!-- MAIN VIEWPORT CONTAINER -->
-  <main class="main-content" id="mainContent">
+  <div class="workstation-app">
 
     <!-- ========================================================================= -->
-    <!-- WORKSPACE 1: PLANT STUDIO -->
+    <!-- TOP BAR -->
     <!-- ========================================================================= -->
-    <section class="tab-pane active" id="plantStudioTab">
-      <div class="studio-header">
-        <div>
-          <h2>🏭 Plant Studio — Mathematical Modeling & Dynamics Analysis</h2>
-          <p>Configure physical substrates, calculate open-loop poles/zeros, and verify controllability and stability.</p>
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="brand-badge">
+          <div class="brand-logo-icon">A</div>
+          <span>ACEP 5.0 WORKSTATION</span>
+        </div>
+        <div class="topbar-experiment-meta">
+          <div class="meta-pill">
+            <span class="status-dot dot-online" id="dotMatlab"></span>
+            <span>MATLAB R2026: <strong id="lblModuleCount">697 Modules</strong></span>
+          </div>
+          <div class="meta-pill">
+            <span class="status-dot dot-running" id="dotSimState"></span>
+            <span id="lblSimState">CO-SIM ACTIVE</span>
+          </div>
+          <div class="meta-pill">
+            <span>Plant: <strong id="lblActivePlant" class="text-cyan">DC Servomotor</strong></span>
+          </div>
+          <div class="meta-pill">
+            <span>Controller: <strong id="lblActiveController" class="text-cyan">PID + State Feedback</strong></span>
+          </div>
         </div>
       </div>
 
-      <div class="studio-grid-2">
-        <!-- Panel 1: Physical Plant Selector & Parameter Sliders -->
-        <div class="panel studio-panel">
-          <div class="panel-header">
-            <h3>Dynamic Plant Substrate</h3>
-            <span class="badge badge-cyan" id="dispActivePlantName">DC Servomotor</span>
+      <div class="topbar-center">
+        <div class="playback-controls">
+          <button class="btn-control primary-run" id="btnPlay"><span class="icon">▶</span> Start</button>
+          <button class="btn-control" id="btnPause"><span class="icon">⏸</span> Pause</button>
+          <button class="btn-control" id="btnResume"><span class="icon">⏯</span> Resume</button>
+          <button class="btn-control" id="btnStop"><span class="icon">⏹</span> Stop</button>
+          <button class="btn-control" id="btnReset"><span class="icon">↺</span> Reset</button>
+          <span class="sim-time-display" id="lblSimTime">t = 0.00 s</span>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="meta-pill">
+          <span>EXP: <strong id="lblExpId">EXP-2026-X81</strong></span>
+        </div>
+        <button class="btn-icon" id="btnThemeToggle" title="Toggle Light/Dark Theme">🌓</button>
+      </div>
+    </header>
+
+    <!-- ========================================================================= -->
+    <!-- LEFT SIDEBAR (20 NAVIGATION ITEMS) -->
+    <!-- ========================================================================= -->
+    <aside class="sidebar">
+      <div class="sidebar-category">Core Workstation</div>
+      <nav class="sidebar-nav-list">
+        <a class="nav-item active" data-view="viewOverview"><span class="nav-icon">📊</span> Overview <span class="nav-badge">Live</span></a>
+        <a class="nav-item" data-view="viewDesignStudio"><span class="nav-icon">📐</span> Controller Design Studio</a>
+        <a class="nav-item" data-view="viewOptimization"><span class="nav-icon">⚡</span> Controller Optimization</a>
+        <a class="nav-item" data-view="viewStabilityLab"><span class="nav-icon">🛡️</span> Stability & Robustness Lab</a>
+      </nav>
+
+      <div class="sidebar-category">Intelligence & Adaptive</div>
+      <nav class="sidebar-nav-list">
+        <a class="nav-item" data-view="viewNeuralComp"><span class="nav-icon">🧠</span> Neural Compensation</a>
+        <a class="nav-item" data-view="viewAdaptiveControl"><span class="nav-icon">🔄</span> Adaptive Control</a>
+        <a class="nav-item" data-view="viewReinforcementLearning"><span class="nav-icon">🎯</span> Reinforcement Learning</a>
+        <a class="nav-item" data-view="viewAutonomousAdapt"><span class="nav-icon">⚡</span> Autonomous Adaptation</a>
+      </nav>
+
+      <div class="sidebar-category">Digital Twins</div>
+      <nav class="sidebar-nav-list">
+        <a class="nav-item" data-view="viewControllerTwin"><span class="nav-icon">🎛️</span> Controller Digital Twin</a>
+        <a class="nav-item" data-view="viewPlantTwin"><span class="nav-icon">🏭</span> Plant Digital Twin</a>
+        <a class="nav-item" data-view="viewIntegratedTwin"><span class="nav-icon">🔗</span> Integrated Twin Sync</a>
+      </nav>
+
+      <div class="sidebar-category">Resilience & Safety</div>
+      <nav class="sidebar-nav-list">
+        <a class="nav-item" data-view="viewFaultLab"><span class="nav-icon">💥</span> Fault & Attack Lab <span class="nav-badge" style="color:var(--accent-magenta)">χ²</span></a>
+        <a class="nav-item" data-view="viewMultiAgent"><span class="nav-icon">🌐</span> Multi-Agent & Distributed</a>
+        <a class="nav-item" data-view="viewFormalSafety"><span class="nav-icon">🔒</span> Formal Safety & CBF</a>
+        <a class="nav-item" data-view="viewExplainableAI"><span class="nav-icon">💡</span> Explainable AI</a>
+      </nav>
+
+      <div class="sidebar-category">Studio & Repository</div>
+      <nav class="sidebar-nav-list">
+        <a class="nav-item" data-view="viewVizCenter"><span class="nav-icon">🌌</span> 2D/3D Visualization Center</a>
+        <a class="nav-item" data-view="viewModuleExplorer"><span class="nav-icon">📦</span> MATLAB Module Explorer <span class="nav-badge">697</span></a>
+        <a class="nav-item" data-view="viewBenchmarks"><span class="nav-icon">🏁</span> Experiments & Benchmarks</a>
+        <a class="nav-item" data-view="viewReports"><span class="nav-icon">📑</span> Results & Reports</a>
+        <a class="nav-item" data-view="viewSettings"><span class="nav-icon">⚙️</span> Settings & Feature Flags</a>
+      </nav>
+    </aside>
+
+    <!-- ========================================================================= -->
+    <!-- MAIN WORKSPACE -->
+    <!-- ========================================================================= -->
+    <main class="main-workspace">
+
+      <!-- 1. OVERVIEW -->
+      <section class="view-pane active" id="viewOverview">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>📊 Real-Time Control System Overview</h2>
+            <p>Live closed-loop trajectory monitoring, continuous physics calculations, and multi-sensor tracking.</p>
           </div>
-          <div class="studio-form-group">
-            <label for="plantSelect">Select Physical Plant Dynamics:</label>
-            <select id="plantSelect" class="cyber-select">
-              <option value="dcmotor">1. Precision Industrial DC Servomotor</option>
-              <option value="pendulum">2. Inverted Pendulum on Cart (Underactuated)</option>
-              <option value="maglev">3. Active Magnetic Levitation Bearing (Unstable)</option>
-              <option value="robotarm">4. Two-Link Flexible Robotic Manipulator</option>
-              <option value="quadrotor">5. UAV Quadrotor Altitude & Pitch (6-DOF)</option>
-              <option value="chemical">6. Exothermic Chemical Batch Reactor (CSTR)</option>
-              <option value="windturbine">7. Wind Turbine Blade Pitch & Rotor Speed</option>
-              <option value="springmass">8. Mass-Spring-Damper Mechanical Vibration</option>
-              <option value="waterlevel">9. Coupled Dual-Tank Water-Level System</option>
-              <option value="satellite">10. LEO Satellite Reaction Wheel Attitude</option>
-              <option value="custom">11. Custom Polynomial Transfer Function G(s)</option>
+          <div class="badge badge-cyan">Physical State: Dynamic</div>
+        </div>
+
+        <div class="grid-4">
+          <div class="metric-tile">
+            <span class="label">Reference Input r(t)</span>
+            <span class="val" id="ovRefVal">1.00</span>
+            <span class="sub text-secondary">Step Setpoint</span>
+          </div>
+          <div class="metric-tile">
+            <span class="label">Plant Output y(t)</span>
+            <span class="val text-cyan" id="ovOutVal">0.998</span>
+            <span class="sub" style="color:var(--state-success)">Tracking Normal</span>
+          </div>
+          <div class="metric-tile">
+            <span class="label">Control Effort u(t)</span>
+            <span class="val" id="ovCtrlVal">2.14 V</span>
+            <span class="sub text-secondary">Actuator Voltage</span>
+          </div>
+          <div class="metric-tile">
+            <span class="label">State Divergence |y - ŷ|</span>
+            <span class="val text-green" id="ovResidualVal">0.003</span>
+            <span class="sub text-secondary">Holographic Residual</span>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Closed-Loop Trajectory Response [r(t) vs y(t) vs ŷ(t)]</h3>
+              <span class="badge badge-cyan">Live ODE</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 240px;">
+              <canvas id="ovChartTrajectory" width="560" height="240"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Actuator Control Effort & Error [u(t), e(t)]</h3>
+              <span class="badge badge-green">Dynamic</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 240px;">
+              <canvas id="ovChartControl" width="560" height="240"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Connected End-to-End Control Signal Flow</h3>
+            <span class="badge badge-cyan">Digital Twin Mesh</span>
+          </div>
+          <div class="flow-diagram-container">
+            <div class="flow-node active-node">Reference r(t)<br><strong id="fnRef">1.00</strong></div>
+            <span class="flow-arrow">➔</span>
+            <div class="flow-node">Error e(t)<br><strong id="fnErr">0.002</strong></div>
+            <span class="flow-arrow">➔</span>
+            <div class="flow-node active-node">Controller C(s)<br><strong id="fnCtrl">PID Active</strong></div>
+            <span class="flow-arrow">➔</span>
+            <div class="flow-node">Actuator u(t)<br><strong id="fnAct">2.14 V</strong></div>
+            <span class="flow-arrow">➔</span>
+            <div class="flow-node active-node">Plant P(s)<br><strong id="fnPlant">DC Servomotor</strong></div>
+            <span class="flow-arrow">➔</span>
+            <div class="flow-node">Sensor y(t)<br><strong id="fnSens">0.998</strong></div>
+            <span class="flow-arrow">➔</span>
+            <div class="flow-node active-node">Twin Mirror ŷ(t)<br><strong id="fnTwin">0.995</strong></div>
+            <span class="flow-arrow">➔</span>
+            <div class="flow-node">Residual e_tw<br><strong id="fnRes">0.003</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. CONTROLLER DESIGN STUDIO -->
+      <section class="view-pane" id="viewDesignStudio">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>📐 Requirements-Driven Controller Design Studio</h2>
+            <p>Define plant dynamics, set performance specifications, synthesize analytical gains, and verify pole placement.</p>
+          </div>
+          <button class="btn-action btn-primary" id="btnSynthesizeDesign">⚡ Synthesize Controller</button>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Plant Dynamics & Physical Specifications</h3>
+              <select class="input-control" id="selDesignPlant">
+                <option value="dcmotor">DC Servomotor (Electromechanical)</option>
+                <option value="quadrotor">UAV Quadrotor (Pitch/Attitude)</option>
+                <option value="inverted_pendulum">Inverted Pendulum on Cart</option>
+                <option value="maglev">Magnetic Levitation (SISO)</option>
+                <option value="robot_arm">Two-Link Robotic Manipulator</option>
+                <option value="thermal">Industrial Thermal Process</option>
+                <option value="chemostat">Bioreactor / Chemostat Process</option>
+                <option value="wind_turbine">Wind Turbine Pitch Regulator</option>
+                <option value="water_level">Coupled Quadruple Tank Process</option>
+              </select>
+            </div>
+            <div class="grid-2" style="margin-top: 8px;">
+              <div class="form-group">
+                <label>Inertia / Mass (J / m):</label>
+                <input type="number" class="input-control" id="specJ" value="0.01" step="0.001">
+              </div>
+              <div class="form-group">
+                <label>Damping / Friction (b):</label>
+                <input type="number" class="input-control" id="specB" value="0.1" step="0.01">
+              </div>
+              <div class="form-group">
+                <label>Motor Torque Constant (K_t):</label>
+                <input type="number" class="input-control" id="specK" value="0.01" step="0.001">
+              </div>
+              <div class="form-group">
+                <label>Resistance / Armature (R):</label>
+                <input type="number" class="input-control" id="specR" value="1.0" step="0.1">
+              </div>
+            </div>
+            <div class="code-box" style="margin-top: 10px;" id="boxPlantTf">
+              Plant Transfer Function G(s) = 20 / (s² + 10s + 20)
+              Open-Loop Poles: λ = -2.55, -7.45 (Stable)
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Performance Requirements & Synthesized Gains</h3>
+              <select class="input-control" id="selDesignFamily">
+                <option value="pid">PID (Proportional-Integral-Derivative)</option>
+                <option value="state_feedback">Full State Feedback & Pole Placement</option>
+                <option value="lqr">Linear Quadratic Regulator (LQR)</option>
+                <option value="lead_lag">Lead-Lag Frequency Compensator</option>
+                <option value="fractional_pid">Fractional-Order PID (PI^λ D^μ)</option>
+                <option value="adrc">Active Disturbance Rejection (ADRC/ESO)</option>
+              </select>
+            </div>
+            <div class="grid-2" style="margin-top: 8px;">
+              <div class="form-group">
+                <label>Target Rise Time T_r (s):</label>
+                <input type="number" class="input-control" id="reqTr" value="0.8" step="0.05">
+              </div>
+              <div class="form-group">
+                <label>Target Settling Time T_s (s):</label>
+                <input type="number" class="input-control" id="reqTs" value="2.0" step="0.1">
+              </div>
+              <div class="form-group">
+                <label>Max Overshoot M_p (%):</label>
+                <input type="number" class="input-control" id="reqMp" value="5.0" step="0.5">
+              </div>
+              <div class="form-group">
+                <label>Steady-State Error e_ss:</label>
+                <input type="number" class="input-control" id="reqEss" value="0.01" step="0.005">
+              </div>
+            </div>
+            <div class="grid-3" style="margin-top: 10px;">
+              <div class="metric-tile">
+                <span class="label">Gain K_p</span>
+                <span class="val text-cyan" id="gainKp">0.50</span>
+              </div>
+              <div class="metric-tile">
+                <span class="label">Gain K_i</span>
+                <span class="val text-cyan" id="gainKi">1.06</span>
+              </div>
+              <div class="metric-tile">
+                <span class="label">Gain K_d</span>
+                <span class="val text-cyan" id="gainKd">1.15</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Complex S-Plane Pole-Zero Map & Root Locus</h3>
+            <span class="badge badge-green" id="badgeDesignStability">Lyapunov Contraction dV/dt &lt; 0</span>
+          </div>
+          <div class="canvas-wrapper" style="height: 220px;">
+            <canvas id="designCanvasPZ" width="1120" height="220"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. CONTROLLER OPTIMIZATION -->
+      <section class="view-pane" id="viewOptimization">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>⚡ Controller Parameter Optimization (GA, PSO & DE)</h2>
+            <p>Metaheuristic multi-objective optimization across integral error (ITAE), control effort, and rise time.</p>
+          </div>
+          <button class="btn-action btn-primary" id="btnRunOptimizer">🚀 Run Genetic Evolution Search</button>
+        </div>
+
+        <div class="grid-3">
+          <div class="metric-tile">
+            <span class="label">Optimizer Status</span>
+            <span class="val text-cyan" id="optStatus">CONVERGED</span>
+            <span class="sub text-secondary">Generation 45/50</span>
+          </div>
+          <div class="metric-tile">
+            <span class="label">Best Fitness (1 / Loss)</span>
+            <span class="val text-green" id="optFitness">98.42</span>
+            <span class="sub text-secondary">ITAE Minimized</span>
+          </div>
+          <div class="metric-tile">
+            <span class="label">Evaluated Candidates</span>
+            <span class="val" id="optEvaluated">2,250</span>
+            <span class="sub text-secondary">Chromosome Pool</span>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Optimization Loss Convergence History [Gen vs Loss]</h3>
+              <span class="badge badge-cyan">Adaptive Mutation</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="optCanvasConvergence" width="560" height="250"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Multi-Island Population Chromosome Diversity</h3>
+              <span class="badge badge-violet">Ring Topology</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="optCanvasDiversity" width="560" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. STABILITY AND ROBUSTNESS LAB -->
+      <section class="view-pane" id="viewStabilityLab">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>🛡️ Stability & Robustness Lab</h2>
+            <p>Frequency-domain loop shaping, Bode magnitude/phase margins, Nyquist contour, and parametric robustness bounds.</p>
+          </div>
+          <div class="badge badge-green" id="badgeStabilityMargin">Certified Robust (GM: +14.2 dB, PM: 58.4°)</div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Bode Magnitude & Phase Response [ω = 0.1 to 100 rad/s]</h3>
+              <span class="badge badge-cyan">Log Frequency</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="stabCanvasBode" width="560" height="250"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Nyquist Complex Contour & -1+j0 Critical Point</h3>
+              <span class="badge badge-violet">Conformal Mapping</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="stabCanvasNyquist" width="560" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. NEURAL COMPENSATION -->
+      <section class="view-pane" id="viewNeuralComp">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>🧠 Physics-Informed Neural Network (PINN) Compensation</h2>
+            <p>Deep residual estimator compensating unmodeled aerodynamic drag and nonlinear friction dynamics.</p>
+          </div>
+          <div class="badge badge-violet">Euler-Lagrange Loss Bound: 0.002</div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Neural Compensator Output u_PINN(t) vs Disturbance</h3>
+              <span class="badge badge-cyan">Loss Constrained</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="pinnCanvasSignal" width="560" height="250"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>PINN Training Loss & Physics Residual Convergence</h3>
+              <span class="badge badge-green">L_total = L_data + λ L_phys</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="pinnCanvasLoss" width="560" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. ADAPTIVE CONTROL -->
+      <section class="view-pane" id="viewAdaptiveControl">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>🔄 Adaptive Control & Online Parameter Tracking</h2>
+            <p>Recursive Least Squares (RLS) estimator and Model Reference Adaptive Control (MRAC) tracking changing plant parameters.</p>
+          </div>
+          <button class="btn-action btn-primary" id="btnTriggerParamDrift">⚡ Induce Physical Parameter Drift</button>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>RLS Online Parameter Convergence Trace [θ̂(t) vs θ_true]</h3>
+              <span class="badge badge-cyan">Forgetting Factor λ = 0.98</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="adaptCanvasTrace" width="560" height="250"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Adaptive Gain Adaptation Velocity & Epsilon-Modification</h3>
+              <span class="badge badge-green">Bounded Updates</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="adaptCanvasVelocity" width="560" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. REINFORCEMENT LEARNING -->
+      <section class="view-pane" id="viewReinforcementLearning">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>🎯 Deep Reinforcement Learning (PPO / SAC Agent)</h2>
+            <p>Continuous Actor-Critic policy gradient trained to maximize reward under heavy aerodynamic disturbances.</p>
+          </div>
+          <div class="badge badge-violet">Actor-Critic SAC</div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Cumulative Episode Reward & TD-Error Trace</h3>
+              <span class="badge badge-green">Entropy Regulated</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="rlCanvasReward" width="560" height="250"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Policy Value Landscape & Action Distribution Q(s, a)</h3>
+              <span class="badge badge-cyan">Gaussian Policy</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="rlCanvasPolicy" width="560" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8. CONTROLLER DIGITAL TWIN -->
+      <section class="view-pane" id="viewControllerTwin">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>🎛️ Controller Digital Twin</h2>
+            <p>Mirrors active controller internal states, integrator windup accumulators, and command saturation thresholds.</p>
+          </div>
+          <div class="badge badge-cyan">Twin State Synchronized</div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Controller Twin Internal State Evolution [x_c1, x_c2]</h3>
+              <span class="badge badge-cyan">Integrator Memory</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="ctrlTwinCanvasState" width="560" height="250"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Predicted Control Command vs Executed Command [u_pred vs u_act]</h3>
+              <span class="badge badge-green">Zero Discrepancy</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="ctrlTwinCanvasOutput" width="560" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9. PLANT DIGITAL TWIN -->
+      <section class="view-pane" id="viewPlantTwin">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>🏭 High-Fidelity Plant Digital Twin</h2>
+            <p>Virtual physics model running in parallel to simulate wear, friction, and environmental disturbances.</p>
+          </div>
+          <div class="badge badge-green">Sync Confidence: 99.7%</div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Virtual Mechanism State Simulation [Angular Velocity ω(t)]</h3>
+              <span class="badge badge-cyan">RK4 Integrator</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="plantTwinCanvasStates" width="560" height="250"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Plant Aging, Bearing Friction & Thermal Heat Dissipation</h3>
+              <span class="badge badge-amber">Paris Law Wear Model</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="plantTwinCanvasDegradation" width="560" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10. INTEGRATED TWIN SYNCHRONIZATION -->
+      <section class="view-pane" id="viewIntegratedTwin">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>🔗 Integrated Twin Synchronization & Co-Simulation</h2>
+            <p>Side-by-side co-simulation comparing virtual plant outputs against the holographic twin with 100-step lookahead.</p>
+          </div>
+          <button class="btn-action btn-primary" id="btnRunTwinRehearsal">🔮 Rehearse 100 Steps in Twin</button>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Virtual Plant vs Holographic Twin Co-Simulation</h3>
+              <span class="badge badge-cyan">Side-by-Side</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="twinSimCanvas" width="560" height="250"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Synchronization Residual Error e_twin(t) = |y(t) - ŷ(t)|</h3>
+              <span class="badge badge-green" id="badgeResidualStatus">Nominal (&lt; 0.01)</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="twinResidualCanvas" width="560" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 11. FAULT AND ATTACK LABORATORY -->
+      <section class="view-pane" id="viewFaultLab">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>💥 Fault, Disturbance & Cyber-Physical Attack Laboratory</h2>
+            <p>Inject physical actuator loss, sensor drift, wind shear gusts, and false data injection attacks with Chi-Square isolation.</p>
+          </div>
+          <button class="btn-action btn-magenta" id="btnNeutralizeAll">🛡️ Neutralize Threats</button>
+        </div>
+
+        <div class="grid-4">
+          <div class="panel">
+            <h4>Wind Shear (+5.0 N)</h4>
+            <p style="font-size:11px;color:var(--text-secondary)">Aerodynamic step gust disturbance.</p>
+            <button class="btn-action btn-primary" id="btnFaultGust" style="margin-top:8px;">Inject Gust</button>
+          </div>
+          <div class="panel">
+            <h4>Actuator 40% Burnout</h4>
+            <p style="font-size:11px;color:var(--text-secondary)">Thermal actuator gain loss.</p>
+            <button class="btn-action btn-magenta" id="btnFaultActuator" style="margin-top:8px;">Inject 40% Loss</button>
+          </div>
+          <div class="panel">
+            <h4>Sensor Bias (+0.5 V)</h4>
+            <p style="font-size:11px;color:var(--text-secondary)">Calibration drift & sensor noise.</p>
+            <button class="btn-action btn-primary" id="btnFaultSensor" style="margin-top:8px;">Inject Bias</button>
+          </div>
+          <div class="panel">
+            <h4>False Data Injection</h4>
+            <p style="font-size:11px;color:var(--text-secondary)">Malicious telemetry spoofing spike.</p>
+            <button class="btn-action btn-magenta" id="btnFaultFdi" style="margin-top:8px;">Launch FDI</button>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top:14px;">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Chi-Square (χ²) Innovation Monitor & Residual Threshold</h3>
+              <span class="badge badge-green" id="badgeChiSquare">Pass (χ² = 1.12 &lt; 3.84)</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 230px;">
+              <canvas id="faultCanvasChi" width="560" height="230"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Cyber-Physical Security & Fault Isolation Timeline</h3>
+              <span class="badge badge-cyan">Zero-Trust Audit</span>
+            </div>
+            <div class="code-box" id="boxFaultTimeline" style="height: 230px;">
+              [00:00.0] Zero-Trust Cyber-Physical Monitor Online.
+              [00:00.2] Cryptographic Nonce Watermark Verified (SHA-256).
+              [00:00.5] Sensor Innovation Residuals within Gaussian 3-sigma bounds.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 12. AUTONOMOUS ADAPTATION -->
+      <section class="view-pane" id="viewAutonomousAdapt">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>⚡ Autonomous Adaptation & Bumpless Controller Reconfiguration</h2>
+            <p>Supervised controller switching with dwell-time hysteresis and state handoff to prevent actuator bumps.</p>
+          </div>
+          <button class="btn-action btn-primary" id="btnTriggerReconfig">⚡ Reconfigure Controller</button>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Bumpless Transfer Actuator Command Trajectory [u_prev → u_new]</h3>
+              <span class="badge badge-green">Continuous Derivative</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="reconfigCanvasSignal" width="560" height="250"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Switching Dwell Time & Hysteresis Envelope</h3>
+              <span class="badge badge-cyan">Hysteresis Band Δ = 0.05</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="reconfigCanvasDwell" width="560" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 13. MULTI-AGENT AND DISTRIBUTED CONTROL -->
+      <section class="view-pane" id="viewMultiAgent">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>🌐 Multi-Agent & Distributed Swarm Consensus</h2>
+            <p>Graph Laplacian consensus dynamics, dynamic communication topology, and algebraic connectivity (λ₂).</p>
+          </div>
+          <div class="badge badge-cyan">Fiedler λ₂ = 2.41 (Connected)</div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Multi-Agent Swarm Spatial Trajectories [X vs Y Coordinates]</h3>
+              <span class="badge badge-cyan">6 Dynamic Agents</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="swarmCanvasSpatial" width="560" height="250"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Consensus Error Convergence to Virtual Leader</h3>
+              <span class="badge badge-green">Asymptotic Agreement</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="swarmCanvasConsensus" width="560" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 14. EXPLAINABLE AI -->
+      <section class="view-pane" id="viewExplainableAI">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>💡 Explainable AI (XAI) Controller Decision Studio</h2>
+            <p>Evidence-backed natural language explanations grounded in physics, pole locations, and stability proofs.</p>
+          </div>
+          <button class="btn-action btn-violet" id="btnExplainDecision">🔍 Explain Active Selection</button>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Causal Attribution & Decision Rationale</h3>
+              <span class="badge badge-violet">Pearl Causal Graph</span>
+            </div>
+            <div class="code-box" id="boxXaiExplanation" style="height: 280px;">
+              1. DECISION TRIGGER: Step setpoint transition requested from r = 0.0 to 1.0.
+              2. POLE-ZERO AUDIT: Open-loop poles [-2.55, -7.45] require damping ζ = 0.71 to avoid excessive overshoot.
+              3. CONTROLLER SELECTION: Synthesized PID with gains [Kp=0.50, Ki=1.06, Kd=1.15].
+              4. LYAPUNOV CONTRACT CERTIFICATE: Algebraic Riccati contraction V(x) = x^T P x with P > 0 satisfies dV/dt &lt; 0.
+              5. VERDICT: Certified unconditionally stable under active actuator saturation limits (|u| &lt; 15 V).
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Feature Importance & Sensitivity Breakdown</h3>
+              <span class="badge badge-cyan">SHAP Values</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 280px;">
+              <canvas id="xaiCanvasShap" width="560" height="280"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 15. FORMAL VERIFICATION AND SAFETY -->
+      <section class="view-pane" id="viewFormalSafety">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>🔒 Formal Verification & Control Barrier Functions (CBF)</h2>
+            <p>Quadratic program safety sieve enforcing super-level set invariance h(x) ≥ 0 and actuator saturation bounds.</p>
+          </div>
+          <div class="badge badge-green" id="badgeCbfSafety">Forward Invariance SAFE (h(x) = 0.42)</div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Control Barrier Invariance h(x) ≥ 0 Over Time</h3>
+              <span class="badge badge-green">Safety Sieve</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="cbfCanvasBarrier" width="560" height="250"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Actuator Saturation Envelope & Anti-Windup Boundary</h3>
+              <span class="badge badge-amber">Bounded (|u| ≤ 15 V)</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 250px;">
+              <canvas id="cbfCanvasSaturation" width="560" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 16. 2D/3D VISUALIZATION CENTER -->
+      <section class="view-pane" id="viewVizCenter">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>🌌 2D & 3D Interactive Visualization Center</h2>
+            <p>Interactive 3D state-space trajectories [x₁, x₂, u], 3D parameter-performance surfaces, and responsive mouse orbit/zoom.</p>
+          </div>
+          <div class="playback-controls">
+            <button class="btn-control active" id="btnVizLayoutSplit">Split-Screen</button>
+            <button class="btn-control" id="btnVizLayout3D">3D Only</button>
+            <button class="btn-control" id="btnVizLayout2D">2D Only</button>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>3D State-Space Trajectory [x₁, x₂, u]</h3>
+              <span class="badge badge-cyan">Mouse Orbit & Zoom</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 300px;">
+              <canvas id="stateSpace3DCanvas" width="560" height="300"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>3D Parameter Objective Surface [Kp × Kd → Loss]</h3>
+              <span class="badge badge-violet">Dynamic Topography</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 300px;">
+              <canvas id="surface3DCanvas" width="560" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 17. MATLAB MODULE EXPLORER -->
+      <section class="view-pane" id="viewModuleExplorer">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>📦 MATLAB Module Explorer — Complete 81 Subsystem Inventory</h2>
+            <p>Explore, search, filter, and run all 697 MATLAB modules from acep_novelty to xcontrol with zero mock constants.</p>
+          </div>
+          <div class="topbar-right">
+            <input type="text" class="input-control" id="inputSearchModules" placeholder="Search 697 modules..." style="width: 240px;">
+            <select class="input-control" id="selModuleCategory">
+              <option value="ALL">All 81 Subsystems (697 Files)</option>
+              <option value="core">Core & Architecture</option>
+              <option value="adaptation">Adaptive & Observers</option>
+              <option value="optimal">Optimal & MPC</option>
+              <option value="fault">Fault Tolerance & Resilience</option>
+              <option value="safety">Formal Safety & Certification</option>
+              <option value="ai">Physics-AI & Learning</option>
+              <option value="multiagent">Multi-Agent & Swarms</option>
+              <option value="frontier">Next-Gen Frontiers (xcontrol)</option>
             </select>
           </div>
-
-          <!-- Parameter Configuration Sliders -->
-          <div class="plant-param-sliders">
-            <div class="slider-row">
-              <label>Mass / Inertia (m, J): <span id="dispMass">1.00 kg·m²</span></label>
-              <input type="range" id="sliderMass" min="0.2" max="5.0" step="0.1" value="1.0">
-            </div>
-            <div class="slider-row">
-              <label>Viscous Damping / Friction (c): <span id="dispDamping">0.50 N·s/m</span></label>
-              <input type="range" id="sliderDamping" min="0.0" max="3.0" step="0.05" value="0.5">
-            </div>
-            <div class="slider-row">
-              <label>Operating Setpoint r(t): <span id="dispSetpoint">1.00</span></label>
-              <input type="range" id="sliderSetpoint" min="-5.0" max="5.0" step="0.2" value="1.0">
-            </div>
-            <div class="slider-row">
-              <label>Actuator Saturation Bound (u_max): <span id="dispActMax">±15.0 N</span></label>
-              <input type="range" id="sliderActMax" min="5.0" max="30.0" step="1.0" value="15.0">
-            </div>
-          </div>
-
-          <!-- Custom Polynomial Input (Conditional) -->
-          <div id="customPlantBox" style="display: none; margin-top: 14px;">
-            <div class="form-row">
-              <div class="form-col">
-                <label>Numerator N(s):</label>
-                <input type="text" id="customNumInput" class="cyber-input" value="10">
-              </div>
-              <div class="form-col">
-                <label>Denominator D(s):</label>
-                <input type="text" id="customDenInput" class="cyber-input" value="1, 3, 10">
-              </div>
-            </div>
-            <button class="cyber-btn btn-secondary btn-sm" id="btnApplyCustomPlant" style="margin-top: 8px;">Apply Custom Polynomial</button>
-          </div>
         </div>
 
-        <!-- Panel 2: Real-time Pole-Zero Map & Stability Analysis -->
-        <div class="panel studio-panel">
+        <div class="grid-3" id="moduleCardsContainer" style="max-height: 540px; overflow-y: auto; padding-right: 6px;">
+          <!-- Dynamically populated by app.js -->
+        </div>
+      </section>
+
+      <!-- 18. EXPERIMENTS AND BENCHMARKS -->
+      <section class="view-pane" id="viewBenchmarks">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>🏁 Standardized Controller Benchmarks & Comparative Scorecards</h2>
+            <p>Side-by-side fair evaluation under identical plant configurations, disturbances, and noise profiles.</p>
+          </div>
+          <button class="btn-action btn-primary" id="btnRunBenchmarkSuite">🚀 Run Benchmark Suite</button>
+        </div>
+
+        <div class="panel">
           <div class="panel-header">
-            <h3>Open-Loop Pole-Zero Map & Stability</h3>
-            <span class="badge badge-emerald" id="dispStabilityBadge">Stable</span>
+            <h3>Controller Benchmark Evaluation Matrix</h3>
+            <span class="badge badge-cyan">Reproducible Run</span>
           </div>
-          <div class="canvas-container" style="height: 220px;">
-            <canvas id="plantPoleZeroCanvas" width="460" height="220"></canvas>
-          </div>
-          <div class="plant-specs-grid" style="margin-top: 12px;">
-            <div class="spec-card">
-              <span class="spec-name">Natural Freq (ω_n)</span>
-              <span class="spec-value text-cyan" id="specWn">4.47 rad/s</span>
-            </div>
-            <div class="spec-card">
-              <span class="spec-name">Damping Ratio (ζ)</span>
-              <span class="spec-value text-emerald" id="specZeta">1.12</span>
-            </div>
-            <div class="spec-card">
-              <span class="spec-name">Open-Loop Poles</span>
-              <span class="spec-value text-muted" id="specPoles">-2.55, -7.45</span>
-            </div>
-            <div class="spec-card">
-              <span class="spec-name">Controllability</span>
-              <span class="spec-value text-emerald" id="specControllable">Full Rank (2/2)</span>
-            </div>
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Controller Family</th>
+                  <th>Rise Time T_r</th>
+                  <th>Settling Time T_s</th>
+                  <th>Overshoot M_p</th>
+                  <th>Tracking RMSE</th>
+                  <th>Control Effort ∫u²dt</th>
+                  <th>Safety Verdict</th>
+                </tr>
+              </thead>
+              <tbody id="tbBenchmarkBody">
+                <tr>
+                  <td><strong>ACEP Evolved Hybrid (Active)</strong></td>
+                  <td class="text-green">0.29 s</td>
+                  <td class="text-green">0.57 s</td>
+                  <td class="text-green">4.2 %</td>
+                  <td class="text-green">0.012</td>
+                  <td>14.2 J</td>
+                  <td><span class="badge badge-green">CERTIFIED PASS</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Model Predictive Control (MPC)</strong></td>
+                  <td>0.34 s</td>
+                  <td>0.82 s</td>
+                  <td>5.4 %</td>
+                  <td>0.016</td>
+                  <td>18.6 J</td>
+                  <td><span class="badge badge-green">CERTIFIED PASS</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Linear Quadratic Regulator (LQR)</strong></td>
+                  <td>0.42 s</td>
+                  <td>1.15 s</td>
+                  <td>6.8 %</td>
+                  <td>0.024</td>
+                  <td>12.8 J</td>
+                  <td><span class="badge badge-green">CERTIFIED PASS</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Classical PID Baseline</strong></td>
+                  <td>0.58 s</td>
+                  <td>1.85 s</td>
+                  <td style="color:var(--state-warning)">14.2 %</td>
+                  <td style="color:var(--state-warning)">0.046</td>
+                  <td>24.5 J</td>
+                  <td><span class="badge badge-amber">MARGINAL PASS</span></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ========================================================================= -->
-    <!-- WORKSPACE 2: CONTROLLER DESIGN STUDIO -->
-    <!-- ========================================================================= -->
-    <section class="tab-pane" id="controllerDesignTab">
-      <div class="studio-header">
-        <div>
-          <h2>⚡ Controller Design Studio — Requirements-Driven Synthesis</h2>
-          <p>Specify transient requirements, synthesize tailored controllers, inspect structural schematics, and tune gains.</p>
+      <!-- 19. RESULTS AND REPORTS -->
+      <section class="view-pane" id="viewReports">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>📑 Experiments, Results & Traceable Reports</h2>
+            <p>Generate verifiable engineering reports, export time-series telemetry data, and review audit trails.</p>
+          </div>
+          <div class="topbar-right">
+            <button class="btn-action btn-primary" id="btnExportTelemetryCsv">💾 Export Telemetry (CSV)</button>
+            <button class="btn-action btn-violet" id="btnExportReportJson">📊 Export Audit Report (JSON)</button>
+          </div>
         </div>
-        <div class="safety-btn-group">
-          <button id="btnSynthesizeController" class="cyber-btn btn-primary">
-            <span class="icon">⚙️</span> Synthesize & Build Controller
-          </button>
-          <button id="btnAutoTune" class="cyber-btn btn-accent">
-            <span class="icon">🎯</span> Auto-Tune (GA / PSO)
-          </button>
-        </div>
-      </div>
 
-      <div class="studio-grid-2">
-        <!-- Requirements Specification & Paradigm Selection -->
-        <div class="panel studio-panel">
+        <div class="panel">
           <div class="panel-header">
-            <h3>Engineering Specifications</h3>
-            <span class="badge badge-violet">Target Constraints</span>
+            <h3>Verified Engineering Audit Trail & Execution Log</h3>
+            <span class="badge badge-cyan">Reproducible Artifact</span>
           </div>
-          <div class="studio-form-group">
-            <label for="controllerSelect">Controller Paradigm Family:</label>
-            <select id="controllerSelect" class="cyber-select accent-select">
-              <option value="pid">1. Classical PID Controller (Parallel Form)</option>
-              <option value="lead">2. Lead-Lag Dynamic Compensator</option>
-              <option value="lqr">3. Linear Quadratic Regulator (LQR Optimal)</option>
-              <option value="mpc">4. Model Predictive Control (MPC Receding Horizon)</option>
-              <option value="smc">5. Sliding Mode Controller (SMC Chattering-Free)</option>
-              <option value="adrc">6. Active Disturbance Rejection Control (ADRC + ESO)</option>
-              <option value="fopid">7. Fractional-Order PI^λ D^μ Controller</option>
-              <option value="acep_evolved">8. ACEP Safety-Gated Evolved Hybrid (MPC+RL+PINN+CBF)</option>
-            </select>
+          <div class="code-box" id="boxAuditReport" style="height: 380px;">
+            ================================================================================
+            ACEP 5.0 AUTONOMOUS CONTROLLER EVOLUTION PLATFORM — ENGINEERING AUDIT REPORT
+            Experiment ID: EXP-2026-X81-ACTIVE
+            Timestamp: 2026-10-11T07:15:00Z
+            Plant Model: Precision Industrial DC Servomotor (J=0.01, b=0.1, K=0.01, R=1.0)
+            Controller: Synthesized State Feedback with Dynamic Integrator (PID)
+            Verified Gains: Kp = 0.50, Ki = 1.06, Kd = 1.15
+            --------------------------------------------------------------------------------
+            DYNAMIC PERFORMANCE METRICS (COMPUTED ONLINE):
+            - Rise Time (T_r): 0.29 s (Specification: <= 0.80 s) -> PASSED
+            - Settling Time (T_s): 0.57 s (Specification: <= 2.00 s) -> PASSED
+            - Peak Overshoot (M_p): 4.2 % (Specification: <= 5.0 %) -> PASSED
+            - Tracking RMSE: 0.012 -> PASSED
+            - Gain Margin: +14.2 dB, Phase Margin: 58.4 deg -> CERTIFIED ROBUST
+            - Lyapunov Contraction: dV/dt = x^T (A^T P + P A) x < 0 Verified (P > 0)
+            - Control Barrier Sieve: Invariance h(x) >= 0 Preserved
+            ================================================================================
           </div>
+        </div>
+      </section>
 
-          <div class="reqs-inputs-grid">
-            <div class="req-input-col">
-              <label>Target Rise Time (T_r ≤):</label>
-              <input type="number" id="reqRiseTime" class="cyber-input" value="0.30" step="0.05"> s
-            </div>
-            <div class="req-input-col">
-              <label>Target Settling Time (T_s ≤):</label>
-              <input type="number" id="reqSettlingTime" class="cyber-input" value="0.90" step="0.1"> s
-            </div>
-            <div class="req-input-col">
-              <label>Peak Overshoot (M_p ≤):</label>
-              <input type="number" id="reqOvershoot" class="cyber-input" value="5.0" step="1.0"> %
-            </div>
-            <div class="req-input-col">
-              <label>Phase Margin (PM ≥):</label>
-              <input type="number" id="reqPhaseMargin" class="cyber-input" value="50.0" step="5.0"> °
-            </div>
+      <!-- 20. SETTINGS AND FEATURE FLAGS -->
+      <section class="view-pane" id="viewSettings">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>⚙️ Workstation Settings & Feature Flags</h2>
+            <p>Configure autonomous AI permissions, numerical ODE solvers, sampling rate, and deterministic fallbacks.</p>
           </div>
-
-          <!-- Parameter Tuning Sliders -->
-          <div class="tuning-sliders-box" style="margin-top: 16px;">
-            <h4>Active Controller Parameter Tuning</h4>
-            <div class="slider-row">
-              <label>Proportional Gain (K_p): <span id="tuneKpVal">4.50</span></label>
-              <input type="range" id="tuneKp" min="0.1" max="25.0" step="0.1" value="4.5">
-            </div>
-            <div class="slider-row">
-              <label>Integral Gain (K_i): <span id="tuneKiVal">1.20</span></label>
-              <input type="range" id="tuneKi" min="0.0" max="15.0" step="0.1" value="1.2">
-            </div>
-            <div class="slider-row">
-              <label>Derivative Gain (K_d): <span id="tuneKdVal">1.10</span></label>
-              <input type="range" id="tuneKd" min="0.0" max="10.0" step="0.05" value="1.1">
-            </div>
-          </div>
+          <button class="btn-action btn-primary" id="btnSaveSettings">💾 Save Configuration</button>
         </div>
 
-        <!-- Dynamic Controller Schematic Diagram Canvas -->
-        <div class="panel studio-panel">
-          <div class="panel-header">
-            <h3>Controller Architecture & Signal Flow</h3>
-            <span class="badge badge-cyan" id="dispActiveCtrlBadge">PID PARALLEL</span>
-          </div>
-          <div class="visualizer-canvas-container" style="height: 320px;">
-            <canvas id="controllerDiagramCanvas" width="460" height="320"></canvas>
-            <div class="visualizer-overlay-hud">
-              <span class="v-hud-badge" id="diagCtrlEffort">u(t): +0.00 N</span>
-              <span class="v-hud-badge" id="diagCbfSieve">CBF Sieve: Pass</span>
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Simulation Solver Settings</h3>
+              <span class="badge badge-cyan">Numerical Core</span>
             </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================================================= -->
-    <!-- WORKSPACE 3: DIGITAL TWIN LAB -->
-    <!-- ========================================================================= -->
-    <section class="tab-pane" id="digitalTwinLabTab">
-      <div class="studio-header">
-        <div>
-          <h2>🔬 Digital Twin Lab — Virtual Plant Simulation & Lookahead Rehearsal</h2>
-          <p>Real-time co-simulation of the physical mechanism and holographic Digital Twin with 100-step predictive rehearsal.</p>
-        </div>
-        <div class="cockpit-group simulation-controls">
-          <button id="simPlayPauseBtn" class="cyber-btn btn-primary">
-            <span class="icon">⏸</span> Pause Simulation
-          </button>
-          <button id="simResetBtn" class="cyber-btn btn-secondary">
-            <span class="icon">↺</span> Reset
-          </button>
-          <button id="btnTwinLookahead" class="cyber-btn btn-accent" title="Rehearse 100 steps ahead inside Digital Twin before physical execution">
-            <span class="icon">🔮</span> Rehearse in Twin (100-step)
-          </button>
-        </div>
-      </div>
-
-      <!-- Dual Visualizer: Virtual Mechanism vs Digital Twin Hologram -->
-      <div class="studio-dual-visualizer">
-        <div class="visualizer-card">
-          <div class="visualizer-header">
-            <div class="visualizer-title">
-              <span class="icon">🌐</span>
-              <span>Virtual Physical Mechanism & Holographic Twin Mirror</span>
-            </div>
-            <div class="visualizer-badges">
-              <span class="badge badge-cyan">Physical vs Twin Ghost</span>
-            </div>
-          </div>
-          <div class="visualizer-canvas-container" style="height: 280px;">
-            <canvas id="virtualMechanismCanvas" width="460" height="280"></canvas>
-            <div class="visualizer-overlay-hud">
-              <span class="v-hud-badge" id="vMechanismPlant">Physical x(t): 0.00</span>
-              <span class="v-hud-badge v-hud-ghost" id="vMechanismTwin">Twin x̂(t): 0.00</span>
-              <span class="v-hud-badge" id="vMechanismResidual">||x - x̂||: 0.004</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Real-Time Closed-Loop Trajectory Oscilloscope -->
-        <div class="visualizer-card">
-          <div class="visualizer-header">
-            <div class="visualizer-title">
-              <span class="icon">📈</span>
-              <span>Closed-Loop Oscilloscope (r, y, ŷ, u)</span>
-            </div>
-            <div class="legend-bar">
-              <span class="legend-item"><span class="legend-color legend-ref"></span> Ref r(t)</span>
-              <span class="legend-item"><span class="legend-color legend-plant"></span> Plant y(t)</span>
-              <span class="legend-item"><span class="legend-color legend-twin"></span> Twin ŷ(t)</span>
-              <span class="legend-item"><span class="legend-color legend-ctrl"></span> Control u(t)</span>
-            </div>
-          </div>
-          <div class="visualizer-canvas-container" style="height: 280px;">
-            <canvas id="scopeCanvas" width="460" height="280"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Dynamic Performance Metric Cards -->
-      <div class="metrics-ribbon" style="margin-top: 14px;">
-        <div class="metric-card">
-          <span class="metric-label">Rise Time (T_r)</span>
-          <span class="metric-value" id="valRiseTime">0.28 s</span>
-          <span class="metric-sub text-green">Calculated online</span>
-        </div>
-        <div class="metric-card">
-          <span class="metric-label">Settling Time (T_s)</span>
-          <span class="metric-value" id="valSettling">0.86 s</span>
-          <span class="metric-sub text-green">Calculated online</span>
-        </div>
-        <div class="metric-card">
-          <span class="metric-label">Overshoot (M_p)</span>
-          <span class="metric-value" id="valOvershoot">3.8 %</span>
-          <span class="metric-sub text-green">Calculated online</span>
-        </div>
-        <div class="metric-card">
-          <span class="metric-label">Tracking Error (RMSE)</span>
-          <span class="metric-value" id="valError">0.012</span>
-          <span class="metric-sub text-green">Rolling buffer</span>
-        </div>
-        <div class="metric-card">
-          <span class="metric-label">Twin Divergence</span>
-          <span class="metric-value" id="valTwinDiv">0.003</span>
-          <span class="metric-sub text-cyan">State Residual</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================================================= -->
-    <!-- WORKSPACE 4: ADAPTIVE CONTROL -->
-    <!-- ========================================================================= -->
-    <section class="tab-pane" id="adaptiveControlTab">
-      <div class="studio-header">
-        <div>
-          <h2>🔄 Adaptive Control & Online Parameter Estimation</h2>
-          <p>Online Recursive Least Squares (RLS) estimation, plant-model mismatch detection, and supervisory bumpless reconfiguration.</p>
-        </div>
-        <div class="safety-btn-group">
-          <button id="btnTriggerAdapt" class="cyber-btn btn-primary">
-            <span class="icon">⚡</span> Trigger Safe Reconfiguration
-          </button>
-        </div>
-      </div>
-
-      <div class="studio-grid-2">
-        <div class="panel studio-panel">
-          <div class="panel-header">
-            <h3>Online Parameter Convergence Trace</h3>
-            <span class="badge badge-cyan">RLS Estimator</span>
-          </div>
-          <div class="canvas-container" style="height: 240px;">
-            <canvas id="adaptationTraceCanvas" width="460" height="240"></canvas>
-          </div>
-          <div class="rls-identification-box" style="margin-top: 14px;">
-            <div class="rls-grid">
-              <div class="rls-item">
-                <span>Estimated Gain b̂_0:</span>
-                <span class="text-cyan font-mono" id="valRlsGain">9.94</span>
+            <div class="grid-2" style="margin-top: 8px;">
+              <div class="form-group">
+                <label>ODE Integration Method:</label>
+                <select class="input-control" id="cfgOdeMethod">
+                  <option value="rk4">Runge-Kutta 4th Order (RK4 - Precise)</option>
+                  <option value="euler">Forward Euler (Fast Multi-Rate)</option>
+                </select>
               </div>
-              <div class="rls-item">
-                <span>Estimated Pole â_1:</span>
-                <span class="text-amber font-mono" id="valRlsPole">2.98</span>
-              </div>
-              <div class="rls-item">
-                <span>Observer Innovation:</span>
-                <span class="text-emerald font-mono" id="valRlsInnov">0.006</span>
-              </div>
-              <div class="rls-item">
-                <span>Switching Dwell Time:</span>
-                <span class="text-green font-mono" id="valDwellTime">0.50 s (Safe)</span>
+              <div class="form-group">
+                <label>Sampling Period T_s (s):</label>
+                <input type="number" class="input-control" id="cfgSampleTime" value="0.02" step="0.005">
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="panel studio-panel">
-          <div class="panel-header">
-            <h3>Safety-Gated 4-Tier Gate Verification</h3>
-            <span class="badge badge-emerald" id="badgeGateVerdict">APPROVED & COMMITTED</span>
-          </div>
-          <div class="safety-gate-tiers" style="display: flex; flex-direction: column; gap: 8px;">
-            <div class="gate-tier-row" id="gateTier1">
-              <span>Tier 1: Control Barrier Function (CBF Invariance):</span>
-              <strong id="gateIcon1">✅ PASS</strong>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Autonomous AI Feature Flags & Gates</h3>
+              <span class="badge badge-violet">Safety Governance</span>
             </div>
-            <div class="gate-tier-row" id="gateTier2">
-              <span>Tier 2: Lyapunov Contraction (dV/dt < 0):</span>
-              <strong id="gateIcon2">✅ PASS</strong>
-            </div>
-            <div class="gate-tier-row" id="gateTier3">
-              <span>Tier 3: Actuator Saturation Sieve (|u| ≤ 15N):</span>
-              <strong id="gateIcon3">✅ PASS</strong>
-            </div>
-            <div class="gate-tier-row" id="gateTier4">
-              <span>Tier 4: Fast-Time Digital Twin Rollout:</span>
-              <strong id="gateIcon4">✅ PASS</strong>
-            </div>
-          </div>
-
-          <div class="xai-log-terminal" id="adaptiveLogTerminal" style="height: 140px; margin-top: 14px;">
-            <div class="xai-line"><span class="t-stamp">[00:00.1]</span> <span class="t-tag tag-sys">SYS</span> Supervisory Adaptation Engine online.</div>
-            <div class="xai-line"><span class="t-stamp">[00:00.4]</span> <span class="t-tag tag-lyap">LYAP</span> Baseline contraction verified: V(x) = x^T P x strictly decaying.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================================================= -->
-    <!-- WORKSPACE 5: FAULT & RESILIENCE LAB -->
-    <!-- ========================================================================= -->
-    <section class="tab-pane" id="faultLabTab">
-      <div class="studio-header">
-        <div>
-          <h2>🛡️ Fault & Resilience Lab — Physical Faults & Cyber-Physical Testing</h2>
-          <p>Inject physical disturbances, actuator degradation, sensor drift, and cyberattacks with Chi-square innovation isolation.</p>
-        </div>
-        <div class="safety-btn-group">
-          <button id="btnNeutralizeThreats" class="cyber-btn btn-accent">
-            <span class="icon">🛡️</span> Neutralize All Threats
-          </button>
-        </div>
-      </div>
-
-      <div class="studio-grid-2">
-        <div class="panel studio-panel">
-          <div class="panel-header">
-            <h3>Fault & Disturbance Injection Matrix</h3>
-            <span class="badge badge-rose">Controllable Injections</span>
-          </div>
-          <div class="attack-buttons-grid">
-            <div class="attack-card">
-              <h4>Wind Shear Gust (+5.0 N)</h4>
-              <p>Injects aerodynamic step disturbance directly into plant axis.</p>
-              <button class="cyber-btn btn-warning btn-sm" id="btnInjectGust">Inject Gust</button>
-            </div>
-            <div class="attack-card">
-              <h4>Actuator 40% Gain Loss</h4>
-              <p>Simulates thermal burnout reducing torque by 40%.</p>
-              <button class="cyber-btn btn-danger btn-sm" id="btnInjectActuatorFail">Inject 40% Loss</button>
-            </div>
-            <div class="attack-card">
-              <h4>Sensor Bias Drift (+0.5 V)</h4>
-              <p>Simulates calibration drift and measurement noise.</p>
-              <button class="cyber-btn btn-warning btn-sm" id="btnInjectSensorSpike">Inject Bias Drift</button>
-            </div>
-            <div class="attack-card">
-              <h4>False Data Injection (FDI)</h4>
-              <p>Spoofs sensor telemetry stream (+50.0 spike).</p>
-              <button class="cyber-btn btn-danger btn-sm" id="btnInjectFdi">Launch FDI</button>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="flagNeuralComp" checked>
+                <span>Enable Physics-Informed Neural Network (PINN) Compensation</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="flagAutoSwitch" checked>
+                <span>Enable Autonomous Controller Reconfiguration on Anomaly</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="flagSafetySieve" checked>
+                <span>Enforce Control Barrier Function (CBF) Hard Override</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="flagDeterministicFallback" checked>
+                <span>Enforce Deterministic Baseline Fallback if AI Uncertainty &gt; Threshold</span>
+              </label>
             </div>
           </div>
         </div>
+      </section>
 
-        <div class="panel studio-panel">
-          <div class="panel-header">
-            <h3>Chi-Square Innovation Monitor & Diagnostic Log</h3>
-            <span class="badge badge-emerald" id="statusChiSquare">PASS (χ² = 1.12 &lt; 3.84)</span>
-          </div>
-          <div class="defense-indicators">
-            <div class="defense-item">
-              <span>Dynamic Nonce Watermark:</span>
-              <strong id="statusWatermark" class="text-cyan">SEALED (SHA-256 Valid)</strong>
-            </div>
-            <div class="defense-item">
-              <span>Digital Twin Mirror Fallback:</span>
-              <strong id="statusTwinFallback" class="text-green">STANDBY READY</strong>
-            </div>
-            <div class="defense-item">
-              <span>Control Barrier QP Invariance:</span>
-              <strong id="statusBarrier" class="text-green">ACTIVE INVARIANCE</strong>
-            </div>
-          </div>
-          <div class="warroom-audit-feed" id="faultTimelineLog" style="height: 150px; margin-top: 14px;">
-            <div class="feed-entry">[FAULT MONITOR] Baseline nominal. Sensor telemetry variance within 3-sigma bounds.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================================================= -->
-    <!-- WORKSPACE 6: ANALYSIS & 3D VISUALIZATION -->
-    <!-- ========================================================================= -->
-    <section class="tab-pane" id="analysisVerificationTab">
-      <div class="studio-header">
-        <div>
-          <h2>📊 Analysis & Verification — Mathematical Derivations & 3D Trajectories</h2>
-          <p>Inspect calculation traces, frequency response Bode plots, and interactive 3D state-space trajectories.</p>
-        </div>
-        <button id="btnRefreshDerivation" class="cyber-btn btn-primary">
-          <span class="icon">📐</span> Show Mathematical Derivation Trace
-        </button>
-      </div>
-
-      <div class="studio-grid-2">
-        <!-- 3D State-Space Trajectory Canvas -->
-        <div class="panel studio-panel">
-          <div class="panel-header">
-            <h3>3D State-Space Trajectory [x₁, x₂, u]</h3>
-            <span class="badge badge-cyan">Interactive 3D Orbit</span>
-          </div>
-          <div class="canvas-container" style="height: 280px;">
-            <canvas id="stateSpace3DCanvas" width="460" height="280"></canvas>
-          </div>
-        </div>
-
-        <!-- 3D Parameter Loss Surface Canvas -->
-        <div class="panel studio-panel">
-          <div class="panel-header">
-            <h3>3D Parameter Objective Surface [Kp × Kd → ITAE]</h3>
-            <span class="badge badge-violet">Interactive 3D Surface</span>
-          </div>
-          <div class="canvas-container" style="height: 280px;">
-            <canvas id="surface3DCanvas" width="460" height="280"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- Mathematical Derivation Calculation Trace -->
-      <div class="panel studio-panel" style="margin-top: 16px;">
-        <div class="panel-header">
-          <h3>Analytical Derivation Trace for Active Plant & Controller</h3>
-          <span class="badge badge-emerald">Evidence-Linked Trace</span>
-        </div>
-        <div class="derivation-trace-box" id="derivationTraceBox" style="font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.8; padding: 14px; background: #050811; border-radius: 8px;">
-          <div>1. Plant Transfer Function: G(s) = b_0 / (s² + a_1 s + a_0) derived from physical state equations.</div>
-          <div>2. Open-Loop Poles: λ_ol = -2.55, -7.45 (Real & Negative → Open-Loop Stable).</div>
-          <div>3. Closed-Loop Characteristic Equation: 1 + G(s)C(s) = 0 solved via Hurwitz stability polynomial.</div>
-          <div>4. Lyapunov Equation: A_cl^T P + P A_cl = -I solved with P > 0, certifying contraction dV/dt < 0.</div>
-        </div>
-      </div>
-    
-      <!-- Next-Generation MATLAB Engines Matrix (81 Subsystems: acep_novelty to xcontrol) -->
-      <div class="panel studio-panel" style="margin-top: 16px;">
-        <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <div>
-            <h3 style="margin: 0; font-size: 15px;">🔬 Next-Generation MATLAB Engines Matrix (81 Subsystems: acep_novelty to xcontrol)</h3>
-            <p style="margin: 4px 0 0 0; font-size: 12px; color: #8b949e;">Continuous dynamical sensing waveforms, live latencies, and physical response traces across all 81 repository module families.</p>
-          </div>
-          <span class="badge badge-emerald">697 Modules Active</span>
-        </div>
-        <div id="enginesMatrixContainer"></div>
-      </div>
-
-    </section>
-
-    <!-- ========================================================================= -->
-    <!-- WORKSPACE 7: EXPERIMENTS & REPORTS -->
-    <!-- ========================================================================= -->
-    <section class="tab-pane" id="experimentsReportsTab">
-      <div class="studio-header">
-        <div>
-          <h2>📑 Experiments & Reports — Benchmarking & Traceable Export</h2>
-          <p>Compare controller paradigms under identical test conditions and export reproducible experiment data.</p>
-        </div>
-        <div class="safety-btn-group">
-          <button id="btnExportCsv" class="cyber-btn btn-secondary">
-            <span class="icon">💾</span> Export Telemetry (CSV)
-          </button>
-          <button id="btnExportJson" class="cyber-btn btn-primary">
-            <span class="icon">📊</span> Export Report (JSON)
-          </button>
-        </div>
-      </div>
-
-      <!-- Fair Controller Benchmark Scorecard Table -->
-      <div class="panel studio-panel">
-        <div class="panel-header">
-          <h3>Standardized Controller Benchmark Comparison</h3>
-          <span class="badge badge-cyan">Identical Plant & Disturbance Scenario</span>
-        </div>
-        <div class="chromosome-table-wrapper">
-          <table class="cyber-table" id="benchmarkTable">
-            <thead>
-              <tr>
-                <th>Controller Paradigm</th>
-                <th>Rise Time (T_r)</th>
-                <th>Settling Time (T_s)</th>
-                <th>Overshoot (M_p)</th>
-                <th>Tracking RMSE</th>
-                <th>Control Effort (∫u²dt)</th>
-                <th>Safety Certification</th>
-              </tr>
-            </thead>
-            <tbody id="benchmarkTableBody">
-              <tr>
-                <td><strong>ACEP Evolved Hybrid (Active)</strong></td>
-                <td class="text-green">0.28 s</td>
-                <td class="text-green">0.86 s</td>
-                <td class="text-green">3.8 %</td>
-                <td class="text-green">0.012</td>
-                <td>14.2 J</td>
-                <td class="text-green">CERTIFIED PASS</td>
-              </tr>
-              <tr>
-                <td><strong>Model Predictive Control (MPC)</strong></td>
-                <td>0.34 s</td>
-                <td>1.12 s</td>
-                <td>5.4 %</td>
-                <td>0.018</td>
-                <td>18.6 J</td>
-                <td class="text-green">CERTIFIED PASS</td>
-              </tr>
-              <tr>
-                <td><strong>Linear Quadratic Regulator (LQR)</strong></td>
-                <td>0.42 s</td>
-                <td>1.62 s</td>
-                <td>6.8 %</td>
-                <td>0.024</td>
-                <td>12.8 J</td>
-                <td class="text-green">CERTIFIED PASS</td>
-              </tr>
-              <tr>
-                <td><strong>Classical PID (Baseline)</strong></td>
-                <td>0.58 s</td>
-                <td>2.15 s</td>
-                <td class="text-warning">18.4 %</td>
-                <td class="text-warning">0.046</td>
-                <td>24.5 J</td>
-                <td class="text-warning">MARGINAL PASS</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================================================= -->
-    <!-- WORKSPACE 8: AI ENGINEERING ASSISTANT -->
-    <!-- ========================================================================= -->
-    <section class="tab-pane" id="assistantTab">
-      <div class="studio-header">
-        <div>
-          <h2>🤖 AI Engineering Assistant — Context-Aware Reasoning</h2>
-          <p>Authoritative assistance grounded in active plant dynamics, poles, stability proofs, and experiment evidence.</p>
-        </div>
-      </div>
-
-      <div class="assistant-chat-container">
-        <div class="assistant-chat-stream" id="assistantChatStream" style="height: 380px; overflow-y: auto; padding: 16px; background: #060911; border-radius: 8px; border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 12px;">
-          <div class="chat-msg msg-ai">
-            <strong>🤖 ACEP Assistant:</strong> Welcome to the Control Engineering Lab. I am initialized with active plant dynamics, poles, and verified Lyapunov contraction states. Ask me about pole placement, overshoot reduction, digital twin sync, or trigger design actions.
-          </div>
-        </div>
-
-        <div class="assistant-input-row" style="display: flex; gap: 12px; margin-top: 14px;">
-          <input type="text" id="assistantInput" class="cyber-input" style="flex: 1;" placeholder="Ask about plant dynamics, overshoot, stability proof, or fault recovery...">
-          <button id="btnSendAssistant" class="cyber-btn btn-primary">Send Question</button>
-        </div>
-
-        <!-- Quick Engineering Action Buttons -->
-        <div class="quick-action-chips" style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
-          <button class="pill" id="chipSynthesize">⚡ Synthesize Optimal Controller</button>
-          <button class="pill" id="chipRehearse">🔮 Rehearse 100 Steps in Twin</button>
-          <button class="pill" id="chipActuatorFault">⚠️ Test 40% Actuator Burnout</button>
-          <button class="pill" id="chipVerify">📐 Verify Lyapunov Stability</button>
-        </div>
-      </div>
-    </section>
-
-  </main>
+    </main>
+  </div>
 
   <!-- SCRIPTS -->
   <script src="simulation_engine.js"></script>
   <script src="three_engine_viz.js"></script>
   <script src="next_gen_engines.js"></script>
   <script src="app.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('[PWA] Service Worker active:', reg.scope))
-          .catch(err => console.log('[PWA] Service Worker registration skipped:', err));
-      });
-    }
-  </script>
 </body>
 </html>

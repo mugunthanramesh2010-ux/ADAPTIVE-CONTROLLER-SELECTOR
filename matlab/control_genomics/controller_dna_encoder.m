@@ -1,33 +1,10 @@
-function [output, status] = controller_dna_encoder(varargin)
-% CONTROLLER_DNA_ENCODER - ACEP Advanced Control Engineering Module
-% Category: control_genomics
-% Description: Encodes gains and matrices into nucleotide DNA sequences
-%
-% Syntax:
-%   [output, status] = controller_dna_encoder(inputs...)
-%
-% This module is part of the Autonomous Controller Evolution Platform (ACEP).
-% Fully verified, functional research-grade implementation.
-
-    disp('[CONTROLLER_DNA_ENCODER] Executing ACEP Module...');
-    
-    status = struct();
-    status.Category = 'control_genomics';
-    status.Module = 'controller_dna_encoder.m';
-    status.Timestamp = char(datetime('now'));
-    status.ExecutionState = 'SUCCESS_CERTIFIED';
-    
-    output = struct();
-    output.Description = 'Encodes gains and matrices into nucleotide DNA sequences';
-    output.CertifiedStable = true;
-    output.PerformanceMetric = 0.985;
-    output.Parameters = struct('Gain', 4.5, 'Margin_dB', 12.4, 'Health', 100);
-
-    if nargin > 0
-        output.InputReceived = varargin{1};
-    else
-        output.InputReceived = 'Default System Initialization';
-    end
-
-    disp(['[CONTROLLER_DNA_ENCODER] Certified Stable. Execution Complete.']);
+function dna = controller_dna_encoder(controllerStruct)
+% CONTROLLER_DNA_ENCODER Encodes controller parameters into genetic DNA sequences
+    dna = struct();
+    dna.Header = 'ACEP-GENOME-V2';
+    dna.Kp_Gene = sprintf('ATGC%04X', round(abs(controllerStruct.Kp)*100));
+    dna.Ki_Gene = sprintf('CGTA%04X', round(abs(controllerStruct.Ki)*100));
+    dna.Kd_Gene = sprintf('TACG%04X', round(abs(controllerStruct.Kd)*100));
+    dna.Sequence = [dna.Header, dna.Kp_Gene, dna.Ki_Gene, dna.Kd_Gene];
+    disp(['Controller Encoded to DNA: ', dna.Sequence]);
 end
