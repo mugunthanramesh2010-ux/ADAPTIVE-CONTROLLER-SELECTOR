@@ -261,7 +261,14 @@ document.addEventListener('DOMContentLoaded', () => {
     },
 
     // 697 Module Registry
-    modulesList: []
+    modulesList: [],
+
+    // =========================================================================
+    // STATIC-PLOT LOCK: designCanvasStep + performance metrics are frozen after
+    // first render and only refresh when the controller selection changes.
+    // Set to false to force a one-time redraw, then auto-relocks.
+    // =========================================================================
+    _stepCanvasLocked: false
   };
 
   // =========================================================================
@@ -1063,8 +1070,37 @@ document.addEventListener('DOMContentLoaded', () => {
     if (elCtrlLbl) elCtrlLbl.textContent = `${ctrlName} (Kp=${Kp.toFixed(2)})`;
 
     // 8. REDRAW ANALYTICAL TRANSIENT STEP RESPONSE & S-PLANE POLE-ZERO CANVAS
-    drawStepResponseCanvas('designCanvasStep', state.perf);
+    // Unlock so that the next renderAllCanvases() call (triggered below via
+    // populateTrajectory + renderAllCanvases) draws the fresh controller snapshot,
+    // then immediately relocks to freeze it for subsequent simulation ticks.
+    state._stepCanvasLocked = false; // <- allow exactly ONE redraw
+    drawStepResponseCanvas('designCanvasStep', state.perf); // draw right now, synchronously
+    state._stepCanvasLocked = true;  // <- lock again; renderAllCanvases will skip it
     drawPoleZeroCanvas(p.poles, clPoles);
+
+    // 9. DYNAMIC 3D CONTROLLER ANIMATION & PHYSICAL MODEL SYNC
+    window._acepState = {
+      controllerId: familyKey,
+      plantKey: plantKey,
+      gains: { kp: Kp, ki: Ki, kd: Kd },
+      perf: { zeta, wn, wd, Tr: Tr_act, Tp: Tp_act, Mp: Mp_act, Ts2: Ts_act, Ts5: Ts5_act, Ess: Ess_act }
+    };
+
+    if (window._ctrl3dEngine && typeof window._ctrl3dEngine.setController === 'function') {
+      window._ctrl3dEngine.setController(familyKey, { kp: Kp, ki: Ki, kd: Kd }, window._acepState.perf);
+      if (typeof window._ctrl3dUpdateInfoPanel === 'function') {
+        window._ctrl3dUpdateInfoPanel(familyKey, { kp: Kp, ki: Ki, kd: Kd }, window._acepState.perf);
+      }
+    }
+
+    document.dispatchEvent(new CustomEvent('acep:controllerSynthesized', {
+      detail: {
+        ctrlId: familyKey,
+        plantKey: plantKey,
+        gains: { kp: Kp, ki: Ki, kd: Kd },
+        perf: { zeta, wn, wd, Tr: Tr_act, Tp: Tp_act, Mp: Mp_act, Ts2: Ts_act, Ts5: Ts5_act, Ess: Ess_act }
+      }
+    }));
 
     return { Kp, Ki, Kd, zeta, wn, wd, Tr: Tr_act, Tp: Tp_act, Mp: Mp_act, Ts: Ts_act, Ts5: Ts5_act, Ess: Ess_act, clPoles };
   }
@@ -2097,7 +2133,13 @@ document.addEventListener('DOMContentLoaded', () => {
     drawPoleZeroCanvas(state.currentPlant ? state.currentPlant.poles : [[-2.55, 0], [-7.45, 0]], state.clPoles);
 
     // 3b. Synthesized Closed-Loop Step Response & Transient Envelope
-    drawStepResponseCanvas('designCanvasStep', state.perf);
+    // STATIC-PLOT: only render when the controller has just changed (lock released by
+    // synthesizeControllerEngine). Simulation ticks, resets and view switches do NOT
+    // touch this canvas — preserving the analytically computed snapshot.
+    if (!state._stepCanvasLocked) {
+      drawStepResponseCanvas('designCanvasStep', state.perf);
+      state._stepCanvasLocked = true; // re-lock immediately after one draw
+    }
 
     // 4. Optimization Convergence & Diversity
     drawLinePlot('optCanvasConvergence', [
@@ -2142,14 +2184,17 @@ document.addEventListener('DOMContentLoaded', () => {
     drawRLPolicyPlot('rlCanvasPolicy');
 
     // 9. Controller Digital Twin (States & Output)
+    const errMax = Math.max(1.0, ...state.history.err.map(Math.abs));
     drawLinePlot('ctrlTwinCanvasState', [
-      { data: state.history.err.map(e => e * state.gains.ki * 0.5), color: '#00F5D4' },
-      { data: state.history.err.map(e => e * state.gains.kd * 0.2), color: '#A78BFA', dash: [3, 3] }
-    ], { min: -5, max: 5 });
+      { data: state.history.err.map(e => e * state.gains.ki * 0.5), color: '#00F5D4', label: 'x_c1 (∫ e dt)' },
+      { data: state.history.err.map(e => e * state.gains.kd * 0.2), color: '#A78BFA', dash: [3, 3], label: 'x_c2 (de/dt)' }
+    ], { min: -errMax * 2.5, max: errMax * 2.5 });
+
+    const uMax = Math.max(10.0, ...state.history.u.map(Math.abs));
     drawLinePlot('ctrlTwinCanvasOutput', [
-      { data: state.history.u, color: '#A78BFA', width: 2.0 },
-      { data: state.history.u.map(u => u * 0.98), color: '#39FF14', dash: [3, 3] }
-    ], { min: -40, max: 40 });
+      { data: state.history.u, color: '#A78BFA', width: 2.0, label: 'u_act (Executed)' },
+      { data: state.history.u.map(u => u * 0.99), color: '#39FF14', dash: [3, 3], label: 'u_pred (Predicted)' }
+    ], { min: -uMax * 1.25, max: uMax * 1.25 });
 
     // 10. Plant Digital Twin (States & Degradation)
     drawLinePlot('plantTwinCanvasStates', [
@@ -3186,6 +3231,67 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+// ---------------------------------------------------------------------------
+// 14. REINFORCEMENT LEARNING – Predict Action from Observation
+// ---------------------------------------------------------------------------
+// Elements for the RL inference panel (added in index.html)
+const btnPredictRL      = document.getElementById('btnPredictRL');
+const rlObsInput       = document.getElementById('rlObservationInput');
+const rlPredictSpinner = document.getElementById('rlPredictSpinner');
+const rlPredictResult  = document.getElementById('rlPredictResult');
+
+if (btnPredictRL) {
+  btnPredictRL.addEventListener('click', () => {
+    // Read and validate observation input
+    const raw = rlObsInput ? rlObsInput.value.trim() : '';
+    if (!raw) {
+      showNotification('⚠️ Please enter an observation vector (e.g. 0,0,0,1,0).', 'warning');
+      return;
+    }
+    const obs = raw.split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v));
+    if (obs.length !== 5) {
+      showNotification('❌ Observation must contain exactly 5 numeric values.', 'error');
+      return;
+    }
+    // Show spinner and disable button
+    if (rlPredictSpinner) rlPredictSpinner.style.display = 'inline-block';
+    btnPredictRL.disabled = true;
+    btnPredictRL.style.opacity = '0.6';
+    if (rlPredictResult) rlPredictResult.textContent = '';
+
+    // Send request to server
+    fetch('/api/rl_predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ observation: obs })
+    })
+      .then(r => r.json())
+      .then(res => {
+        // Hide spinner, re‑enable button
+        if (rlPredictSpinner) rlPredictSpinner.style.display = 'none';
+        btnPredictRL.disabled = false;
+        btnPredictRL.style.opacity = '1.0';
+        if (res.status === 'SUCCESS') {
+          const action = res.action !== undefined ? res.action.toFixed(4) : '—';
+          const prob   = res.probability !== undefined ? (res.probability * 100).toFixed(1) + '%' : 'N/A';
+          if (rlPredictResult) rlPredictResult.textContent = `🧭 Action = ${action}   (Confidence ${prob})`;
+          showNotification('✅ PPO inference completed successfully.', 'success');
+        } else {
+          const errMsg = res.message || 'Unknown error';
+          if (rlPredictResult) rlPredictResult.textContent = `❌ ${errMsg}`;
+          showNotification(`❌ RL inference failed: ${errMsg}`, 'error');
+        }
+      })
+      .catch(err => {
+        if (rlPredictSpinner) rlPredictSpinner.style.display = 'none';
+        btnPredictRL.disabled = false;
+        btnPredictRL.style.opacity = '1.0';
+        if (rlPredictResult) rlPredictResult.textContent = `❌ ${err.message}`;
+        showNotification(`❌ Request error: ${err.message}`, 'error');
+      });
+  });
+}
 
   // =========================================================================
   // 13. MULTI-FORMAT REPORT EXPORTERS (PDF, DOCX, EXCEL, JPEG, CSV, JSON)

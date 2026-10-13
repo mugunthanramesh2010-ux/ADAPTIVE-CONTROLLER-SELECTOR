@@ -414,6 +414,76 @@
           </div>
           <div class="canvas-wrapper" style="height: 220px;">
             <canvas id="designCanvasPZ" width="1120" height="220"></canvas>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- 3D CONTROLLER PHYSICAL ANIMATION PANEL                            -->
+        <!-- Renders a parametric 3D model of the selected controller/plant    -->
+        <!-- system with user-configurable geometry parameters                 -->
+        <!-- ================================================================= -->
+        <div class="panel" id="panel3dControllerViz" style="margin-top: 12px;">
+          <div class="panel-header">
+            <h3>🧊 3D Controller Physical System Animation</h3>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <span class="badge badge-violet" id="badge3dCtrlName">PID Active</span>
+              <button class="btn-action" id="btn3dReset" style="font-size:10px;padding:3px 9px;">↺ Reset View</button>
+              <button class="btn-action btn-green" id="btn3dToggleAnim" style="font-size:10px;padding:3px 9px;">⏸ Pause</button>
+            </div>
+          </div>
+
+          <!-- Geometry parameter inputs -->
+          <div class="grid-2" style="margin-bottom:10px;gap:8px;">
+            <div style="background:rgba(167,139,250,0.04);border:1px solid rgba(167,139,250,0.2);border-radius:6px;padding:10px;">
+              <div style="font-size:11px;font-weight:700;color:var(--accent-violet);margin-bottom:8px;">📐 Physical Geometry Parameters</div>
+              <div class="grid-3" style="gap:6px;">
+                <div class="form-group">
+                  <label>Length (m):</label>
+                  <input type="number" class="input-control" id="geom3dLength" value="1.2" step="0.1" min="0.1" max="10">
+                </div>
+                <div class="form-group">
+                  <label>Breadth (m):</label>
+                  <input type="number" class="input-control" id="geom3dBreadth" value="0.6" step="0.1" min="0.1" max="10">
+                </div>
+                <div class="form-group">
+                  <label>Height (m):</label>
+                  <input type="number" class="input-control" id="geom3dHeight" value="0.4" step="0.1" min="0.1" max="10">
+                </div>
+                <div class="form-group">
+                  <label>Mass/Weight (kg):</label>
+                  <input type="number" class="input-control" id="geom3dMass" value="5.0" step="0.5" min="0.1" max="500">
+                </div>
+                <div class="form-group">
+                  <label>Size Scale:</label>
+                  <input type="number" class="input-control" id="geom3dScale" value="1.0" step="0.1" min="0.1" max="5">
+                </div>
+                <div class="form-group">
+                  <label>Wall Thickness:</label>
+                  <input type="number" class="input-control" id="geom3dThickness" value="0.06" step="0.01" min="0.01" max="1">
+                </div>
+              </div>
+              <button class="btn-action btn-primary" id="btn3dApplyGeom" style="width:100%;margin-top:8px;font-size:11px;">🔄 Apply Geometry &amp; Re-render</button>
+            </div>
+            <div style="background:rgba(0,245,212,0.03);border:1px solid rgba(0,245,212,0.18);border-radius:6px;padding:10px;">
+              <div style="font-size:11px;font-weight:700;color:var(--accent-cyan);margin-bottom:8px;">🧠 Active Controller Properties</div>
+              <div id="ctrl3dInfoPanel" style="font-size:11px;font-family:var(--font-mono);line-height:1.8;color:var(--text-secondary);">
+                <div>Controller: <strong id="c3d_name" style="color:var(--accent-cyan)">PID</strong></div>
+                <div>Kp = <strong id="c3d_kp" style="color:var(--accent-green)">0.50</strong> &nbsp;|&nbsp; Ki = <strong id="c3d_ki" style="color:var(--accent-green)">1.06</strong> &nbsp;|&nbsp; Kd = <strong id="c3d_kd" style="color:var(--accent-green)">1.15</strong></div>
+                <div>&zeta; = <strong id="c3d_zeta" style="color:#FFB020">0.707</strong> &nbsp;|&nbsp; &omega;&#8345; = <strong id="c3d_wn" style="color:#FFB020">5.20</strong> rad/s</div>
+                <div>Ts (2%) = <strong id="c3d_ts" style="color:var(--accent-violet)">0.65 s</strong> &nbsp;|&nbsp; Mp = <strong id="c3d_mp" style="color:var(--accent-magenta)">3.8 %</strong></div>
+                <div style="margin-top:6px;color:var(--text-muted);font-size:10px;">&#x27F3; Updates on every controller synthesis</div>
+              </div>
+              <div style="margin-top:8px;padding:6px;background:rgba(0,0,0,0.3);border-radius:4px;font-size:10px;color:var(--text-muted);">
+                Drag to orbit &middot; Scroll to zoom &middot; Geometry fields update the physical body
+              </div>
+            </div>
+          </div>
+
+          <!-- 3D Canvas -->
+          <div class="canvas-wrapper" style="height:380px;position:relative;overflow:hidden;border-radius:8px;">
+            <canvas id="ctrl3dAnimCanvas" width="1120" height="380" style="width:100%;height:100%;border-radius:8px;"></canvas>
+            <div id="ctrl3dOverlay" style="position:absolute;top:8px;right:10px;font-size:10px;color:rgba(255,255,255,0.4);font-family:var(--font-mono);pointer-events:none;">
+              <span id="ctrl3dFps">60 FPS</span> &middot; Canvas Renderer &middot; ACEP 3D Engine
+            </div>
           </div>
         </div>
       </section>
@@ -610,7 +680,19 @@
             </div>
           </div>
         </div>
-      </section>
+      <div class="panel" id="rlPredictPanel">
+  <div class="panel-header">
+    <h3>Predict Action from Observation</h3>
+    <span class="badge badge-violet">PPO Inference</span>
+  </div>
+  <div class="canvas-wrapper" style="padding:10px;">
+    <input type="text" id="rlObservationInput" placeholder="Enter observation e.g., 0,0,0,1,0" style="width:70%; padding:8px; margin-right:8px;" />
+    <button class="btn-action btn-primary" id="btnPredictRL">Predict Action</button>
+    <span id="rlPredictSpinner" style="display:none; margin-left:8px;">⏳</span>
+    <div id="rlPredictResult" style="margin-top:8px; font-weight:bold;"></div>
+  </div>
+</div>
+</section>
 
       <!-- 8. CONTROLLER DIGITAL TWIN -->
       <section class="view-pane" id="viewControllerTwin">
@@ -619,6 +701,30 @@
             <h2>🎛️ Controller Digital Twin</h2>
           </div>
           <div class="badge badge-cyan">Twin State Synchronized</div>
+        </div>
+
+        <!-- CONTROLLER DIGITAL TWIN METRICS & STATE MIRROR -->
+        <div class="grid-4" style="margin-bottom: 12px;">
+          <div class="metric-tile">
+            <span class="label">Controller Architecture</span>
+            <span class="val text-cyan" id="twinCtrlName">PID Controller</span>
+            <span class="sub text-secondary">Discrete State Mirror</span>
+          </div>
+          <div class="metric-tile">
+            <span class="label">Active Gains (Kp / Ki / Kd)</span>
+            <span class="val text-green" id="twinCtrlGains">0.50 / 1.06 / 1.15</span>
+            <span class="sub text-secondary">Synthesized Param Set</span>
+          </div>
+          <div class="metric-tile">
+            <span class="label">Damping &amp; Natural Freq</span>
+            <span class="val" id="twinCtrlDynamics">ζ=0.707 | ωn=5.20</span>
+            <span class="sub text-secondary">Characteristic Roots</span>
+          </div>
+          <div class="metric-tile">
+            <span class="label">Settling &amp; Overshoot</span>
+            <span class="val text-violet" id="twinCtrlPerf">Ts=0.65s | Mp=3.8%</span>
+            <span class="sub text-secondary">Design Envelope Match</span>
+          </div>
         </div>
 
         <div class="grid-2">
@@ -638,6 +744,73 @@
             </div>
             <div class="canvas-wrapper" style="height: 250px;">
               <canvas id="ctrlTwinCanvasOutput" width="560" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3D CONTROLLER DIGITAL TWIN PHYSICAL SYSTEM ANIMATION PANEL -->
+        <div class="panel" id="panelTwin3dControllerViz" style="margin-top: 12px;">
+          <div class="panel-header">
+            <h3>🧊 Controller Digital Twin 3D Physical &amp; Cyber-Physical Model</h3>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <span class="badge badge-cyan" id="badgeTwin3dCtrlName">PID Active</span>
+              <button class="btn-action" id="btnTwin3dReset" style="font-size:10px;padding:3px 9px;">↺ Reset View</button>
+              <button class="btn-action btn-green" id="btnTwin3dToggleAnim" style="font-size:10px;padding:3px 9px;">⏸ Pause</button>
+            </div>
+          </div>
+
+          <!-- Geometry parameter inputs & Twin Telemetry -->
+          <div class="grid-2" style="margin-bottom:10px;gap:8px;">
+            <div style="background:rgba(0,245,212,0.03);border:1px solid rgba(0,245,212,0.2);border-radius:6px;padding:10px;">
+              <div style="font-size:11px;font-weight:700;color:var(--accent-cyan);margin-bottom:8px;">📐 Physical Twin Dimensions (Length, Breadth, Height, Mass)</div>
+              <div class="grid-3" style="gap:6px;">
+                <div class="form-group">
+                  <label>Length (m):</label>
+                  <input type="number" class="input-control" id="geomTwinLength" value="1.2" step="0.1" min="0.1" max="10">
+                </div>
+                <div class="form-group">
+                  <label>Breadth (m):</label>
+                  <input type="number" class="input-control" id="geomTwinBreadth" value="0.6" step="0.1" min="0.1" max="10">
+                </div>
+                <div class="form-group">
+                  <label>Height (m):</label>
+                  <input type="number" class="input-control" id="geomTwinHeight" value="0.4" step="0.1" min="0.1" max="10">
+                </div>
+                <div class="form-group">
+                  <label>Mass/Weight (kg):</label>
+                  <input type="number" class="input-control" id="geomTwinMass" value="5.0" step="0.5" min="0.1" max="500">
+                </div>
+                <div class="form-group">
+                  <label>Size Scale:</label>
+                  <input type="number" class="input-control" id="geomTwinScale" value="1.0" step="0.1" min="0.1" max="5">
+                </div>
+                <div class="form-group">
+                  <label>Wall Thickness:</label>
+                  <input type="number" class="input-control" id="geomTwinThickness" value="0.06" step="0.01" min="0.01" max="1">
+                </div>
+              </div>
+              <button class="btn-action btn-primary" id="btnTwin3dApplyGeom" style="width:100%;margin-top:8px;font-size:11px;">🔄 Apply Twin Geometry</button>
+            </div>
+            <div style="background:rgba(167,139,250,0.04);border:1px solid rgba(167,139,250,0.2);border-radius:6px;padding:10px;">
+              <div style="font-size:11px;font-weight:700;color:var(--accent-violet);margin-bottom:8px;">⚡ Cyber-Physical Twin Telemetry</div>
+              <div style="font-size:11px;font-family:var(--font-mono);line-height:1.8;color:var(--text-secondary);">
+                <div>Active Architecture: <strong id="cTwin3d_name" style="color:var(--accent-cyan)">PID</strong></div>
+                <div>Gains: Kp=<strong id="cTwin3d_kp" style="color:var(--accent-green)">0.50</strong> | Ki=<strong id="cTwin3d_ki" style="color:var(--accent-green)">1.06</strong> | Kd=<strong id="cTwin3d_kd" style="color:var(--accent-green)">1.15</strong></div>
+                <div>Physics Damping: ζ=<strong id="cTwin3d_zeta" style="color:#FFB020">0.707</strong> | ωn=<strong id="cTwin3d_wn" style="color:#FFB020">5.20</strong> rad/s</div>
+                <div>Transient: Ts=<strong id="cTwin3d_ts" style="color:var(--accent-violet)">0.65 s</strong> | Mp=<strong id="cTwin3d_mp" style="color:var(--accent-magenta)">3.8 %</strong></div>
+                <div style="margin-top:6px;color:var(--text-muted);font-size:10px;">🔄 100% In-Sync with Active Control Core &amp; Physical Geometry</div>
+              </div>
+              <div style="margin-top:8px;padding:6px;background:rgba(0,0,0,0.3);border-radius:4px;font-size:10px;color:var(--text-muted);">
+                Orbit &amp; zoom enabled &middot; Physical body vibrates at characteristic closed-loop pole frequency
+              </div>
+            </div>
+          </div>
+
+          <!-- 3D Twin Canvas -->
+          <div class="canvas-wrapper" style="height:380px;position:relative;overflow:hidden;border-radius:8px;">
+            <canvas id="ctrlTwin3dAnimCanvas" width="1120" height="380" style="width:100%;height:100%;border-radius:8px;"></canvas>
+            <div style="position:absolute;top:8px;right:10px;font-size:10px;color:rgba(255,255,255,0.4);font-family:var(--font-mono);pointer-events:none;">
+              <span id="ctrlTwin3dFps">60 FPS</span> &middot; Twin Mirror &middot; ACEP Cyber-Physical Engine
             </div>
           </div>
         </div>
@@ -1210,6 +1383,102 @@
           </div>
         </div>
 
+        <!-- 21B. DYNAMIC REQUIREMENTS INTERVIEW & EVIDENCE-DRIVEN TASK PLANNER STUDIO -->
+        <div class="panel" id="intelInterviewContainer" style="margin-top: 16px;">
+          <div class="panel-header">
+            <h3>🧠 Dynamic Requirements Interview &amp; Evidence-Driven Task Planner</h3>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span class="badge badge-cyan" id="intelEntropyBadge">Uncertainty Entropy: <strong id="intelEntropyVal">5.40 bits</strong></span>
+              <span class="badge badge-violet" id="intelStatusBadge">AWAITING CLARIFICATION</span>
+              <button class="btn-action btn-violet" id="btnIntelStartInterview" style="font-size: 11px;">🔍 Re-Analyze Prompt</button>
+              <button class="btn-action btn-primary" id="btnIntelExecutePlan" style="font-size: 11px;">⚡ Execute DAG Plan &amp; Verify</button>
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-bottom: 12px; gap: 12px;">
+            <!-- Left: Prompt & Dynamic Questions Deck -->
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <div style="background: rgba(13, 17, 23, 0.7); padding: 12px; border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.08);">
+                <div style="font-size: 11px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 6px;">📝 NATURAL LANGUAGE SPECIFICATION INPUT</div>
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" id="inputIntelPrompt" class="input-control" value="Design high-precision position servo controller for DC motor with overshoot under 8% and fast settling" style="flex: 1; font-size: 12px;" />
+                </div>
+              </div>
+
+              <!-- Clarification Questions -->
+              <div style="background: rgba(13, 17, 23, 0.7); padding: 12px; border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.08); flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-size: 11px; font-weight: 700; color: var(--accent-violet);">🎯 DYNAMIC CLARIFICATION INTERVIEW (BAYESIAN INFO-GAIN)</span>
+                  <span style="font-size: 10px; color: var(--text-muted);">Active Learning Prioritization</span>
+                </div>
+                <div id="intelQuestionsList" style="max-height: 220px; overflow-y: auto;">
+                  <!-- Populated by engineering_intelligence_studio.js -->
+                </div>
+              </div>
+
+              <!-- Directed Acyclic Graph Tasks -->
+              <div style="background: rgba(13, 17, 23, 0.7); padding: 12px; border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.08);">
+                <div style="font-size: 11px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 8px;">⚡ DIRECTED ACYCLIC GRAPH (DAG) TASK PLANNER</div>
+                <div id="intelDagContainer"></div>
+              </div>
+            </div>
+
+            <!-- Right: Real-Time Closed Loop Simulation & Telemetry Strip -->
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <div style="background: rgba(13, 17, 23, 0.7); padding: 12px; border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.08);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-size: 11px; font-weight: 700; color: var(--accent-green);">📈 CLOSED-LOOP STEP RESPONSE &amp; NUMERICAL VERIFICATION</span>
+                  <span class="badge badge-green" style="font-size: 9px;">RK4 Time-Stepping</span>
+                </div>
+                <div class="canvas-wrapper" style="height: 240px; position: relative;">
+                  <canvas id="intelCanvasStep" width="540" height="240" style="width: 100%; height: 100%; border-radius: 6px;"></canvas>
+                </div>
+
+                <!-- Metrics Strip -->
+                <div class="grid-4" style="margin-top: 10px; gap: 6px;">
+                  <div class="metric-tile" style="padding: 6px;">
+                    <span class="label">Overshoot (Mp)</span>
+                    <span class="val text-magenta" id="intelMetricMp">6.42%</span>
+                  </div>
+                  <div class="metric-tile" style="padding: 6px;">
+                    <span class="label">Settling Time (Ts)</span>
+                    <span class="val text-cyan" id="intelMetricTs">0.68s</span>
+                  </div>
+                  <div class="metric-tile" style="padding: 6px;">
+                    <span class="label">Lyapunov Gate</span>
+                    <span class="val text-green" id="intelMetricLyap">CERTIFIED</span>
+                  </div>
+                  <div class="metric-tile" style="padding: 6px;">
+                    <span class="label">CBF Barrier Margin</span>
+                    <span class="val text-violet" id="intelMetricCbf">18.2 units</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Evidence Attribution Ledger -->
+              <div style="background: rgba(13, 17, 23, 0.7); padding: 12px; border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.08); flex: 1;">
+                <div style="font-size: 11px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 6px;">🛡️ RESPONSE VALIDATION &amp; EVIDENCE ATTRIBUTION LEDGER</div>
+                <div style="max-height: 140px; overflow-y: auto;">
+                  <table style="width: 100%; font-size: 10px; border-collapse: collapse;">
+                    <thead>
+                      <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-muted); text-align: left;">
+                        <th style="padding: 4px;">Claim</th>
+                        <th style="padding: 4px;">Statement</th>
+                        <th style="padding: 4px;">Source</th>
+                        <th style="padding: 4px;">Basis</th>
+                        <th style="padding: 4px;">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="intelEvidenceTableBody">
+                      <!-- Populated by script -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- 10,000 DATASET TRAINING, FEATURE SCALING & HYPERPARAMETER FINE-TUNER STUDIO -->
         <div class="panel" style="margin-top: 16px;">
           <div class="panel-header">
@@ -1328,6 +1597,8 @@
   <script src="simulation_engine.js?v=2026.5.4"></script>
   <script src="three_engine_viz.js?v=2026.5.4"></script>
   <script src="next_gen_engines.js?v=2026.5.4"></script>
+  <script src="controller_3d_viz.js?v=2026.5.4"></script>
+  <script src="engineering_intelligence_studio.js?v=2026.5.4"></script>
   <script src="app.js?v=2026.5.4"></script>
   <script>
     // Force purge any old service workers or cached scripts to ensure live updates
