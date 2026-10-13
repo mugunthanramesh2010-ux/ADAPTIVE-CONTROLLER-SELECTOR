@@ -14,3 +14,15 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Root directory junctions to matlab/
+acep_research_benchmark
+control_decision_intelligence
+controller_design_studio
+controller_self_evolution
+cyber_physical_resilience
+disturbance_intelligence
+intelligent_controller_selection
+live_digital_twin
+physical_fault_intelligence
+stability_safety_certification
