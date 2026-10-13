@@ -3,6 +3,7 @@ function status = test_engineering_intelligence()
 % Part of ACEP 4.0 Suite
 
 fprintf('--> Running test_engineering_intelligence...\n');
+addpath(genpath(pwd));
 
 % 1. Test Requirements Interview Engine
 prompt = 'Design high bandwidth speed controller for brushless DC motor with overshoot under 8 percent';

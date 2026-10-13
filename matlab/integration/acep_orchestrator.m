@@ -384,6 +384,9 @@ function results = acep_orchestrator(plantConfig, controllerType, options)
         mat_filename = fullfile('reports', 'acep_benchmark_run.mat');
         csv_filename = fullfile('reports', 'acep_telemetry_log.csv');
         try
+            if ~exist('reports', 'dir')
+                mkdir('reports');
+            end
             save(mat_filename, 'results');
             % Export CSV telemetry
             telemetry_table = table(t_vec', r_history', y_plant_history', y_twin_history', ...
