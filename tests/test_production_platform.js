@@ -57,8 +57,9 @@ async function runProductionTestSuite() {
   console.log('======================================================================\n');
 
   let passed = 0;
-  const total = 9;
+  const total = 12;
   let testProjectId = null;
+  let latestSimRun = null;
 
   // 1. Health & Readiness Check
   try {
@@ -227,6 +228,7 @@ async function runProductionTestSuite() {
     assert(assistRes.data.simulationResult);
     assert(assistRes.data.simulationResult.runId.startsWith('RUN-'));
     assert.strictEqual(assistRes.data.simulationResult.metrics.solverStatus, 'CONVERGED_RK4');
+    latestSimRun = assistRes.data.simulationResult;
 
     console.log(`PASS (AI copilot executed real RK4 simulation ${assistRes.data.simulationResult.runId}: Tr=${assistRes.data.simulationResult.metrics.riseTime}s, Ts=${assistRes.data.simulationResult.metrics.settlingTime}s)`);
     passed++;
@@ -246,6 +248,69 @@ async function runProductionTestSuite() {
     assert.strictEqual(updateRes.data.project.status, 'VERIFIED_QUALIFIED');
 
     console.log(`PASS (Project ${testProjectId} updated to VERIFIED_QUALIFIED)`);
+    passed++;
+  } catch (err) {
+    console.log('FAIL:', err.message);
+  }
+
+  // 10. Frequency-Domain Analytics & Stability Margins (Bode, Nyquist, Pole-Zero)
+  try {
+    process.stdout.write('[STAGE 10] Frequency-Domain Analytics & Stability Margins... ');
+    const simFreq = latestSimRun ? latestSimRun.frequency : null;
+    assert(simFreq, 'Simulation run must include frequency-domain analytics');
+    assert(Array.isArray(simFreq.poles) && simFreq.poles.length >= 2, 'Must have at least 2 system poles');
+    assert(Array.isArray(simFreq.bode.omega) && simFreq.bode.omega.length === 50, 'Must have 50 logarithmic frequency points');
+    assert(Array.isArray(simFreq.bode.magnitude_dB) && simFreq.bode.magnitude_dB.length === 50, 'Must have 50 magnitude points');
+    assert(Array.isArray(simFreq.bode.phase_deg) && simFreq.bode.phase_deg.length === 50, 'Must have 50 phase points');
+    assert(typeof simFreq.margins.phaseMarginDeg === 'number', 'Phase margin must be numerical');
+    assert(typeof simFreq.margins.gainMarginDb === 'number', 'Gain margin must be numerical');
+
+    console.log(`PASS (50-point Bode grid, PM: ${simFreq.margins.phaseMarginDeg}°, GM: ${simFreq.margins.gainMarginDb}dB, Poles: ${simFreq.poles.length})`);
+    passed++;
+  } catch (err) {
+    console.log('FAIL:', err.message);
+  }
+
+  // 11. Project Artifact Export Engine (/api/projects/export)
+  try {
+    process.stdout.write('[STAGE 11] Project Artifact Export Engine (/api/projects/export)... ');
+    const csvRes = await makeRequest('GET', `/api/projects/export?id=${testProjectId}&format=csv`);
+    assert.strictEqual(csvRes.status, 200);
+    const csvLines = (csvRes.raw || '').trim().split('\n');
+    assert(csvLines[0].includes('time_sec,reference,output_y,error_e,control_effort_u,disturbance_d'));
+    assert(csvLines.length >= 100, 'CSV must export simulation time-series');
+
+    const mdRes = await makeRequest('GET', `/api/projects/export?id=${testProjectId}&format=markdown`);
+    assert.strictEqual(mdRes.status, 200);
+    assert((mdRes.raw || '').includes('# CONTROL-ARENA X — TECHNICAL ENGINEERING CERTIFICATION REPORT'));
+
+    const jsonRes = await makeRequest('GET', `/api/projects/export?id=${testProjectId}&format=json`);
+    assert.strictEqual(jsonRes.status, 200);
+    assert(jsonRes.data.runs && jsonRes.data.runs.length > 0);
+
+    console.log(`PASS (Exported CSV: ${csvLines.length} rows, Markdown Report, and JSON archive)`);
+    passed++;
+  } catch (err) {
+    console.log('FAIL:', err.message);
+  }
+
+  // 12. Multi-Turn AI Conversation History & Contextual Clarifications
+  try {
+    process.stdout.write('[STAGE 12] Multi-Turn AI Conversation & Clarification Interview... ');
+    const msgRes = await makeRequest('GET', `/api/projects/messages?id=${testProjectId}`);
+    assert.strictEqual(msgRes.status, 200);
+    assert(msgRes.data.count >= 2, 'Must record user turn and assistant response turn');
+
+    // Add another conversation turn
+    const postMsgRes = await makeRequest('POST', '/api/projects/messages', {
+      projectId: testProjectId,
+      sender: 'user',
+      text: 'Tighten max overshoot requirement to <= 2.5% and re-synthesize.'
+    });
+    assert.strictEqual(postMsgRes.status, 201);
+    assert.strictEqual(postMsgRes.data.status, 'SUCCESS');
+
+    console.log(`PASS (${msgRes.data.count + 1} project conversation turns persisted with traceability)`);
     passed++;
   } catch (err) {
     console.log('FAIL:', err.message);

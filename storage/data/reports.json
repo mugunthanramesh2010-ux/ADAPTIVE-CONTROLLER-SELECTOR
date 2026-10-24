@@ -1,5 +1,2777 @@
 [
   {
+    "reportId": "REP-MVLVUA8E",
+    "timestamp": "2026-10-24T04:12:13.262Z",
+    "project": {
+      "id": "PRJ-MVLVUA1W",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 1
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLVUA4Z",
+    "timestamp": "2026-10-24T04:12:13.139Z",
+    "project": {
+      "id": "PRJ-MVLVUA1W",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 1
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLV76GD",
+    "timestamp": "2026-10-24T03:54:15.277Z",
+    "project": {
+      "id": "PRJ-MVLV764J",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 4
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLV769W",
+    "timestamp": "2026-10-24T03:54:15.044Z",
+    "project": {
+      "id": "PRJ-MVLV764J",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 4
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLS3B1N",
+    "timestamp": "2026-10-24T02:27:15.755Z",
+    "project": {
+      "id": "PRJ-MVLS3AW0",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 2
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLS3AYI",
+    "timestamp": "2026-10-24T02:27:15.642Z",
+    "project": {
+      "id": "PRJ-MVLS3AW0",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 2
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLRXF5K",
+    "timestamp": "2026-10-24T02:22:41.144Z",
+    "project": {
+      "id": "PRJ-MVLRVQQ4",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 0
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLRVQV5",
+    "timestamp": "2026-10-24T02:21:23.009Z",
+    "project": {
+      "id": "PRJ-MVLRVQQ4",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 0
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLRVQSC",
+    "timestamp": "2026-10-24T02:21:22.908Z",
+    "project": {
+      "id": "PRJ-MVLRVQQ4",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 0
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLRMQZF",
+    "timestamp": "2026-10-24T02:14:23.259Z",
+    "project": {
+      "id": "PRJ-MVLRMCOZ",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 2
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLRMKEX",
+    "timestamp": "2026-10-24T02:14:14.745Z",
+    "project": {
+      "id": "PRJ-MVLRMCOZ",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 2
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLRMCSP",
+    "timestamp": "2026-10-24T02:14:04.873Z",
+    "project": {
+      "id": "PRJ-MVLRMCOZ",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 2
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLRMCQR",
+    "timestamp": "2026-10-24T02:14:04.803Z",
+    "project": {
+      "id": "PRJ-MVLRMCOZ",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 2
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLRLRH4",
+    "timestamp": "2026-10-24T02:13:37.240Z",
+    "project": {
+      "id": "PRJ-MVLRKKA0",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 2
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLRKKD3",
+    "timestamp": "2026-10-24T02:12:41.367Z",
+    "project": {
+      "id": "PRJ-MVLRKKA0",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 2
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLRKKBE",
+    "timestamp": "2026-10-24T02:12:41.306Z",
+    "project": {
+      "id": "PRJ-MVLRKKA0",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 2
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLRJ10M",
+    "timestamp": "2026-10-24T02:11:29.638Z",
+    "project": {
+      "id": "PRJ-MVLRJ0YC",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 5
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLRGQ8G",
+    "timestamp": "2026-10-24T02:09:42.352Z",
+    "project": {
+      "id": "PRJ-MVLRGQ7L",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 2
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLRE6BJ",
+    "timestamp": "2026-10-24T02:07:43.231Z",
+    "project": {
+      "id": "PRJ-MVLRE6AP",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 2
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLRCUQV",
+    "timestamp": "2026-10-24T02:06:41.575Z",
+    "project": {
+      "id": "PRJ-MVLRCUOI",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 2
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
+    "reportId": "REP-MVLQVTDA",
+    "timestamp": "2026-10-24T01:53:26.638Z",
+    "project": {
+      "id": "PRJ-MVLQVTBJ",
+      "name": "Automated UAV Pitch Control Engineering Lifecycle",
+      "domain": "aerospace",
+      "version": "1.0.0",
+      "author": "Senior Guidance & Control Specialist"
+    },
+    "plantSpecification": {
+      "name": "UAV Quadrotor Attitude (Pitch Angle)",
+      "domain": "aerospace",
+      "order": 2,
+      "stateEquations": "dx/dt = A x + B u + E d",
+      "matrices": {
+        "A": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -2.9999999999999996
+          ]
+        ],
+        "B": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "C": [
+          [
+            1,
+            0
+          ]
+        ],
+        "D": [
+          [
+            0
+          ]
+        ],
+        "E": [
+          [
+            0
+          ],
+          [
+            40
+          ]
+        ]
+      },
+      "naturalFrequency_rad_s": 3.16,
+      "dampingRatio": 0.47,
+      "openLoopStability": "STABLE",
+      "actuatorSaturationBound": 15
+    },
+    "requirements": {
+      "targetRiseTime": 0.35,
+      "targetSettlingTime": 1,
+      "maxOvershootPct": 4,
+      "maxSteadyStateError": 0.01,
+      "u_limit": 15,
+      "disturbanceRejectionRequired": true
+    },
+    "bestControllerDesign": {
+      "name": "Sliding Mode Control (SMC) with Boundary Layer",
+      "type": "smc",
+      "gains": {
+        "lambda": 3.79,
+        "k_switch": 6,
+        "phi": 0.08
+      },
+      "metrics": {
+        "riseTime": 0.52,
+        "settlingTime": 0.85,
+        "overshoot": 0.58,
+        "steadyStateError": 0.0013,
+        "IAE": 0.405,
+        "ISE": 0.347,
+        "controlEffort": 69.08,
+        "peakOutput": 1.5087,
+        "finalOutput": 1.4987,
+        "constraintViolations": 0,
+        "solverStatus": "CONVERGED_RK4",
+        "executionTimeMs": 2
+      },
+      "rank": 1,
+      "paretoScore": 3.53
+    },
+    "validationGates": [
+      {
+        "gate": "Open-loop Model Dimension & Parameter Validation",
+        "status": "PASS",
+        "criteria": "Non-zero positive mass/inertia and dimensionally consistent A,B matrices"
+      },
+      {
+        "gate": "Closed-Loop Asymptotic Stability (Hurwitz Test)",
+        "status": "PASS",
+        "criteria": "Re(lambda_i) < 0 for all closed loop poles"
+      },
+      {
+        "gate": "Reference Step Tracking Accuracy (SSE < 0.05)",
+        "status": "PASS",
+        "criteria": "|r - y_final| <= 0.05 units"
+      },
+      {
+        "gate": "Transient Rise Time Specification Compliance",
+        "status": "PASS",
+        "criteria": "Tr <= target spec"
+      },
+      {
+        "gate": "Actuator Saturation Invariance & CBF Sieve",
+        "status": "PASS",
+        "criteria": "Control effort stays within safe physical limits"
+      },
+      {
+        "gate": "Disturbance Attenuation & ESO Rejection",
+        "status": "PASS",
+        "criteria": "Recovers nominal operating point under step perturbation"
+      },
+      {
+        "gate": "Reproducibility & Numerical Convergence Gate",
+        "status": "PASS",
+        "criteria": "RK4 sub-stepped integrator converges with 0 singularities"
+      }
+    ],
+    "certificationStatus": "APPROVED_FOR_STAGING",
+    "auditReference": "TAMPER_EVIDENT_LOCAL_STORAGE"
+  },
+  {
     "reportId": "REP-MVLQSFSU",
     "timestamp": "2026-10-24T01:50:49.086Z",
     "project": {

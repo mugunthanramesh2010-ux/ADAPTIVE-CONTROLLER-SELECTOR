@@ -1063,36 +1063,86 @@
         </div>
       </section>
 
-      <!-- 16. 2D/3D VISUALIZATION CENTER -->
+      <!-- 16. 2D/3D VISUALIZATION CENTER & DIGITAL TWIN WORKSPACE -->
       <section class="view-pane" id="viewVizCenter">
         <div class="view-header">
           <div class="view-title-group">
-            <h2>🌌 2D & 3D Interactive Visualization Center</h2>
+            <h2>🌌 3D Controller Visualization & Digital Twin Command Center</h2>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <span class="badge badge-cyan" id="badgeFullTwinCtrlName">PID Active</span>
+              <span class="badge badge-green" id="badgeFullTwinPlantName">DC Servomotor Plant</span>
+              <span class="badge badge-violet">Runge-Kutta 4 Co-Sim</span>
+            </div>
           </div>
           <div class="playback-controls">
-            <button class="btn-control active" id="btnVizLayoutSplit">Split-Screen</button>
-            <button class="btn-control" id="btnVizLayout3D">3D Only</button>
-            <button class="btn-control" id="btnVizLayout2D">2D Only</button>
+            <button class="btn-control active btn-cam-preset" id="btnCamIso">Isometric</button>
+            <button class="btn-control btn-cam-preset" id="btnCamTop">Top (XY)</button>
+            <button class="btn-control btn-cam-preset" id="btnCamFront">Front (XZ)</button>
+            <button class="btn-control btn-cam-preset" id="btnCamSide">Side (YZ)</button>
+            <button class="btn-control" id="btnFullTwinReset">↺ Reset Cam</button>
+            <button class="btn-control btn-green" id="btnFullTwinToggleAnim">⏸ Pause</button>
+            <button class="btn-control" id="btnToggleParticles">⚡ Particles: ON</button>
+            <button class="btn-control" id="btnToggleTrajectory">📈 Trajectory: ON</button>
           </div>
         </div>
 
+        <!-- FULL-VIEW 3D DIGITAL TWIN VIEWPORT & FLOATING INSPECTOR -->
+        <div class="panel" style="margin-bottom: 12px; position: relative;">
+          <div class="panel-header">
+            <h3>🧊 Full Closed-Loop Cyber-Physical Digital Twin (Plant, Controller, Actuator, Sensor & Signal Flow)</h3>
+            <div style="font-size:11px;color:var(--text-secondary);">
+              Left-click: Orbit &middot; Right-click / Shift-drag: Pan &middot; Wheel: Zoom &middot; Click any node to Inspect
+            </div>
+          </div>
+
+          <div class="canvas-wrapper" style="height: 440px; position: relative; overflow: hidden; border-radius: 8px;">
+            <canvas id="fullTwin3DCanvas" width="1120" height="440" style="width: 100%; height: 100%; border-radius: 8px; cursor: default;"></canvas>
+            
+            <div style="position: absolute; top: 10px; right: 12px; font-size: 11px; font-family: var(--font-mono); color: rgba(255,255,255,0.45); pointer-events: none;">
+              <span id="fullTwin3dFps">60 FPS</span> &middot; Full Topology &middot; Real-Time Kinematics
+            </div>
+
+            <!-- FLOATING COMPONENT INSPECTOR HUD CARD -->
+            <div id="cardTwinInspector" style="position: absolute; bottom: 12px; left: 12px; width: 340px; background: rgba(13,17,23,0.92); border: 1px solid var(--accent-cyan); border-radius: 6px; padding: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 10;">
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; margin-bottom: 8px;">
+                <div style="font-weight: 700; font-size: 11px; color: var(--accent-cyan);" id="twinInspectorTitle">Physical Plant Twin (Dynamic System)</div>
+                <span class="badge badge-cyan" style="font-size: 9px; padding: 2px 6px;">LIVE INSPECT</span>
+              </div>
+              <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;" id="twinInspectorEquation">
+                <code>J·d²θ/dt² + b·dθ/dt = K·u(t) + d(t)</code>
+              </div>
+              <div style="font-size: 11px; font-family: var(--font-mono); color: var(--text-main); margin-bottom: 8px;" id="twinInspectorSignals">
+                <div>y(t) = <strong>1.000</strong> | dy/dt = <strong>0.000</strong></div>
+              </div>
+              <div id="twinInspectorParams" style="background: rgba(0,0,0,0.3); border-radius: 4px; padding: 6px; margin-bottom: 8px;">
+                <div class="grid-2" style="gap:6px;">
+                  <label style="font-size:10px;">Inertia/Mass J: <input type="number" id="inspPlantJ" class="input-control" value="0.01" step="0.005"></label>
+                  <label style="font-size:10px;">Damping b: <input type="number" id="inspPlantB" class="input-control" value="0.1" step="0.02"></label>
+                </div>
+              </div>
+              <button class="btn-action btn-primary" id="btnInspApplyReSim" style="width: 100%; font-size: 11px; padding: 6px;">⚡ Apply Parameters &amp; Re-Simulate</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3D PHASE TRAJECTORY & 3D OPTIMIZATION SURFACE -->
         <div class="grid-2">
           <div class="panel">
             <div class="panel-header">
               <h3>3D State-Space Trajectory [x₁, x₂, u]</h3>
-              <span class="badge badge-cyan">Mouse Orbit & Zoom</span>
+              <span class="badge badge-cyan">Phase Portrait</span>
             </div>
-            <div class="canvas-wrapper" style="height: 300px;">
-              <canvas id="stateSpace3DCanvas" width="560" height="300"></canvas>
+            <div class="canvas-wrapper" style="height: 280px;">
+              <canvas id="stateSpace3DCanvas" width="560" height="280"></canvas>
             </div>
           </div>
           <div class="panel">
             <div class="panel-header">
               <h3>3D Parameter Objective Surface [Kp × Kd → Loss]</h3>
-              <span class="badge badge-violet">Dynamic Topography</span>
+              <span class="badge badge-violet">Optimization Surface</span>
             </div>
-            <div class="canvas-wrapper" style="height: 300px;">
-              <canvas id="surface3DCanvas" width="560" height="300"></canvas>
+            <div class="canvas-wrapper" style="height: 280px;">
+              <canvas id="surface3DCanvas" width="560" height="280"></canvas>
             </div>
           </div>
         </div>
@@ -1334,10 +1384,15 @@
           <!-- Quick Actions & Certification -->
           <div class="panel" style="background: rgba(13, 17, 23, 0.7); padding: 14px; border-radius: var(--radius-md);">
             <div style="font-size: 11px; font-weight: 700; color: var(--accent-green); margin-bottom: 8px;">⚡ LIFECYCLE WORKFLOW ACTIONS</div>
-            <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; flex-direction: column; gap: 6px;">
               <button class="btn-action btn-primary" id="btnPrjRunSim" style="font-size: 11px; justify-content: center;">▶ Run Closed-Loop Experiment</button>
               <button class="btn-action btn-violet" id="btnPrjCompare" style="font-size: 11px; justify-content: center;">📊 Compare Candidates (Pareto)</button>
               <button class="btn-action" id="btnPrjReport" style="font-size: 11px; justify-content: center; background: rgba(0, 245, 212, 0.1); border: 1px solid rgba(0, 245, 212, 0.4); color: var(--accent-cyan);">📑 Generate Technical Report</button>
+              <div style="display: flex; gap: 4px; margin-top: 4px;">
+                <button class="btn-control" id="btnPrjExportCsv" style="flex: 1; font-size: 10px; padding: 4px; text-align: center;" title="Export simulation time-series as CSV">📥 CSV</button>
+                <button class="btn-control" id="btnPrjExportReport" style="flex: 1; font-size: 10px; padding: 4px; text-align: center;" title="Export certification report as Markdown">📄 Report</button>
+                <button class="btn-control" id="btnPrjExportJson" style="flex: 1; font-size: 10px; padding: 4px; text-align: center;" title="Export full project bundle as JSON">📦 JSON</button>
+              </div>
             </div>
           </div>
         </div>

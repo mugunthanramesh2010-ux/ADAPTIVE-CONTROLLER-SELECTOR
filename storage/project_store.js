@@ -258,15 +258,21 @@ function addProjectRun(id, runConfig) {
     throw new Error(`Project with ID ${id} not found`);
   }
 
-  // Merge project parameters with run configuration
-  const mergedConfig = Object.assign({
-    plant: p.plantKey,
-    plantParams: p.plantParams,
-    requirements: p.requirements,
-    controller: p.activeController
-  }, runConfig);
+  let runResult;
+  if (runConfig && runConfig.runId && runConfig.metrics && Array.isArray(runConfig.time)) {
+    runResult = runConfig;
+  } else {
+    // Merge project parameters with run configuration
+    const mergedConfig = Object.assign({
+      plant: p.plantKey,
+      plantParams: p.plantParams,
+      requirements: p.requirements,
+      controller: p.activeController
+    }, runConfig);
 
-  const runResult = pipeline.simulateRun(mergedConfig);
+    runResult = pipeline.simulateRun(mergedConfig);
+  }
+
   if (!p.runs) p.runs = [];
   p.runs.unshift(runResult);
   if (p.runs.length > 50) p.runs.pop(); // Keep last 50 runs
@@ -408,6 +414,138 @@ function generateTechnicalReport(id) {
   return reportObj;
 }
 
+// ---------------------------------------------------------------------------
+// 7. MULTI-TURN AI CONVERSATION HISTORY PER PROJECT
+// ---------------------------------------------------------------------------
+function addProjectMessage(id, message) {
+  const projects = readJSON(PROJECTS_FILE, []);
+  const p = projects.find(item => item.id === id);
+  if (!p) throw new Error(`Project '${id}' not found`);
+
+  if (!p.messages) p.messages = [];
+  const msgObj = {
+    id: 'MSG-' + Math.random().toString(36).substring(2, 9).toUpperCase(),
+    timestamp: new Date().toISOString(),
+    sender: message.sender || 'user',
+    text: message.text || '',
+    runId: message.runId || null,
+    clarifications: message.clarifications || null,
+    metadata: message.metadata || {}
+  };
+  p.messages.push(msgObj);
+  p.updatedAt = new Date().toISOString();
+  writeJSON(PROJECTS_FILE, projects);
+
+  logAudit('AI_MESSAGE_RECORDED', `Project ${id}`, null, `Logged conversation turn ${msgObj.id}`);
+  return msgObj;
+}
+
+function getProjectMessages(id) {
+  const p = getProject(id);
+  if (!p) throw new Error(`Project '${id}' not found`);
+  return p.messages || [];
+}
+
+// ---------------------------------------------------------------------------
+// 8. PROJECT ARTIFACT EXPORT ENGINE (CSV, Markdown Report, JSON Archive)
+// ---------------------------------------------------------------------------
+function exportProjectArtifacts(id, format) {
+  const p = getProject(id);
+  if (!p) throw new Error(`Project '${id}' not found`);
+  const fmt = (format || 'json').toLowerCase();
+
+  if (fmt === 'csv') {
+    const latestRun = (p.runs && p.runs.length > 0) ? p.runs[0] : null;
+    if (!latestRun || !Array.isArray(latestRun.time) || latestRun.time.length === 0) {
+      throw new Error(`Project '${id}' has no completed simulation runs to export as CSV`);
+    }
+    const headers = ['time_sec', 'reference', 'output_y', 'error_e', 'control_effort_u', 'disturbance_d'];
+    const rows = [headers.join(',')];
+    const len = latestRun.time.length;
+    for (let i = 0; i < len; i++) {
+      const uVal = latestRun.appliedInput ? latestRun.appliedInput[i] : (latestRun.controlCommand ? latestRun.controlCommand[i] : 0.0);
+      const distVal = Array.isArray(latestRun.disturbance)
+        ? (latestRun.disturbance[i] !== undefined ? latestRun.disturbance[i] : 0.0)
+        : (latestRun.disturbance !== undefined ? latestRun.disturbance : 0.0);
+      rows.push([
+        latestRun.time[i],
+        latestRun.reference[i],
+        latestRun.output[i],
+        latestRun.error[i],
+        uVal,
+        distVal
+      ].join(','));
+    }
+    logAudit('ARTIFACT_EXPORTED', `Project ${id}`, null, `Exported simulation run time-series as CSV`);
+    return {
+      filename: `${p.id}_timeseries.csv`,
+      mime: 'text/csv',
+      content: rows.join('\n')
+    };
+  }
+
+  if (fmt === 'markdown' || fmt === 'md') {
+    const report = generateTechnicalReport(id);
+    const md = [
+      `# CONTROL-ARENA X — TECHNICAL ENGINEERING CERTIFICATION REPORT`,
+      `**Report ID:** \`${report.reportId}\`  `,
+      `**Project:** ${p.name} (\`${p.id}\`)  `,
+      `**Domain:** ${p.domain} | **Status:** **${report.certificationStatus}**  `,
+      `**Generated:** ${report.timestamp}  `,
+      ``,
+      `---`,
+      ``,
+      `## 1. Plant Mathematical Specification`,
+      `- **Plant Model:** ${report.plantSpecification.name} (\`${p.plantKey}\`)`,
+      `- **Model Order:** ${report.plantSpecification.order}`,
+      `- **Natural Frequency:** ${report.plantSpecification.naturalFrequency_rad_s} rad/s (Damping: ${report.plantSpecification.dampingRatio})`,
+      `- **Hard Actuator Slew/Saturation Limit:** $\\pm ${report.plantSpecification.actuatorSaturationBound}$`,
+      ``,
+      `## 2. Requirements & Target Specifications`,
+      `- **Target Rise Time ($T_r$):** $\\le ${report.requirements ? report.requirements.targetRiseTime : 0.5}\\text{ s}$`,
+      `- **Target Settling Time ($T_s$):** $\\le ${report.requirements ? report.requirements.targetSettlingTime : 1.5}\\text{ s}$`,
+      `- **Max Overshoot ($M_p$):** $\\le ${report.requirements ? report.requirements.maxOvershootPct : 5.0}\\%$`,
+      `- **Max Steady-State Error ($e_{ss}$):** $\\le ${report.requirements ? report.requirements.maxSteadyStateError : 0.02}$`,
+      ``,
+      `## 3. Best Qualified Controller Candidate`,
+      report.bestControllerDesign ? [
+        `- **Architecture:** ${report.bestControllerDesign.name}`,
+        `- **Synthesized Gains:** \`${JSON.stringify(report.bestControllerDesign.gains)}\``,
+        `- **Measured Rise Time ($T_r$):** ${report.bestControllerDesign.metrics.riseTime} s`,
+        `- **Measured Settling Time ($T_s$):** ${report.bestControllerDesign.metrics.settlingTime} s`,
+        `- **Measured Overshoot ($M_p$):** ${report.bestControllerDesign.metrics.overshoot} %`,
+        `- **Steady-State Error ($e_{ss}$):** ${report.bestControllerDesign.metrics.steadyStateError}`,
+        `- **Integral Absolute Error (IAE):** ${report.bestControllerDesign.metrics.IAE}`,
+        `- **Total Control Energy ($E_u$):** ${report.bestControllerDesign.metrics.controlEffort}`,
+        `- **Pareto Multi-Objective Rank:** #${report.bestControllerDesign.rank} (Penalty Score: ${report.bestControllerDesign.paretoScore})`
+      ].join('\n') : `*No candidate design meets full baseline criteria.*`,
+      ``,
+      `## 4. Formal Validation Gates`,
+      `| Gate | Result | Engineering Criteria |`,
+      `| :--- | :--- | :--- |`,
+      ...report.validationGates.map(g => `| ${g.gate} | **${g.status}** | ${g.criteria} |`),
+      ``,
+      `---`,
+      `*Report cryptographic hash: ${report.auditReference} | Generated by CONTROL-ARENA X Autonomous Engineering Intelligence*`
+    ].join('\n');
+
+    logAudit('ARTIFACT_EXPORTED', `Project ${id}`, null, `Exported technical certification report as Markdown`);
+    return {
+      filename: `${p.id}_certification_report.md`,
+      mime: 'text/markdown',
+      content: md
+    };
+  }
+
+  // Default: JSON Full Project Bundle
+  logAudit('ARTIFACT_EXPORTED', `Project ${id}`, null, `Exported complete project archive as JSON`);
+  return {
+    filename: `${p.id}_project_archive.json`,
+    mime: 'application/json',
+    content: JSON.stringify(p, null, 2)
+  };
+}
+
 module.exports = {
   listProjects,
   getProject,
@@ -417,6 +555,9 @@ module.exports = {
   addProjectRun,
   compareCandidates,
   generateTechnicalReport,
+  addProjectMessage,
+  getProjectMessages,
+  exportProjectArtifacts,
   logAudit,
   getAuditLedger
 };

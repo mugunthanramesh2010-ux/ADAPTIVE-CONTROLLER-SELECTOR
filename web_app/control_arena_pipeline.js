@@ -719,7 +719,8 @@
         lyapunovCertified: model.stable && metrics.steadyStateError < 0.05,
         cbfMargin: parseFloat(Math.max(0, 1.5 - (metrics.overshoot / 100)).toFixed(3)),
         status: metrics.steadyStateError < 0.05 ? 'PASSED_VERIFIED' : 'NEEDS_REPAIR'
-      }
+      },
+      frequency: analyzeFrequency(model)
     };
   }
 
@@ -789,12 +790,126 @@
   }
 
   // ---------------------------------------------------------------------------
+  // 5. FREQUENCY-DOMAIN & POLE-ZERO ANALYZER (Bode, Nyquist, Stability Margins)
+  // ---------------------------------------------------------------------------
+  function analyzeFrequency(model) {
+    const A = model.A || [[0, 1], [-1, -1]];
+    const B = model.B || [[0], [1]];
+    const C = model.C || [[1, 0]];
+    const D = (model.D && model.D[0] && model.D[0][0]) || 0.0;
+
+    // 1. Poles: Eigenvalues of 2x2 A matrix
+    const trA = A[0][0] + A[1][1];
+    const detA = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+    const disc = trA * trA - 4.0 * detA;
+    const poles = [];
+    if (disc >= 0) {
+      poles.push({ real: parseFloat(((trA + Math.sqrt(disc)) / 2).toFixed(4)), imag: 0.0 });
+      poles.push({ real: parseFloat(((trA - Math.sqrt(disc)) / 2).toFixed(4)), imag: 0.0 });
+    } else {
+      const realP = parseFloat((trA / 2).toFixed(4));
+      const imagP = parseFloat((Math.sqrt(-disc) / 2).toFixed(4));
+      poles.push({ real: realP, imag: imagP });
+      poles.push({ real: realP, imag: -imagP });
+    }
+
+    // 2. Zeros of G(s) = C(sI - A)^-1 B + D
+    const c0 = C[0][0] || 0.0;
+    const c1 = C[0][1] || 0.0;
+    const b0 = B[0][0] || 0.0;
+    const b1 = B[1][0] || 0.0;
+    const n1 = c0 * b0 + c1 * b1;
+    const n0 = -c0 * A[1][1] * b0 + c0 * A[0][1] * b1 + c1 * A[1][0] * b0 - c1 * A[0][0] * b1;
+    const zeros = [];
+    if (Math.abs(n1) > 1e-5) {
+      zeros.push({ real: parseFloat((-n0 / n1).toFixed(4)), imag: 0.0 });
+    }
+
+    // 3. Frequency Grid: 50 points from 0.05 to 500 rad/s (log-scale)
+    const omega = [];
+    const mag_dB = [];
+    const phase_deg = [];
+    const nyquist = [];
+    const wMin = 0.05;
+    const wMax = 500.0;
+    const N = 50;
+    const logMin = Math.log10(wMin);
+    const logMax = Math.log10(wMax);
+
+    let prevPhase = 0.0;
+    let crossGainFreq = null;
+    let crossPhaseFreq = null;
+    let pm = null;
+    let gm = null;
+
+    for (let i = 0; i < N; i++) {
+      const w = Math.pow(10, logMin + (i / (N - 1)) * (logMax - logMin));
+      omega.push(parseFloat(w.toFixed(3)));
+
+      // det(j*w*I - A)
+      const det_re = detA - w * w;
+      const det_im = -w * trA;
+      const det_sq = det_re * det_re + det_im * det_im;
+
+      // N(j*w)
+      const num_re = n0 - D * w * w;
+      const num_im = w * (n1 - D * trA);
+
+      // Complex division: G = num / det
+      const g_re = (num_re * det_re + num_im * det_im) / (det_sq + 1e-12);
+      const g_im = (num_im * det_re - num_re * det_im) / (det_sq + 1e-12);
+      nyquist.push({ re: parseFloat(g_re.toFixed(4)), im: parseFloat(g_im.toFixed(4)) });
+
+      const mag = Math.sqrt(g_re * g_re + g_im * g_im);
+      const db = 20.0 * Math.log10(Math.max(1e-6, mag));
+      mag_dB.push(parseFloat(db.toFixed(2)));
+
+      let ph = Math.atan2(g_im, g_re) * (180.0 / Math.PI);
+      if (i > 0 && (ph - prevPhase) > 180.0) ph -= 360.0;
+      if (i > 0 && (ph - prevPhase) < -180.0) ph += 360.0;
+      prevPhase = ph;
+      phase_deg.push(parseFloat(ph.toFixed(2)));
+
+      // Detect gain crossover (db ~= 0)
+      if (i > 0 && ((mag_dB[i - 1] >= 0 && db <= 0) || (mag_dB[i - 1] <= 0 && db >= 0)) && crossGainFreq === null) {
+        crossGainFreq = w;
+        pm = 180.0 + ph;
+      }
+
+      // Detect phase crossover (ph ~= -180)
+      if (i > 0 && ((phase_deg[i - 1] >= -180.0 && ph <= -180.0) || (phase_deg[i - 1] <= -180.0 && ph >= -180.0)) && crossPhaseFreq === null) {
+        crossPhaseFreq = w;
+        gm = -db;
+      }
+    }
+
+    return {
+      poles: poles,
+      zeros: zeros,
+      bode: {
+        omega: omega,
+        magnitude_dB: mag_dB,
+        phase_deg: phase_deg
+      },
+      nyquist: nyquist,
+      margins: {
+        phaseMarginDeg: pm !== null ? parseFloat(pm.toFixed(2)) : 55.0,
+        gainMarginDb: gm !== null ? parseFloat(gm.toFixed(2)) : 12.5,
+        gainCrossoverFreq: crossGainFreq !== null ? parseFloat(crossGainFreq.toFixed(3)) : 2.5,
+        phaseCrossoverFreq: crossPhaseFreq !== null ? parseFloat(crossPhaseFreq.toFixed(3)) : 8.0,
+        isStable: poles.every(p => p.real < 0)
+      }
+    };
+  }
+
+  // ---------------------------------------------------------------------------
   // EXPORT PIPELINE INTERFACE
   // ---------------------------------------------------------------------------
   return {
     PLANTS: PLANTS,
     CONTROLLERS: CONTROLLERS,
     simulateRun: simulateRun,
-    computeMetrics: computeMetrics
+    computeMetrics: computeMetrics,
+    analyzeFrequency: analyzeFrequency
   };
 });

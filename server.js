@@ -299,7 +299,8 @@ const server = http.createServer((req, res) => {
   if (reqUrl.startsWith('/api/projects/') && req.method === 'GET') {
     const parts = reqUrl.split('/');
     const projectId = parts[3];
-    if (projectId && projectId !== 'compare' && projectId !== 'report' && projectId !== 'run') {
+    const reservedSubroutes = ['compare', 'report', 'run', 'export', 'messages', 'update', 'delete'];
+    if (projectId && !reservedSubroutes.includes(projectId)) {
       const proj = projectStore.getProject(projectId);
       if (!proj) {
         res.writeHead(404, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
@@ -464,6 +465,84 @@ const server = http.createServer((req, res) => {
     const ledger = projectStore.getAuditLedger(limit);
     res.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
     res.end(JSON.stringify({ status: 'SUCCESS', count: ledger.length, ledger: ledger }));
+    return;
+  }
+
+  // 1g. Project Artifact Export API (CSV Time-Series, Markdown Certification Report, JSON Archive)
+  if ((reqUrl === '/api/projects/export' || reqUrl.startsWith('/api/projects/export')) && (req.method === 'GET' || req.method === 'POST')) {
+    const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    const queryId = parsedUrl.searchParams.get('id') || parsedUrl.searchParams.get('projectId');
+    const queryFmt = parsedUrl.searchParams.get('format') || 'json';
+
+    const handleExport = (id, format) => {
+      if (!id) {
+        res.writeHead(400, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'ERROR', message: 'projectId is required for export' }));
+        return;
+      }
+      try {
+        const artifact = projectStore.exportProjectArtifacts(id, format);
+        res.writeHead(200, Object.assign({
+          'Content-Type': artifact.mime,
+          'Content-Disposition': `attachment; filename="${artifact.filename}"`
+        }, corsHeaders));
+        res.end(artifact.content);
+      } catch (e) {
+        res.writeHead(400, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'ERROR', message: e.message }));
+      }
+    };
+
+    if (req.method === 'GET') {
+      handleExport(queryId, queryFmt);
+    } else {
+      readBody(req, (err, payload) => {
+        const id = payload.projectId || payload.id || queryId;
+        const fmt = payload.format || queryFmt;
+        handleExport(id, fmt);
+      });
+    }
+    return;
+  }
+
+  // 1h. Project Conversation History API
+  if ((reqUrl === '/api/projects/messages' || reqUrl.startsWith('/api/projects/messages')) && (req.method === 'GET' || req.method === 'POST')) {
+    const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    const queryId = parsedUrl.searchParams.get('id') || parsedUrl.searchParams.get('projectId');
+
+    if (req.method === 'GET') {
+      if (!queryId) {
+        res.writeHead(400, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'ERROR', message: 'projectId is required' }));
+        return;
+      }
+      try {
+        const messages = projectStore.getProjectMessages(queryId);
+        res.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'SUCCESS', count: messages.length, messages: messages }));
+      } catch (e) {
+        res.writeHead(404, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'ERROR', message: e.message }));
+      }
+      return;
+    }
+
+    readBody(req, (err, payload) => {
+      const id = payload.projectId || payload.id || queryId;
+      if (!id || !payload.text) {
+        res.writeHead(400, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'ERROR', message: 'projectId and text are required' }));
+        return;
+      }
+      try {
+        const msg = projectStore.addProjectMessage(id, payload);
+        res.writeHead(201, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'SUCCESS', message: msg }));
+      } catch (e) {
+        res.writeHead(400, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'ERROR', message: e.message }));
+      }
+    });
     return;
   }
 
@@ -768,6 +847,18 @@ const server = http.createServer((req, res) => {
         ]
       };
 
+      // Contextual engineering clarification questions
+      const clarifications = [];
+      if (customRef === null) {
+        clarifications.push('Operating setpoint: Evaluated with nominal r(t)=1.0. Specify "setpoint = 2.5" to test high-deflection command tracking.');
+      }
+      if (faultType === 'none') {
+        clarifications.push('Disturbance model: Operating in nominal environment. Mention "wind gust" or "load disturbance" to evaluate active rejection.');
+      }
+      if (!q.includes('overshoot') && !q.includes('settling') && !q.includes('rise')) {
+        clarifications.push('Transient envelope: Synthesized with baseline requirements (Tr <= 0.45s, Ts <= 1.2s, Mp <= 5%). Specify custom transient bounds if required.');
+      }
+
       // Execute real closed-loop simulation on the identified plant and controller
       let simRun = null;
       try {
@@ -778,9 +869,6 @@ const server = http.createServer((req, res) => {
           disturbance: faultType !== 'none' ? 1.5 : 0.0,
           t_final: 2.5
         });
-        if (payload.projectId) {
-          projectStore.addProjectRun(payload.projectId, simRun);
-        }
       } catch (simE) {
         console.warn('AI Assistant simulation note:', simE.message);
       }
@@ -795,10 +883,29 @@ const server = http.createServer((req, res) => {
         (faultType !== 'none' ? `• Disturbance Injected: ${faultType} with active rejection.\n` : '') +
         `• Telemetry: 200 data points computed and synchronized with 3D Digital Twin.`;
 
+      if (payload.projectId) {
+        try {
+          if (simRun) projectStore.addProjectRun(payload.projectId, simRun);
+          projectStore.addProjectMessage(payload.projectId, {
+            sender: 'user',
+            text: payload.prompt || ''
+          });
+          projectStore.addProjectMessage(payload.projectId, {
+            sender: 'assistant',
+            text: answer,
+            runId: simRun ? simRun.runId : null,
+            clarifications: clarifications
+          });
+        } catch (pmErr) {
+          console.warn('Project message recording note:', pmErr.message);
+        }
+      }
+
       res.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
       res.end(JSON.stringify({
         answer: answer,
         actionPlan: actionPlan,
+        clarifications: clarifications,
         simulationResult: simRun,
         timestamp: new Date().toISOString()
       }, null, 2));

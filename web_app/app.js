@@ -573,11 +573,23 @@ document.addEventListener('DOMContentLoaded', () => {
       x: [state.x[0], state.x[1]],
       x_hat: [state.x_hat[0], state.x_hat[1]],
       u: u_actual,
+      u_cmd: u_cmd,
+      u_sat: u_actual,
+      u_limit: u_limit,
       r: r,
+      err: err,
+      d: state.distMagnitude,
+      noise: noise,
+      sensorBias: state.sensorBias,
+      fdiActive: state.fdiActive,
+      actuatorHealth: state.actuatorHealth,
       t: state.simTime,
+      dt: state.dt,
       residual: Math.abs(state.x[0] - state.x_hat[0]),
       perf: state.perf,
       controllerId: state.controllerId,
+      plantId: state.plantId || (state.currentPlant && (state.currentPlant.id || state.currentPlant.shortName)) || 'dc_motor',
+      plant: state.currentPlant,
       gains: state.gains
     };
 
@@ -2290,7 +2302,6 @@ document.addEventListener('DOMContentLoaded', () => {
     drawLinePlot('swarmCanvasConsensus', [
       { data: consensusLoss.length ? consensusLoss : [0.01], color: '#00F5D4' }
     ], { min: 0, max: Math.max(2.0, Math.max(...consensusLoss, 0.5)) });
-    ], { min: 0, max: 6.0 });
 
     // 15. Explainable AI
     drawXaiShap('xaiCanvasShap');
@@ -2459,6 +2470,73 @@ document.addEventListener('DOMContentLoaded', () => {
       const plant = document.getElementById('selDesignPlant')?.value || 'dcmotor';
       const family = document.getElementById('selDesignFamily')?.value || 'pid';
       synthesizeControllerEngine(plant, family);
+    });
+  }
+
+  // 3D COMPONENT INSPECTOR LIVE PARAMETER APPLICATION & RE-SIMULATION
+  const btnInspApplyReSim = document.getElementById('btnInspApplyReSim');
+  if (btnInspApplyReSim) {
+    btnInspApplyReSim.addEventListener('click', () => {
+      // 1. Plant parameters
+      const inpJ = document.getElementById('inspPlantJ');
+      const inpB = document.getElementById('inspPlantB');
+      if (inpJ && inpB && state.currentPlant) {
+        state.currentPlant.J = Math.max(0.001, parseFloat(inpJ.value) || 0.01);
+        state.currentPlant.b = Math.max(0.001, parseFloat(inpB.value) || 0.1);
+        state.currentPlant.a1 = state.currentPlant.b / state.currentPlant.J;
+      }
+
+      // 2. Controller gains
+      const inpKp = document.getElementById('inspCtrlKp');
+      const inpKi = document.getElementById('inspCtrlKi');
+      const inpKd = document.getElementById('inspCtrlKd');
+      if (inpKp) state.gains.kp = parseFloat(inpKp.value) || state.gains.kp;
+      if (inpKi) state.gains.ki = parseFloat(inpKi.value) || state.gains.ki;
+      if (inpKd) state.gains.kd = parseFloat(inpKd.value) || state.gains.kd;
+
+      // 3. Actuator parameters
+      const inpSat = document.getElementById('inspActSat');
+      const inpHealth = document.getElementById('inspActHealth');
+      if (inpSat) {
+        const satVal = Math.max(1.0, parseFloat(inpSat.value) || 20.0);
+        state.u_limit = satVal;
+      }
+      if (inpHealth) state.actuatorHealth = Math.max(0.05, Math.min(1.0, parseFloat(inpHealth.value) || 1.0));
+
+      // 4. Sensor parameters
+      const inpBias = document.getElementById('inspSensorBias');
+      const inpFdi = document.getElementById('inspSensorFdi');
+      if (inpBias) state.sensorBias = parseFloat(inpBias.value) || 0.0;
+      if (inpFdi) state.fdiActive = inpFdi.value === '1';
+
+      // 5. Disturbance parameters
+      const inpDist = document.getElementById('inspDistMag');
+      if (inpDist) state.distMagnitude = parseFloat(inpDist.value) || 0.0;
+
+      // 6. Setpoint Reference
+      const inpRef = document.getElementById('inspRefVal');
+      if (inpRef) {
+        state.refSetpoint = parseFloat(inpRef.value) || 1.0;
+        const numRef = document.getElementById('numRefSetpoint');
+        const rngRef = document.getElementById('rangeRefSetpoint');
+        if (numRef) numRef.value = state.refSetpoint;
+        if (rngRef) rngRef.value = state.refSetpoint;
+      }
+
+      // Re-synthesize & re-simulate step physics
+      synthesizeControllerEngine(state.plantId || 'dcmotor', state.controllerId || 'pid');
+      populateTrajectory(state.refSetpoint);
+      renderAllCanvases();
+
+      // Broadcast update event to all 3D viewports
+      if (window._allCtrl3dEngines && Array.isArray(window._allCtrl3dEngines)) {
+        window._allCtrl3dEngines.forEach(eng => {
+          eng.setController(state.controllerId, state.gains, state.perf);
+          eng.setPlant(state.plantId || 'dc_motor');
+        });
+      }
+
+      showToastNotification('⚡ Digital Twin parameters applied & closed-loop simulation synchronized', 'cyan');
     });
   }
 
@@ -4149,6 +4227,27 @@ ${480 + streamLen}
         }
       });
     }
+
+    // Artifact Export Bindings (CSV, Markdown, JSON)
+    const btnExpCsv = document.getElementById('btnPrjExportCsv');
+    const btnExpRep = document.getElementById('btnPrjExportReport');
+    const btnExpJson = document.getElementById('btnPrjExportJson');
+    const btnExpRepModal = document.getElementById('btnExportReportJson');
+
+    const downloadExport = (format) => {
+      if (!activePrjId) {
+        showToastNotification('Please select an active project first', 'warning');
+        return;
+      }
+      window.open(`/api/projects/export?id=${activePrjId}&format=${format}`, '_blank');
+      showToastNotification(`📥 Exporting ${format.toUpperCase()} artifact for ${activePrjId}`, 'success');
+      loadAuditLedger();
+    };
+
+    if (btnExpCsv) btnExpCsv.addEventListener('click', () => downloadExport('csv'));
+    if (btnExpRep) btnExpRep.addEventListener('click', () => downloadExport('markdown'));
+    if (btnExpJson) btnExpJson.addEventListener('click', () => downloadExport('json'));
+    if (btnExpRepModal) btnExpRepModal.addEventListener('click', () => downloadExport('json'));
 
     // Load initial projects list
     loadProjects();
