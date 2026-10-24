@@ -26,3 +26,5 @@ intelligent_controller_selection
 live_digital_twin
 physical_fault_intelligence
 stability_safety_certification
+# Generated Projects & Ephemeral Run Workspaces
+storage/projects/

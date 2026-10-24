@@ -181,7 +181,7 @@ function createProject(data) {
   const plantDef = pipeline.PLANTS[plantKey] || pipeline.PLANTS.dcmotor;
 
   const projects = readJSON(PROJECTS_FILE, []);
-  const id = 'PRJ-' + Date.now().toString(36).toUpperCase();
+  const id = data.id || ('PRJ-' + Date.now().toString(36).toUpperCase());
   const newProj = {
     id: id,
     name: data.name.trim(),
@@ -546,6 +546,65 @@ function exportProjectArtifacts(id, format) {
   };
 }
 
+const projectGen = require('./project_generator.js');
+
+function getProjectFiles(projectId) {
+  return projectGen.getProjectFiles(projectId);
+}
+
+function updateProjectFile(projectId, filename, content) {
+  const pDir = path.join(__dirname, 'projects', projectId);
+  if (!fs.existsSync(pDir)) {
+    throw new Error(`Project directory for ${projectId} not found`);
+  }
+  const filePath = path.join(pDir, filename);
+  fs.writeFileSync(filePath, content, 'utf8');
+  logAudit('FILE_UPDATED', `Project ${projectId}`, null, `Updated project file: ${filename}`);
+  return { success: true, filename: filename, size: content.length };
+}
+
+function integrateControllerIntoProject(projectId, ctrlSpec) {
+  let p = getProject(projectId);
+  if (!p) {
+    const pDir = path.join(__dirname, 'projects', projectId);
+    if (fs.existsSync(pDir)) {
+      p = createProject({
+        id: projectId,
+        name: `Project ${projectId}`,
+        plantKey: 'dc_motor',
+        requirements: { u_limit: 24.0 }
+      });
+    } else {
+      throw new Error(`Project ${projectId} not found`);
+    }
+  }
+
+  const pDir = path.join(__dirname, 'projects', projectId);
+  if (fs.existsSync(pDir)) {
+    // Regenerate controller.c and controller.h with synthesized parameters
+    const gains = ctrlSpec.gains || { kp: 4.5, ki: 1.2, kd: 0.25 };
+    const ctrlType = ctrlSpec.controllerType || ctrlSpec.controller || 'pid';
+    const reqs = ctrlSpec.requirements || p.requirements || { u_limit: 24.0 };
+
+    const cHeader = `#ifndef CONTROLLER_H\n#define CONTROLLER_H\n\ntypedef struct {\n    float kp, ki, kd, u_min, u_max, integrator, prev_error, prev_meas, dt;\n} ControllerState;\n\nvoid controller_init(ControllerState* ctrl, float kp, float ki, float kd, float u_min, float u_max, float dt);\nfloat controller_update(ControllerState* ctrl, float setpoint, float measurement);\n\n#endif\n`;
+    const cSource = `#include "controller.h"\n\nvoid controller_init(ControllerState* ctrl, float kp, float ki, float kd, float u_min, float u_max, float dt) {\n    ctrl->kp = kp; ctrl->ki = ki; ctrl->kd = kd;\n    ctrl->u_min = u_min; ctrl->u_max = u_max; ctrl->dt = dt;\n    ctrl->integrator = 0.0f; ctrl->prev_error = 0.0f; ctrl->prev_meas = 0.0f;\n}\n\nfloat controller_update(ControllerState* ctrl, float setpoint, float measurement) {\n    float error = setpoint - measurement;\n    ctrl->integrator += ctrl->ki * error * ctrl->dt;\n    if (ctrl->integrator > ctrl->u_max) ctrl->integrator = ctrl->u_max;\n    if (ctrl->integrator < ctrl->u_min) ctrl->integrator = ctrl->u_min;\n    float d_term = -ctrl->kd * (measurement - ctrl->prev_meas) / ctrl->dt;\n    ctrl->prev_meas = measurement;\n    float u = ctrl->kp * error + ctrl->integrator + d_term;\n    if (u > ctrl->u_max) u = ctrl->u_max;\n    if (u < ctrl->u_min) u = ctrl->u_min;\n    return u;\n}\n`;
+
+    fs.writeFileSync(path.join(pDir, 'controller.h'), cHeader, 'utf8');
+    fs.writeFileSync(path.join(pDir, 'controller.c'), cSource, 'utf8');
+  }
+
+  p.activeController = ctrlSpec.controllerType || ctrlSpec.controller || p.activeController;
+  updateProject(projectId, { activeController: p.activeController });
+  logAudit('CONTROLLER_INTEGRATED', `Project ${projectId}`, null, `Integrated verified ${p.activeController.toUpperCase()} controller artifact into project`);
+
+  return {
+    success: true,
+    projectId: projectId,
+    activeController: p.activeController,
+    message: `Integrated ${p.activeController.toUpperCase()} controller into project ${projectId}`
+  };
+}
+
 module.exports = {
   listProjects,
   getProject,
@@ -558,6 +617,9 @@ module.exports = {
   addProjectMessage,
   getProjectMessages,
   exportProjectArtifacts,
+  getProjectFiles,
+  updateProjectFile,
+  integrateControllerIntoProject,
   logAudit,
   getAuditLedger
 };

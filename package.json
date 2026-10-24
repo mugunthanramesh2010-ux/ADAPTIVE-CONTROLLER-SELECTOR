@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "serve": "node server.js",
-    "test": "node tests/test_control_arena.js && node tests/test_production_platform.js && node tests/test_3d_digital_twin.js"
+    "test": "node tests/test_control_arena.js && node tests/test_production_platform.js && node tests/test_3d_digital_twin.js && node tests/test_complete_platform.js"
   },
   "keywords": [
     "control-systems",

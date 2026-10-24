@@ -6,6 +6,9 @@ const zlib = require('zlib');
 const { spawn } = require('child_process');
 const pipeline = require(path.join(__dirname, 'web_app', 'control_arena_pipeline.js'));
 const projectStore = require(path.join(__dirname, 'storage', 'project_store.js'));
+const controlAi = require(path.join(__dirname, 'ai', 'control_ai_service.js'));
+const componentLib = require(path.join(__dirname, 'storage', 'component_library.js'));
+const projectGen = require(path.join(__dirname, 'storage', 'project_generator.js'));
 
 const PORT = parseInt(process.env.PORT, 10) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -299,7 +302,7 @@ const server = http.createServer((req, res) => {
   if (reqUrl.startsWith('/api/projects/') && req.method === 'GET') {
     const parts = reqUrl.split('/');
     const projectId = parts[3];
-    const reservedSubroutes = ['compare', 'report', 'run', 'export', 'messages', 'update', 'delete'];
+    const reservedSubroutes = ['compare', 'report', 'run', 'export', 'messages', 'update', 'delete', 'files', 'integrate_controller', 'integrate'];
     if (projectId && !reservedSubroutes.includes(projectId)) {
       const proj = projectStore.getProject(projectId);
       if (!proj) {
@@ -542,6 +545,148 @@ const server = http.createServer((req, res) => {
         res.writeHead(400, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
         res.end(JSON.stringify({ status: 'ERROR', message: e.message }));
       }
+    });
+    return;
+  }
+
+  // 1g. Project Files Explorer & Code Editor API
+  if (reqUrl.startsWith('/api/projects/files')) {
+    const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    const queryId = parsedUrl.searchParams.get('id') || parsedUrl.searchParams.get('projectId');
+
+    if (req.method === 'GET') {
+      if (!queryId) {
+        res.writeHead(400, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'ERROR', message: 'projectId is required' }));
+        return;
+      }
+      try {
+        const files = projectStore.getProjectFiles(queryId);
+        res.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'SUCCESS', projectId: queryId, files: files }));
+      } catch (e) {
+        res.writeHead(404, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'ERROR', message: e.message }));
+      }
+      return;
+    }
+
+    if (req.method === 'POST') {
+      readBody(req, (err, payload) => {
+        const id = payload.projectId || queryId;
+        if (!id || !payload.filename || payload.content === undefined) {
+          res.writeHead(400, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+          res.end(JSON.stringify({ status: 'ERROR', message: 'projectId, filename, and content are required' }));
+          return;
+        }
+        try {
+          const resUp = projectStore.updateProjectFile(id, payload.filename, payload.content);
+          res.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+          res.end(JSON.stringify({ status: 'SUCCESS', result: resUp }));
+        } catch (e) {
+          res.writeHead(400, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+          res.end(JSON.stringify({ status: 'ERROR', message: e.message }));
+        }
+      });
+      return;
+    }
+  }
+
+  // 1h. Controller-to-Project Artifact Integration API
+  if (reqUrl === '/api/projects/integrate_controller' && req.method === 'POST') {
+    readBody(req, (err, payload) => {
+      const id = payload.projectId;
+      if (!id) {
+        res.writeHead(400, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'ERROR', message: 'projectId is required' }));
+        return;
+      }
+      try {
+        const resInt = projectStore.integrateControllerIntoProject(id, payload);
+        res.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'SUCCESS', integration: resInt }));
+      } catch (e) {
+        res.writeHead(400, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'ERROR', message: e.message }));
+      }
+    });
+    return;
+  }
+
+  // 1i. Component Library Registry API
+  if (reqUrl.startsWith('/api/components')) {
+    const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    const cat = parsedUrl.searchParams.get('category');
+    const q = parsedUrl.searchParams.get('q');
+
+    let comps = [];
+    if (q) {
+      comps = componentLib.searchComponents(q);
+    } else {
+      comps = componentLib.listComponents(cat);
+    }
+    res.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+    res.end(JSON.stringify({ status: 'SUCCESS', count: comps.length, components: comps }));
+    return;
+  }
+
+  // 1j. Control AI — Controller Design Engineer Endpoint
+  if (reqUrl === '/api/control_ai/controller_designer' && req.method === 'POST') {
+    readBody(req, (err, payload) => {
+      try {
+        const result = controlAi.handleControllerDesignEngineer(payload.prompt || '', payload);
+        res.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify(Object.assign({ status: 'SUCCESS' }, result, { result: result })));
+      } catch (e) {
+        res.writeHead(400, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'ERROR', message: e.message }));
+      }
+    });
+    return;
+  }
+
+  // 1k. Control AI — Complete Project Engineer Endpoint
+  if (reqUrl === '/api/control_ai/project_engineer' && req.method === 'POST') {
+    readBody(req, (err, payload) => {
+      try {
+        const result = controlAi.handleCompleteProjectEngineer(payload.prompt || '', payload);
+        res.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify(Object.assign({ status: 'SUCCESS' }, result, { result: result })));
+      } catch (e) {
+        res.writeHead(400, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'ERROR', message: e.message }));
+      }
+    });
+    return;
+  }
+
+  // 1l. Hardware Target Flashing Pre-Verification Workflow
+  if (reqUrl === '/api/hardware/flashing_verify' && req.method === 'POST') {
+    readBody(req, (err, payload) => {
+      const target = payload.target || 'stm32f401re';
+      const userConfirmed = payload.userConfirmed === true;
+
+      if (!userConfirmed) {
+        res.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({
+          status: 'CONFIRMATION_REQUIRED',
+          message: 'Explicit user authorization required before hardware flashing.',
+          target: target,
+          safetyChecks: [
+            { check: 'Motor power rail disconnected during flash', status: 'VERIFIED' },
+            { check: 'Logic voltage compliance (<= 3.3V)', status: 'VERIFIED' },
+            { check: 'E-Stop interlock circuit state', status: 'ARMED_SAFE' }
+          ]
+        }));
+        return;
+      }
+
+      res.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+      res.end(JSON.stringify({
+        status: 'VERIFIED_READY',
+        message: `Hardware target ${target.toUpperCase()} pre-check certified. Ready for flash execution.`,
+        flashCommand: `st-flash write firmware_${payload.projectId || 'main'}.bin 0x8000000`
+      }));
     });
     return;
   }

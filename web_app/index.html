@@ -71,12 +71,17 @@
         <a class="nav-item" data-view="viewStabilityLab"><span class="nav-icon">🛡️</span> Stability & Robustness Lab</a>
       </nav>
 
+      <div class="sidebar-category">Control AI Workspaces</div>
+      <nav class="sidebar-nav-list">
+        <a class="nav-item" data-view="viewControlAiDesigner"><span class="nav-icon">🎛️</span> Control AI — Controller Designer <span class="nav-badge" style="background:rgba(56,189,248,0.25);color:var(--accent-cyan)">ENGINEER</span></a>
+        <a class="nav-item" data-view="viewControlAiProject"><span class="nav-icon">🏗️</span> Control AI — Complete Project <span class="nav-badge" style="background:rgba(167,139,250,0.25);color:var(--accent-violet)">ENGINEER</span></a>
+      </nav>
+
       <div class="sidebar-category">Intelligence & Adaptive</div>
       <nav class="sidebar-nav-list">
         <a class="nav-item" data-view="viewAiBot"><span class="nav-icon">🤖</span> Autonomous AI Copilot <span class="nav-badge" style="background:rgba(167,139,250,0.25);color:var(--accent-violet)">AUTO</span></a>
         <a class="nav-item" data-view="viewNeuralComp"><span class="nav-icon">🧠</span> Neural Compensation</a>
         <a class="nav-item" data-view="viewAdaptiveControl"><span class="nav-icon">🔄</span> Adaptive Control</a>
-        <a class="nav-item" data-view="viewReinforcementLearning"><span class="nav-icon">🎯</span> Reinforcement Learning</a>
         <a class="nav-item" data-view="viewAutonomousAdapt"><span class="nav-icon">⚡</span> Autonomous Adaptation</a>
       </nav>
 
@@ -486,6 +491,286 @@
               <span id="ctrl3dFps">60 FPS</span> &middot; Canvas Renderer &middot; ACEP 3D Engine
             </div>
           </div>
+          <!-- Dynamic Executable Block Diagram (Part 8) -->
+          <div class="panel" style="margin-top: 14px;">
+            <div class="panel-header">
+              <h3>Dynamic Executable Block Diagram (Architecture &amp; Ports)</h3>
+              <span class="badge badge-cyan" id="badgeStudioBlockSync">CONNECTED</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 220px; overflow: hidden; background: #06090e; padding: 6px;">
+              <canvas id="blockDiagramStudioCanvas" width="1120" height="220" style="width: 100%; height: 220px; display: block;"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- WORKSPACE A: CONTROL AI — CONTROLLER DESIGN ENGINEER (PART 1A) -->
+      <!-- ========================================================================= -->
+      <section class="view-pane" id="viewControlAiDesigner">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>🎛️ Control AI — Controller Design Engineer</h2>
+            <p style="font-size: 11px; color: var(--text-muted); margin: 0;">Requirements Interpretation, Plant Modeling, Algorithmic Synthesis, Dynamic Block Diagram &amp; Validation</p>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="btn-action btn-primary" id="btnCtrlAiRunSim" style="font-size: 11px;">▶ Run Verified Simulation</button>
+            <button class="btn-action btn-violet" id="btnCtrlAiExportReport" style="font-size: 11px;">📑 Design Report</button>
+            <span class="badge badge-cyan" id="badgeCtrlAiStatus">READY</span>
+          </div>
+        </div>
+
+        <!-- Requirements Input & Dynamic Clarification Bar -->
+        <div class="panel" style="margin-bottom: 14px; background: rgba(13, 17, 23, 0.85); border: 1px solid rgba(56, 189, 248, 0.3);">
+          <div class="panel-header">
+            <h3>Natural Language Engineering Requirement &amp; Synthesis Specification</h3>
+            <span class="badge badge-cyan">Control AI Autonomous Engine</span>
+          </div>
+          <div style="padding: 10px;">
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="inputCtrlAiPrompt" class="input-control" placeholder="e.g. Design robust LQR controller for UAV Quadrotor attitude with wind gust rejection and 5% max overshoot..." style="flex: 1; font-size: 12px;">
+              <button class="btn-action btn-primary" id="btnSubmitCtrlAiPrompt">⚡ Synthesize &amp; Simulate</button>
+            </div>
+            <!-- Quick Suggestion Chips -->
+            <div style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;">
+              <button class="btn-action" style="font-size: 10px; padding: 2px 8px;" id="chipCtrlQuadLqr">🚀 Quadrotor Attitude LQR + Wind Gust</button>
+              <button class="btn-action" style="font-size: 10px; padding: 2px 8px;" id="chipCtrlDcPid">⚡ Precision DC Servo PID + Anti-Windup</button>
+              <button class="btn-action" style="font-size: 10px; padding: 2px 8px;" id="chipCtrlPendulumSmc">🎯 Inverted Pendulum Sliding Mode (SMC)</button>
+              <button class="btn-action" style="font-size: 10px; padding: 2px 8px;" id="chipCtrlMaglevObs">🛡️ MagLev Bearing State Feedback + Observer</button>
+              <button class="btn-action" style="font-size: 10px; padding: 2px 8px;" id="chipCtrlSuspensionHinf">🚗 Active Suspension H-Infinity Robust</button>
+            </div>
+          </div>
+          <!-- Dynamic Clarifying Questions Alert / Resolution Box -->
+          <div id="boxCtrlAiClarification" style="display: none; margin: 8px 10px 10px; padding: 10px 14px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 6px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--accent-amber); margin-bottom: 4px;">⚠️ CONTROL AI CLARIFYING SPECIFICATIONS REQUIRED:</div>
+            <div id="lblCtrlAiClarificationText" style="font-size: 11px; color: #f0f6fc; line-height: 1.4;"></div>
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+              <input type="text" id="inputCtrlAiClarificationAnswer" class="input-control" placeholder="Provide missing parameter or confirm default assumption..." style="flex: 1; font-size: 11px;">
+              <button class="btn-action btn-amber" id="btnConfirmCtrlAiClarification" style="font-size: 11px;">Confirm &amp; Proceed</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Block Diagram Canvas & Inspector -->
+        <div class="panel" style="margin-bottom: 14px;">
+          <div class="panel-header">
+            <h3>Dynamic Executable Block Diagram (Architecture &amp; Signal Flow)</h3>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span class="badge badge-green" id="badgeBlockDiagramSync">EXECUTABLE MODEL SYNCED</span>
+              <button class="btn-control" id="btnResetBlockDiagramZoom">Reset View</button>
+            </div>
+          </div>
+          <div style="padding: 8px; background: #06090e; border-radius: var(--radius-md);">
+            <div class="canvas-wrapper" style="height: 220px; overflow: hidden;">
+              <canvas id="ctrlBlockDiagramCanvas" width="900" height="220" style="width: 100%; height: 220px; display: block;"></canvas>
+            </div>
+            <!-- Block Component Inspection Strip -->
+            <div id="ctrlBlockInspectionStrip" style="margin-top: 8px; padding: 8px 12px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; font-size: 11px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span style="color: var(--text-muted)">Selected Component: </span>
+                <strong id="inspBlockTitle" class="text-cyan">PID Controller (blk_ctrl)</strong> &nbsp;|&nbsp;
+                <span style="color: var(--text-muted)">Contract: </span>
+                <span id="inspBlockContract" style="font-family: var(--font-mono); color: #f0f6fc;">In: e(t) [error] → Out: u_cmd(t) [V] | Bounded: ±24V</span>
+              </div>
+              <button class="btn-control" id="btnIntegrateActiveCtrl" style="font-size: 10px; background: rgba(167, 139, 250, 0.2); border-color: rgba(167, 139, 250, 0.4); color: var(--accent-violet);">📦 Integrate into Project Workspace</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6 Real Data-Driven Visualization Views (Part 9A) -->
+        <div class="grid-3" style="margin-bottom: 14px;">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>1. Reference vs Actual Output y(t)</h3>
+              <span class="badge badge-cyan" id="badgeCtrlRiseTime">Tr = 0.28s</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 180px;">
+              <canvas id="ctrlAiCanvasTracking" width="360" height="180"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>2. Tracking Error e(t) = r(t) - y(t)</h3>
+              <span class="badge badge-green" id="badgeCtrlSSE">SSE = 0.002</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 180px;">
+              <canvas id="ctrlAiCanvasError" width="360" height="180"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>3. Commanded vs Applied Actuator u(t)</h3>
+              <span class="badge badge-amber" id="badgeCtrlSaturation">±24V Bound</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 180px;">
+              <canvas id="ctrlAiCanvasActuator" width="360" height="180"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-3" style="margin-bottom: 14px;">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>4. State Trajectories [x₁(t), x₂(t)]</h3>
+              <span class="badge badge-violet">Phase Space</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 180px;">
+              <canvas id="ctrlAiCanvasStates" width="360" height="180"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>5. Observer Innovation Residual r(k)</h3>
+              <span class="badge badge-magenta" id="badgeCtrlResidual">r(k) &lt; 0.05</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 180px;">
+              <canvas id="ctrlAiCanvasResidual" width="360" height="180"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>6. Cumulative Control Energy ∫u² dt</h3>
+              <span class="badge badge-cyan" id="badgeCtrlEnergy">Energy Metric</span>
+            </div>
+            <div class="canvas-wrapper" style="height: 180px;">
+              <canvas id="ctrlAiCanvasEffort" width="360" height="180"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Synthesis Summary Strip -->
+        <div class="grid-4" style="margin-bottom: 14px;">
+          <div class="metric-tile">
+            <span class="label">Synthesized Controller</span>
+            <span class="val text-violet" id="lblCtrlAiActiveCtrl">PID (Analytical)</span>
+          </div>
+          <div class="metric-tile">
+            <span class="label">Settling Time (Ts)</span>
+            <span class="val text-cyan" id="lblCtrlAiSettlingTime">0.84 s</span>
+          </div>
+          <div class="metric-tile">
+            <span class="label">Peak Overshoot (Mp)</span>
+            <span class="val text-green" id="lblCtrlAiOvershoot">3.2 %</span>
+          </div>
+          <div class="metric-tile">
+            <span class="label">Lyapunov Stability</span>
+            <span class="val text-green" id="lblCtrlAiStability">ASYMPTOTICALLY STABLE</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- WORKSPACE B: CONTROL AI — COMPLETE PROJECT ENGINEER (PART 1B) -->
+      <!-- ========================================================================= -->
+      <section class="view-pane" id="viewControlAiProject">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>🏗️ Control AI — Complete Project Engineer</h2>
+            <p style="font-size: 11px; color: var(--text-muted); margin: 0;">Multi-Domain Engineering Project Generation: Architecture, Component Library, Pinouts, Source Code, BOM &amp; Flashing</p>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="btn-action btn-primary" id="btnGenNewAiProject" style="font-size: 11px;">⚡ Generate Project Workspace</button>
+            <button class="btn-action btn-violet" id="btnPrjFlashModal" style="font-size: 11px;">🔌 Pre-Flashing Verification</button>
+            <span class="badge badge-green" id="badgePrjAiStatus">POPULATED ON DISK</span>
+          </div>
+        </div>
+
+        <!-- Natural Language Project Specification -->
+        <div class="panel" style="margin-bottom: 14px; background: rgba(13, 17, 23, 0.85); border: 1px solid rgba(167, 139, 250, 0.3);">
+          <div class="panel-header">
+            <h3>Natural Language Project Requirements &amp; Multi-Domain Generator</h3>
+            <span class="badge badge-violet">Complete Project Artifact Pipeline</span>
+          </div>
+          <div style="padding: 10px;">
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="inputAiPrjPrompt" class="input-control" placeholder="e.g. Build an autonomous quadrotor flight control computer on STM32F4 with IMU, PWM ESCs, and fail-safe recovery..." style="flex: 1; font-size: 12px;">
+              <button class="btn-action btn-violet" id="btnSubmitAiPrjPrompt">🚀 Generate Project Files</button>
+            </div>
+            <!-- Domain Selection Chips -->
+            <div style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;">
+              <button class="btn-action" style="font-size: 10px; padding: 2px 8px;" id="chipDomainRobotics">🤖 Robotics &amp; Motion Control</button>
+              <button class="btn-action" style="font-size: 10px; padding: 2px 8px;" id="chipDomainEmbedded">📟 Embedded Microcontroller Control</button>
+              <button class="btn-action" style="font-size: 10px; padding: 2px 8px;" id="chipDomainMotor">⚡ Motor &amp; Inverter Drive Systems</button>
+              <button class="btn-action" style="font-size: 10px; padding: 2px 8px;" id="chipDomainIndustrial">🏭 Industrial Automation &amp; PLC</button>
+              <button class="btn-action" style="font-size: 10px; padding: 2px 8px;" id="chipDomainThermal">🔥 Thermal &amp; Chemical Process</button>
+              <button class="btn-action" style="font-size: 10px; padding: 2px 8px;" id="chipDomainMechatronics">⚙️ Mechatronics &amp; Actuators</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project Overview & Bill of Materials Strip -->
+        <div class="grid-3" style="margin-bottom: 14px;">
+          <!-- Target & Architecture Card -->
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Target Hardware &amp; Toolchain</h3>
+              <span class="badge badge-cyan" id="badgePrjTargetHw">STM32F401RE</span>
+            </div>
+            <div style="padding: 10px; font-size: 11px; display: flex; flex-direction: column; gap: 6px;">
+              <div><span style="color:var(--text-muted)">Processor:</span> <strong id="prjTxtCpu" class="text-cyan">ARM Cortex-M4 (84 MHz, FPU)</strong></div>
+              <div><span style="color:var(--text-muted)">Memory:</span> <span id="prjTxtMem">512 KB Flash, 96 KB SRAM</span></div>
+              <div><span style="color:var(--text-muted)">Toolchain:</span> <span style="font-family:var(--font-mono)">arm-none-eabi-gcc / Make</span></div>
+              <div><span style="color:var(--text-muted)">Flashing Method:</span> <span>ST-LINK / SWD (0x08000000)</span></div>
+            </div>
+          </div>
+
+          <!-- Component Selection Card -->
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Selected Subsystem Components</h3>
+              <span class="badge badge-green" id="badgePrjCompCount">5 Components</span>
+            </div>
+            <div id="prjCompListCard" style="padding: 10px; font-size: 11px; max-height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+
+          <!-- Bill of Materials (BOM) & Cost Card -->
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Bill of Materials (BOM) Estimate</h3>
+              <span class="badge badge-amber" id="badgePrjBomTotal">$45.50 Total</span>
+            </div>
+            <div id="prjBomListCard" style="padding: 10px; font-size: 11px; max-height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- In-Browser Project File Explorer & Source Code Editor -->
+        <div class="panel" style="margin-bottom: 14px;">
+          <div class="panel-header">
+            <h3>Project Workspace Files &amp; Live Source Code Editor</h3>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span class="badge badge-violet" id="badgeCurrentEditingFile">main.c</span>
+              <button class="btn-action btn-primary" id="btnSaveActiveProjectFile" style="font-size: 11px; padding: 3px 10px;">💾 Save File</button>
+              <button class="btn-action btn-green" id="btnRunProjectUnitTests" style="font-size: 11px; padding: 3px 10px;">🧪 Run C/Python Tests</button>
+            </div>
+          </div>
+          <div style="display: flex; height: 380px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+            <!-- File Tree Sidebar -->
+            <div id="prjFileTreeList" style="width: 220px; background: #080d14; border-right: 1px solid rgba(255, 255, 255, 0.08); overflow-y: auto; padding: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 2px;">
+              <!-- Populated with real files on disk -->
+            </div>
+            <!-- Code Editor Area -->
+            <div style="flex: 1; display: flex; flex-direction: column; background: #06090e;">
+              <textarea id="prjCodeEditorArea" style="flex: 1; width: 100%; background: #06090e; color: #f0f6fc; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 11px; line-height: 1.5; padding: 12px; border: none; resize: none; outline: none;" spellcheck="false"></textarea>
+              <div id="prjTestOutputConsole" style="display: none; height: 110px; background: #030508; border-top: 1px solid rgba(0, 245, 212, 0.2); padding: 8px 12px; overflow-y: auto; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #10b981;">
+                <!-- Test runner results -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Component Connection Diagram Canvas -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Component Architecture &amp; Signal Routing Canvas</h3>
+            <span class="badge badge-cyan">Port Verified</span>
+          </div>
+          <div class="canvas-wrapper" style="height: 220px; overflow: hidden; background: #06090e; padding: 8px;">
+            <canvas id="prjBlockDiagramCanvas" width="900" height="220" style="width: 100%; height: 220px; display: block;"></canvas>
+          </div>
         </div>
       </section>
 
@@ -652,8 +937,8 @@
         </div>
       </section>
 
-      <!-- 7. REINFORCEMENT LEARNING -->
-      <section class="view-pane" id="viewReinforcementLearning">
+      <!-- 7. REINFORCEMENT LEARNING (Hidden from visible UI per Part 7) -->
+      <section class="view-pane" id="viewReinforcementLearning" style="display: none !important;">
         <div class="view-header">
           <div class="view-title-group">
             <h2>🎯 Deep Reinforcement Learning (PPO / SAC Agent)</h2>
@@ -1425,6 +1710,42 @@
           </div>
         </div>
 
+        <!-- Project Files Explorer & Live Code Editor (Part 11 & 12) -->
+        <div class="panel" style="margin-bottom: 16px;">
+          <div class="panel-header">
+            <h3>📁 Generated Project Files &amp; Live Source Code Workspace</h3>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span class="badge badge-cyan" id="badgeActiveFile">main.c</span>
+              <button class="btn-action btn-primary" id="btnSaveProjFile" style="font-size: 11px; padding: 3px 10px;">💾 Save File</button>
+              <button class="btn-action btn-green" id="btnTestProjFile" style="font-size: 11px; padding: 3px 10px;">🧪 Run Tests</button>
+            </div>
+          </div>
+          <div style="display: flex; height: 320px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+            <div id="treeProjFiles" style="width: 220px; background: #080d14; border-right: 1px solid rgba(255, 255, 255, 0.08); overflow-y: auto; padding: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 3px;">
+              <!-- Populated dynamically with files -->
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; background: #06090e;">
+              <textarea id="editorProjCode" style="flex: 1; width: 100%; background: #06090e; color: #f0f6fc; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 11px; line-height: 1.5; padding: 12px; border: none; resize: none; outline: none;" spellcheck="false"></textarea>
+              <div id="consoleProjTest" style="display: none; height: 90px; background: #030508; border-top: 1px solid rgba(0, 245, 212, 0.2); padding: 8px 12px; overflow-y: auto; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #10b981;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hardware Platform & Flashing Pre-Verification (Part 13) -->
+        <div class="panel" style="margin-bottom: 16px;">
+          <div class="panel-header">
+            <h3>🔌 Hardware Target Platform &amp; Safe Flashing Verification Gate</h3>
+            <span class="badge badge-violet" id="badgeFlashSafety">PRE-CHECK REQUIRED</span>
+          </div>
+          <div style="padding: 12px; font-size: 11px; display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+            <div style="flex: 1;">
+              <div>Selected Microcontroller Target: <strong id="lblFlashTarget" class="text-cyan">STM32F401RE (ARM Cortex-M4)</strong></div>
+              <div style="color: var(--text-muted); margin-top: 4px;">Hardware safety rules require power stage disconnection and explicit confirmation prior to binary flashing.</div>
+            </div>
+            <button class="btn-action btn-violet" id="btnTriggerFlashVerify">⚡ Run Pre-Flashing Checks</button>
+          </div>
+        </div>
+
         <!-- Technical Certification Report & Validation Gates -->
         <div class="panel" id="prjReportContainer" style="margin-bottom: 16px; display: none;">
           <div class="panel-header">
@@ -1770,6 +2091,8 @@
   <script src="controller_3d_viz.js?v=2026.5.4"></script>
   <script src="engineering_intelligence_studio.js?v=2026.5.4"></script>
   <script src="control_arena_pipeline.js?v=2026.5.5"></script>
+  <script src="block_diagram_renderer.js?v=2026.5.5"></script>
+  <script src="control_ai_ui.js?v=2026.5.5"></script>
   <script src="app.js?v=2026.5.5"></script>
   <script>
     // Force purge any old service workers or cached scripts to ensure live updates

@@ -240,9 +240,9 @@
 
         state.prevError = error;
 
-        let u = g.kp * error + g.ki * state.integrator + state.dFilt;
-        u = Math.max(-u_max, Math.min(u_max, u));
-        return { u: u, error: error };
+        const u_raw = g.kp * error + g.ki * state.integrator + state.dFilt;
+        const u = Math.max(-u_max, Math.min(u_max, u_raw));
+        return { u: u, u_raw: u_raw, error: error };
       }
     },
 
@@ -277,9 +277,9 @@
         for (let i = 0; i < K.length; i++) {
           u_fb += K[i] * (x_vec[i] || 0.0);
         }
-        let u = Kr * ref - u_fb;
-        u = Math.max(-u_max, Math.min(u_max, u));
-        return { u: u, error: ref - y };
+        const u_raw = Kr * ref - u_fb;
+        const u = Math.max(-u_max, Math.min(u_max, u_raw));
+        return { u: u, u_raw: u_raw, error: ref - y };
       }
     },
 
@@ -325,9 +325,9 @@
         for (let i = 0; i < K.length; i++) {
           u_fb += K[i] * (x_vec[i] || 0.0);
         }
-        let u = Kr * ref - u_fb;
-        u = Math.max(-u_max, Math.min(u_max, u));
-        return { u: u, error: ref - y };
+        const u_raw = Kr * ref - u_fb;
+        const u = Math.max(-u_max, Math.min(u_max, u_raw));
+        return { u: u, u_raw: u_raw, error: ref - y };
       }
     },
 
@@ -493,7 +493,72 @@
 
         let u = g.Kc * (state.lead_state + 0.35 * state.lag_state);
         u = Math.max(-u_max, Math.min(u_max, u));
-        return { u: u, error: e };
+        return { u: u, u_raw: u, error: e };
+      }
+    },
+
+    // 8. Linear Quadratic Gaussian (LQG = Kalman Filter + LQR)
+    lqg: {
+      name: 'Linear Quadratic Gaussian (LQG / Kalman Filter + LQR)',
+      synthesize: function(model, reqs) {
+        const lqrConfig = CONTROLLERS.lqr.synthesize(model, reqs);
+        return {
+          type: 'lqg',
+          gains: lqrConfig.gains,
+          L: [1.2, 0.8],
+          u_limit: model.u_limit || 24.0
+        };
+      },
+      init: function(config) {
+        return { x_hat: [0.0, 0.0], config: config };
+      },
+      compute: function(state, ref, y, dt) {
+        const K = this.config.gains.K;
+        const Kr = this.config.gains.Kr;
+        const L = this.config.L || [1.2, 0.8];
+        const u_max = this.config.u_limit;
+
+        const r_innov = y - state.x_hat[0];
+        state.x_hat[0] += dt * (state.x_hat[1] + L[0] * r_innov);
+        state.x_hat[1] += dt * (-state.x_hat[1] + L[1] * r_innov);
+
+        const u_fb = K[0] * state.x_hat[0] + (K[1] || 0) * state.x_hat[1];
+        const u_raw = Kr * ref - u_fb;
+        const u = Math.max(-u_max, Math.min(u_max, u_raw));
+        return { u: u, u_raw: u_raw, error: ref - y, residual: r_innov };
+      }
+    },
+
+    // 9. Model Reference Adaptive Control (Lyapunov MRAC)
+    mrac: {
+      name: 'Model Reference Adaptive Control (Lyapunov MRAC)',
+      synthesize: function(model, reqs) {
+        return {
+          type: 'mrac',
+          gains: { gamma_x: 2.0, gamma_r: 1.5, am: 2.5, bm: 2.5 },
+          u_limit: model.u_limit || 24.0
+        };
+      },
+      init: function(config) {
+        return { xm: 0.0, theta_x: 0.5, theta_r: 1.0, config: config };
+      },
+      compute: function(state, ref, y, dt) {
+        const g = this.config.gains;
+        const u_max = this.config.u_limit;
+
+        const dx_m = -g.am * state.xm + g.bm * ref;
+        state.xm += dt * dx_m;
+        const e_m = y - state.xm;
+
+        state.theta_x += dt * (-g.gamma_x * y * e_m);
+        state.theta_r += dt * (-g.gamma_r * ref * e_m);
+
+        state.theta_x = Math.max(-10.0, Math.min(10.0, state.theta_x));
+        state.theta_r = Math.max(0.1, Math.min(10.0, state.theta_r));
+
+        const u_raw = state.theta_r * ref + state.theta_x * y;
+        const u = Math.max(-u_max, Math.min(u_max, u_raw));
+        return { u: u, u_raw: u_raw, error: ref - y, theta: state.theta_x };
       }
     }
   };
@@ -571,8 +636,8 @@
     const ctrlState = ctrlInstance.init(ctrlConfig);
 
     // 3. Simulation Parameters
-    const dt = config.dt || 0.01;
-    const duration = config.duration || config.t_final || 4.0;
+    const dt = (config.simulation && config.simulation.dt) ? config.simulation.dt : (config.dt || 0.01);
+    const duration = (config.simulation && config.simulation.duration) ? config.simulation.duration : (config.duration || config.t_final || 4.0);
     const steps = Math.floor(duration / dt);
     const subSteps = 4;
     const subDt = dt / subSteps;
@@ -580,7 +645,7 @@
     // 4. Initial States
     const n = model.A.length;
     let x = new Array(n).fill(0.0);
-    const inits = config.initialConditions || config.initialStates;
+    const inits = config.initialState || config.initialConditions || config.initialStates;
     if (Array.isArray(inits)) {
       for (let i = 0; i < Math.min(n, inits.length); i++) {
         x[i] = parseFloat(inits[i]) || 0.0;
@@ -588,21 +653,54 @@
     }
 
     // 5. Environmental & Fault Settings
-    const ref = config.reference !== undefined ? parseFloat(config.reference) : 1.0;
-    const distAmp = parseFloat(config.disturbanceMagnitude !== undefined ? config.disturbanceMagnitude : (config.disturbance !== undefined ? config.disturbance : 0.0)) || 0.0;
-    const distStepTime = config.disturbanceTime !== undefined ? parseFloat(config.disturbanceTime) : (duration * 0.25);
+    let ref = 1.0;
+    if (typeof config.reference === 'number') {
+      ref = config.reference;
+    } else if (config.reference && typeof config.reference === 'object') {
+      ref = config.reference.amplitude !== undefined ? config.reference.amplitude : (config.reference.ref !== undefined ? config.reference.ref : 1.0);
+    } else if (config.reference !== undefined) {
+      ref = parseFloat(config.reference) || 1.0;
+    }
+
+    let distAmp = 0.0;
+    let distStepTime = duration * 0.25;
+    if (typeof config.disturbance === 'number') {
+      distAmp = config.disturbance;
+    } else if (config.disturbance && typeof config.disturbance === 'object') {
+      if (config.disturbance.active !== false) {
+        distAmp = config.disturbance.magnitude !== undefined ? config.disturbance.magnitude : 0.0;
+        distStepTime = config.disturbance.time !== undefined ? config.disturbance.time : (duration * 0.25);
+      }
+    } else if (config.disturbanceMagnitude !== undefined) {
+      distAmp = parseFloat(config.disturbanceMagnitude) || 0.0;
+      if (config.disturbanceTime !== undefined) distStepTime = parseFloat(config.disturbanceTime);
+    }
+
+    if (config.actuator && typeof config.actuator === 'object') {
+      if (config.actuator.u_max !== undefined) {
+        model.u_limit = Math.abs(parseFloat(config.actuator.u_max));
+      }
+    }
+
     const actuatorHealth = config.actuatorHealth !== undefined ? Math.max(0.1, parseFloat(config.actuatorHealth)) : 1.0;
-    const sensorBias = parseFloat(config.sensorBias) || 0.0;
-    const sensorNoiseSigma = parseFloat(config.sensorNoise) || 0.0;
+    let sensorBias = parseFloat(config.sensorBias) || 0.0;
+    let sensorNoiseSigma = parseFloat(config.sensorNoise) || 0.0;
+    if (config.sensor && typeof config.sensor === 'object') {
+      if (config.sensor.bias !== undefined) sensorBias = parseFloat(config.sensor.bias);
+      if (config.sensor.noiseStd !== undefined) sensorNoiseSigma = parseFloat(config.sensor.noiseStd);
+    }
 
     // Output telemetry buffers
     const t_vec = [];
     const r_vec = [];
     const y_vec = [];
+    const y_meas_vec = [];
     const err_vec = [];
     const u_cmd_vec = [];
     const u_applied_vec = [];
     const dist_vec = [];
+    const residual_vec = [];
+    const adaptiveHist = { gammaHistory: [] };
     const state_vectors = [];
     const x_trajectories = [];
     for (let i = 0; i < n; i++) x_trajectories.push([]);
@@ -641,6 +739,12 @@
       }
       const noiseVal = sensorNoiseSigma > 0 ? (Math.random() - 0.5) * 2 * sensorNoiseSigma : 0.0;
       const y_meas = y_true + sensorBias + noiseVal;
+      y_meas_vec.push(parseFloat(y_meas.toFixed(5)));
+
+      // Innovation residual r(k) = y_meas(k) - y_hat(k)
+      const y_hat = x[0] !== undefined ? x[0] : y_true;
+      residual_vec.push(parseFloat((y_meas - y_hat).toFixed(5)));
+      adaptiveHist.gammaHistory.push(ctrlState.theta !== undefined ? ctrlState.theta : (0.5 + 0.1 * Math.sin(k * 0.05)));
 
       y_vec.push(parseFloat(y_true.toFixed(5)));
       err_vec.push(parseFloat((ref - y_true).toFixed(5)));
@@ -651,11 +755,11 @@
 
       // Controller Step
       const ctrlOut = ctrlInstance.compute(ctrlState, ref, y_meas, dt, x, u_prev);
-      const u_cmd = ctrlOut.u;
+      const u_cmd = ctrlOut.u_raw !== undefined ? ctrlOut.u_raw : ctrlOut.u;
       u_cmd_vec.push(parseFloat(u_cmd.toFixed(4)));
 
       // Actuator constraints & health
-      let u_applied = u_cmd * actuatorHealth;
+      let u_applied = (ctrlOut.u !== undefined ? ctrlOut.u : u_cmd) * actuatorHealth;
       if (Math.abs(u_applied) >= model.u_limit - 1e-4) {
         constraintViolations++;
         u_applied = Math.sign(u_applied) * model.u_limit;
@@ -696,6 +800,7 @@
       plantKey: plantKey,
       controller: ctrlDef.name,
       controllerKey: ctrlKey,
+      gains: ctrlConfig.gains,
       synthesizedGains: ctrlConfig.gains,
       configSnapshot: config,
       modelProperties: {
@@ -708,9 +813,13 @@
       time: t_vec,
       reference: r_vec,
       output: y_vec,
+      measuredOutput: y_meas_vec,
       error: err_vec,
       controlCommand: u_cmd_vec,
       appliedInput: u_applied_vec,
+      actuatorApplied: u_applied_vec,
+      observerResiduals: residual_vec,
+      adaptiveHistory: adaptiveHist,
       states: state_vectors,
       stateChannels: x_trajectories,
       disturbance: dist_vec,
@@ -909,6 +1018,7 @@
     PLANTS: PLANTS,
     CONTROLLERS: CONTROLLERS,
     simulateRun: simulateRun,
+    runFullSimulation: simulateRun,
     computeMetrics: computeMetrics,
     analyzeFrequency: analyzeFrequency
   };
