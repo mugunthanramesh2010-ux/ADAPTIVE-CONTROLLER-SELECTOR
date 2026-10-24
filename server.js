@@ -4,6 +4,7 @@ const path = require('path');
 const os = require('os');
 const zlib = require('zlib');
 const { spawn } = require('child_process');
+const pipeline = require(path.join(__dirname, 'web_app', 'control_arena_pipeline.js'));
 
 const PORT = parseInt(process.env.PORT, 10) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -349,37 +350,84 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // 4. Digital Twin 100-step Lookahead Rehearsal API
+  // 3b. Real Plant Catalog API
+  if (reqUrl === '/api/plants' && req.method === 'GET') {
+    res.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+    res.end(JSON.stringify({ status: 'SUCCESS', plants: PLANT_MODELS }, null, 2));
+    return;
+  }
+
+  // 3c. Authoritative Engineering Closed-Loop Simulation API (Pipeline Integration)
+  if (reqUrl === '/api/simulate' && req.method === 'POST') {
+    readBody(req, (err, payload) => {
+      if (err) {
+        res.writeHead(400, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'ERROR', message: 'Invalid simulation payload JSON' }));
+        return;
+      }
+      try {
+        const simResult = pipeline.simulateRun(payload);
+        res.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify(simResult));
+      } catch (simErr) {
+        res.writeHead(400, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'ERROR', message: simErr.message }));
+      }
+    });
+    return;
+  }
+
+  // 4. Digital Twin Dynamic Lookahead Rehearsal API
   if (reqUrl === '/api/rehearse' && req.method === 'POST') {
     readBody(req, (err, payload) => {
       const pKey = payload.plant || 'quadrotor';
       const kp = parseFloat(payload.kp) || 4.5;
       const kd = parseFloat(payload.kd) || 1.1;
+      const ki = parseFloat(payload.ki) || 0.5;
       const horizon = parseInt(payload.horizon, 10) || 100;
+      const r = payload.reference !== undefined ? parseFloat(payload.reference) : 1.0;
+      const dist = parseFloat(payload.disturbance) || 0.0;
+      const plant = PLANT_MODELS[pKey] || PLANT_MODELS.quadrotor;
 
-      let x = [0.0, 0.0];
-      const r = 1.0;
+      const a0 = Math.abs(plant.A[1][0]) || 10.0;
+      const a1 = Math.abs(plant.A[1][1]) || 3.0;
+      const b0 = Math.abs(plant.B[1]) || 10.0;
+
+      let x = Array.isArray(payload.initialState) ? [parseFloat(payload.initialState[0]) || 0.0, parseFloat(payload.initialState[1]) || 0.0] : [0.0, 0.0];
       let maxError = 0.0;
       let trajectory = [];
+      let integrator = 0.0;
+      const dt = 0.02;
 
       for (let k = 0; k < horizon; k++) {
         const e = r - x[0];
+        integrator += e * dt;
+        integrator = Math.max(-20, Math.min(20, integrator));
         const de = -x[1];
-        let u = Math.max(-15.0, Math.min(15.0, kp * e + kd * de));
-        x[0] += x[1] * 0.02;
-        x[1] += (10.0 * u - 3.0 * x[1] - 10.0 * x[0]) * 0.02;
+        let u = kp * e + ki * integrator + kd * de;
+        u = Math.max(-24.0, Math.min(24.0, u));
+
+        // RK2 integration of selected plant
+        const dx1 = x[1];
+        const dx2 = plant.stable 
+          ? (b0 * u - a1 * x[1] - a0 * x[0] + dist)
+          : (b0 * u - a1 * x[1] + a0 * x[0] + dist); // For unstable plants (e.g. inverted pendulum / maglev)
+        x[0] += dx1 * dt;
+        x[1] += dx2 * dt;
+
         const curErr = Math.abs(r - x[0]);
         if (curErr > maxError) maxError = curErr;
-        trajectory.push([parseFloat((k * 0.02).toFixed(3)), parseFloat(x[0].toFixed(4)), parseFloat(u.toFixed(2))]);
+        trajectory.push([parseFloat((k * dt).toFixed(3)), parseFloat(x[0].toFixed(4)), parseFloat(u.toFixed(2))]);
       }
 
-      const cbfSafe = maxError < 1.8;
+      const cbfSafe = maxError < (Math.abs(r) * 1.5 + 0.5);
       res.writeHead(200, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
       res.end(JSON.stringify({
         status: 'COMPLETED',
+        plant: plant.name,
         rehearsalSteps: horizon,
         maxLookaheadResidual: parseFloat(maxError.toFixed(4)),
-        cbfMargin: parseFloat((1.8 - maxError).toFixed(3)),
+        cbfMargin: parseFloat(Math.max(0, 2.0 - maxError).toFixed(3)),
         cbfPassed: cbfSafe,
         decision: cbfSafe ? 'APPROVED FOR PHYSICAL EXECUTION' : 'BLOCKED - SAFETY VIOLATION',
         trajectorySample: trajectory.slice(0, 10)
@@ -914,22 +962,25 @@ if (reqUrl === '/api/engineering_agent/execute' && req.method === 'POST') {
   return;
 }
 
-if (reqUrl === '/api/rl_predict' && req.method === 'POST') {
-  readBody(req, (err, payload) => {
-    if (err) {
-      res.writeHead(400, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
-      res.end(JSON.stringify({ status: 'ERROR', message: 'Invalid JSON payload' }));
-      return;
-    }
-    const obs = payload.observation;
-    if (!Array.isArray(obs) || obs.length !== 5) {
-      res.writeHead(400, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
-      res.end(JSON.stringify({ status: 'ERROR', message: 'Observation must be an array of 5 numbers' }));
-      return;
-    }
-    const py = spawn('python', [path.join(__dirname, 'predict_rl.py'), JSON.stringify(obs)]);
-    let stdout = '';
-    let stderr = '';
+  if (reqUrl === '/api/rl_predict' && req.method === 'POST') {
+    readBody(req, (err, payload) => {
+      if (err) {
+        res.writeHead(400, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'ERROR', message: 'Invalid JSON payload' }));
+        return;
+      }
+      let obs = payload.observation || payload.observations;
+      if (!Array.isArray(obs) || obs.length === 0) {
+        res.writeHead(400, Object.assign({ 'Content-Type': 'application/json' }, corsHeaders));
+        res.end(JSON.stringify({ status: 'ERROR', message: 'Observation must be an array of numbers' }));
+        return;
+      }
+      obs = [...obs];
+      while (obs.length < 5) obs.push(0.0);
+      if (obs.length > 5) obs = obs.slice(0, 5);
+      const py = spawn('python', [path.join(__dirname, 'predict_rl.py'), JSON.stringify(obs)]);
+      let stdout = '';
+      let stderr = '';
     py.stdout.on('data', data => { stdout += data.toString(); });
     py.stderr.on('data', data => { stderr += data.toString(); });
     py.on('close', code => {

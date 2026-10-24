@@ -297,11 +297,28 @@
       const theme = this.theme;
       const perf  = this.perf;
 
-      // Compute live oscillation amplitude based on controller performance
-      // Higher damping = lower oscillation; lower mass = faster oscillation
-      const oscFreq = perf.wn * 0.6;
-      const oscAmp  = 0.04 * (1 - Math.min(0.95, perf.zeta)) * sl;
-      const oscY    = Math.sin(this.t * oscFreq) * oscAmp * Math.exp(-perf.zeta * this.t * 0.4);
+      // ── PHYSICAL DIGITAL TWIN STATE MAPPING ──────────────────────────────
+      // Bind visual displacement and dynamics directly to simulated state variables
+      const sim = (typeof window !== 'undefined' && window._acepSimulationState) ? window._acepSimulationState : null;
+      let oscY = 0;
+      let activeX0 = 0;
+      let activeX1 = 0;
+      let isSat = false;
+      let isDist = false;
+
+      if (sim && Array.isArray(sim.x) && sim.x.length > 0) {
+        activeX0 = Number(sim.x[0]) || 0;
+        activeX1 = Number(sim.x[1]) || 0;
+        // Direct physical coordinate mapping: physical plant state drives vertical displacement
+        oscY = -Math.max(-0.4, Math.min(0.4, activeX0 * 0.06 * sl));
+        isSat = sim.u_sat !== undefined && Math.abs(sim.u - sim.u_sat) > 1e-3;
+        isDist = sim.d !== undefined && Math.abs(sim.d) > 1e-3;
+      } else {
+        // Fallback analytical damped oscillation when simulation is idle
+        const oscFreq = perf.wn * 0.6;
+        const oscAmp  = 0.04 * (1 - Math.min(0.95, perf.zeta)) * sl;
+        oscY    = Math.sin(this.t * oscFreq) * oscAmp * Math.exp(-perf.zeta * this.t * 0.4);
+      }
 
       // ── MAIN BODY BOX ───────────────────────────────────────────────────
       this._box(0, oscY, 0, lx, ly, lz, theme.base, 'rgba(255,255,255,0.18)', 0.88);
@@ -433,28 +450,44 @@
       const theme = this.theme;
       const p = this.perf;
       const g = this.geom;
+      const sim = (typeof window !== 'undefined' && window._acepSimulationState) ? window._acepSimulationState : null;
+
       const lines = [
-        `Controller: ${theme.label}`,
+        `Twin: Simulation-Based Digital Twin (${theme.label})`,
         `ζ = ${p.zeta.toFixed(3)}  ωₙ = ${p.wn.toFixed(2)} rad/s`,
-        `Ts(2%) = ${p.ts.toFixed(2)} s  Mp = ${p.mp.toFixed(1)} %`,
-        `Geometry: ${g.L}×${g.B}×${g.H} m`,
-        `Mass: ${g.mass} kg  Scale: ×${g.scale}`,
       ];
+
+      if (sim && Array.isArray(sim.x) && sim.x.length > 0) {
+        const x0 = Number(sim.x[0]) || 0;
+        const ref = Number(sim.ref) || 0;
+        const u = Number(sim.u_sat !== undefined ? sim.u_sat : (sim.u || 0));
+        const isSat = sim.u_sat !== undefined && Math.abs(sim.u - sim.u_sat) > 1e-3;
+        const dist = Number(sim.d || 0);
+
+        lines.push(`State x₀ = ${x0.toFixed(3)} | Ref r = ${ref.toFixed(2)}`);
+        lines.push(`Control u = ${u.toFixed(2)} ${isSat ? '⚠ [SATURATED]' : '[LINEAR]'}`);
+        lines.push(`Disturbance d = ${dist.toFixed(2)} | Mass = ${g.mass} kg`);
+      } else {
+        lines.push(`Ts(2%) = ${p.ts.toFixed(2)} s  Mp = ${p.mp.toFixed(1)} %`);
+        lines.push(`Geometry: ${g.L}×${g.B}×${g.H} m`);
+        lines.push(`Mass: ${g.mass} kg  Scale: ×${g.scale}`);
+      }
+
       ctx.save();
-      ctx.fillStyle = 'rgba(6,13,26,0.72)';
-      ctx.strokeStyle = theme.base + '44';
-      ctx.lineWidth = 0.8;
-      const bw = 220, bh = lines.length * 14 + 14;
+      ctx.fillStyle = 'rgba(6,13,26,0.85)';
+      ctx.strokeStyle = theme.base + '55';
+      ctx.lineWidth = 1.0;
+      const bw = 240, bh = lines.length * 15 + 14;
       ctx.beginPath();
-      ctx.roundRect(10, 10, bw, bh, 5);
+      ctx.roundRect(10, 10, bw, bh, 6);
       ctx.fill();
       ctx.stroke();
 
       ctx.textAlign = 'left';
       lines.forEach((l, i) => {
         ctx.font = `${i === 0 ? 'bold ' : ''}10px var(--font-mono, monospace)`;
-        ctx.fillStyle = i === 0 ? theme.base : 'rgba(240,246,252,0.55)';
-        ctx.fillText(l, 18, 24 + i * 14);
+        ctx.fillStyle = i === 0 ? theme.base : (l.includes('SATURATED') ? '#FF6B35' : 'rgba(240,246,252,0.75)');
+        ctx.fillText(l, 18, 24 + i * 15);
       });
       ctx.restore();
     }

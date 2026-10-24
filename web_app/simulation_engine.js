@@ -161,11 +161,13 @@ class SimulationEngine {
 
     this.time += this.dt;
 
-    // Reference switching (Every 6 seconds square wave)
-    if (Math.floor(this.time / 4) % 2 === 0) {
-      this.r = 1.0;
-    } else {
-      this.r = 0.2;
+    // User setpoint reference (preserve user setpoint, optional square wave if enabled)
+    if (this.autoSquareWave) {
+      if (Math.floor(this.time / 4) % 2 === 0) {
+        this.r = 1.0;
+      } else {
+        this.r = 0.2;
+      }
     }
 
     const y_true = this.x[0];
@@ -194,39 +196,47 @@ class SimulationEngine {
 
     const error = this.r - y_sanitized;
     const de = -this.x[1];
+    this.integrator = (this.integrator || 0.0) + error * this.dt;
+    this.integrator = Math.max(-25.0, Math.min(25.0, this.integrator));
 
     // Compute Control Signal based on selected controller
     let u_nom = 0;
+    const g = (this.gains) || { kp: 3.5, ki: 1.2, kd: 0.8 };
     switch (this.activeController) {
       case 'pid':
-        u_nom = 3.5 * error + 1.2 * (error * this.dt) + 0.8 * de;
+        u_nom = (g.kp || 3.5) * error + (g.ki || 1.2) * this.integrator + (g.kd || 0.8) * de;
         break;
       case 'lead':
-        u_nom = 4.2 * error + 0.4 * de;
+        u_nom = (g.kp || 4.2) * (error + 0.25 * de);
         break;
       case 'lqr':
-        u_nom = 4.8 * error - 1.6 * this.x[1];
+        const k1 = g.kp || 4.8;
+        const k2 = g.kd || 1.6;
+        u_nom = (k1 * 1.05) * this.r - (k1 * this.x[0] + k2 * this.x[1]);
         break;
       case 'mpc':
-        u_nom = 5.2 * error - 1.2 * this.x[1];
+        u_nom = (g.kp || 5.2) * error - (g.kd || 1.2) * this.x[1];
         break;
       case 'hinf':
-        u_nom = 6.0 * error / 1.5;
+        u_nom = (g.kp || 6.0) * error - 1.2 * this.x[1];
         break;
       case 'smc':
-        const s = de + 4.0 * error;
-        u_nom = 7.0 * Math.sign(s);
+        const s = de + 3.5 * error;
+        u_nom = 8.0 * Math.tanh(s / 0.1) + 1.2 * error;
+        break;
+      case 'adrc':
+        u_nom = 5.0 * error - 1.5 * this.x[1];
         break;
       case 'acep_evolved':
       default:
         // Uses the Active Safety-Gated Evolved Genome
-        const g = this.safetyGate.activeGenome;
-        const mpc_part = g.kp * error - g.kd * this.x[1];
-        const smc_part = g.smc_gain * Math.tanh((de + 3.5 * error) / 0.1);
+        const genome = this.safetyGate.activeGenome || g;
+        const mpc_part = (genome.kp || 4.5) * error - (genome.kd || 1.1) * this.x[1];
+        const smc_part = (genome.smc_gain || 3.0) * Math.tanh((de + 3.5 * error) / 0.1);
         u_nom = 0.7 * mpc_part + 0.3 * smc_part;
 
         // Neural Disturbance Compensation (PINDO) augmented by genome
-        this.u_nn += this.learningRate * error * (g.nn_gain || 0.5);
+        this.u_nn += this.learningRate * error * (genome.nn_gain || 0.5);
         this.u_nn = Math.max(-5.0, Math.min(5.0, this.u_nn));
         u_nom += this.u_nn;
         break;
