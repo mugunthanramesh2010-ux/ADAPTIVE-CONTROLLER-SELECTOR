@@ -1,5 +1,68 @@
 [
   {
+    "id": "AUD-MVLQSFTL-AXZP",
+    "timestamp": "2026-10-24T01:50:49.113Z",
+    "action": "PROJECT_UPDATED",
+    "entity": "Project PRJ-MVLQSFRE",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Updated configuration for project PRJ-MVLQSFRE"
+  },
+  {
+    "id": "AUD-MVLQSFTB-FLO9",
+    "timestamp": "2026-10-24T01:50:49.103Z",
+    "action": "SIMULATION_EXECUTED",
+    "entity": "Project PRJ-MVLQSFRE",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Executed Continuous Linear Quadratic Regulator (LQR) simulation RUN-Q11QW5U with Ts=3.99s, Mp=2%"
+  },
+  {
+    "id": "AUD-MVLQSFSV-W2OY",
+    "timestamp": "2026-10-24T01:50:49.087Z",
+    "action": "REPORT_GENERATED",
+    "entity": "Project PRJ-MVLQSFRE",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Generated engineering certification report REP-MVLQSFSU"
+  },
+  {
+    "id": "AUD-MVLQSFSH-UENX",
+    "timestamp": "2026-10-24T01:50:49.073Z",
+    "action": "SIMULATION_EXECUTED",
+    "entity": "Project PRJ-MVLQSFRE",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Executed Sliding Mode Control (SMC) with Boundary Layer simulation RUN-MDO363N with Ts=0.85s, Mp=0.58%"
+  },
+  {
+    "id": "AUD-MVLQSFS6-83RV",
+    "timestamp": "2026-10-24T01:50:49.062Z",
+    "action": "SIMULATION_EXECUTED",
+    "entity": "Project PRJ-MVLQSFRE",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Executed Continuous Linear Quadratic Regulator (LQR) simulation RUN-5F9D8RB with Ts=0.84s, Mp=1.98%"
+  },
+  {
+    "id": "AUD-MVLQSFRV-MYST",
+    "timestamp": "2026-10-24T01:50:49.051Z",
+    "action": "SIMULATION_EXECUTED",
+    "entity": "Project PRJ-MVLQSFRE",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Executed Proportional-Integral-Derivative (PID) simulation RUN-N6RZLWQ with Ts=1.36s, Mp=22.3%"
+  },
+  {
+    "id": "AUD-MVLQSFRH-ORTT",
+    "timestamp": "2026-10-24T01:50:49.037Z",
+    "action": "PROJECT_CREATED",
+    "entity": "Project PRJ-MVLQSFRE",
+    "user": "Senior Guidance & Control Specialist",
+    "status": "SUCCESS",
+    "details": "Created project \"Automated UAV Pitch Control Engineering Lifecycle\" for plant UAV Quadrotor Attitude (Pitch Angle)"
+  },
+  {
     "id": "AUD-MVLQJZDZ-XVZQ",
     "timestamp": "2026-10-24T01:44:14.567Z",
     "action": "PROJECT_UPDATED",

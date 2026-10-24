@@ -511,16 +511,50 @@
     const startTime = Date.now();
 
     // 1. Resolve Plant & Model
-    const plantKey = config.plant || 'dcmotor';
-    const plantDef = PLANTS[plantKey] || PLANTS[plantKey.replace('-', '_')];
+    let plantKey = config.plant || 'dcmotor';
+    let plantDef = PLANTS[plantKey] || PLANTS[plantKey.replace('-', '_')];
+    if (!plantDef) {
+      const pStr = String(plantKey).toLowerCase();
+      for (const k of Object.keys(PLANTS)) {
+        if (PLANTS[k].name && (PLANTS[k].name.toLowerCase() === pStr || pStr.includes(k) || k.includes(pStr))) {
+          plantDef = PLANTS[k];
+          break;
+        }
+      }
+      if (!plantDef) {
+        if (pStr.includes('quad') || pStr.includes('uav') || pStr.includes('drone')) plantDef = PLANTS.quadrotor;
+        else if (pStr.includes('pendulum') || pStr.includes('cart')) plantDef = PLANTS.inverted_pendulum;
+        else if (pStr.includes('cstr') || pStr.includes('chemical') || pStr.includes('reactor')) plantDef = PLANTS.chemical_cstr;
+        else if (pStr.includes('spring') || pStr.includes('mass') || pStr.includes('damper')) plantDef = PLANTS.mass_spring_damper;
+        else if (pStr.includes('motor') || pStr.includes('servo')) plantDef = PLANTS.dc_motor;
+      }
+    }
     if (!plantDef) {
       throw new Error(`Unknown plant type '${config.plant}'. Supported: ${Object.keys(PLANTS).join(', ')}`);
     }
     const model = plantDef.buildModel(config.plantParams || {});
 
     // 2. Resolve Controller & Synthesize
-    const ctrlKey = config.controller || 'pid';
-    const ctrlDef = CONTROLLERS[ctrlKey] || CONTROLLERS[ctrlKey.replace('-', '_')];
+    let ctrlKey = config.controller || 'pid';
+    let ctrlDef = CONTROLLERS[ctrlKey] || CONTROLLERS[ctrlKey.replace('-', '_')];
+    if (!ctrlDef) {
+      const cStr = String(ctrlKey).toLowerCase();
+      for (const k of Object.keys(CONTROLLERS)) {
+        if (CONTROLLERS[k].name && (CONTROLLERS[k].name.toLowerCase() === cStr || cStr.includes(k) || k.includes(cStr))) {
+          ctrlDef = CONTROLLERS[k];
+          break;
+        }
+      }
+      if (!ctrlDef) {
+        if (cStr.includes('lqr') || cStr.includes('linear quadratic') || cStr.includes('riccati')) ctrlDef = CONTROLLERS.lqr;
+        else if (cStr.includes('smc') || cStr.includes('sliding mode')) ctrlDef = CONTROLLERS.smc;
+        else if (cStr.includes('adrc') || cStr.includes('disturbance rejection') || cStr.includes('leso')) ctrlDef = CONTROLLERS.adrc;
+        else if (cStr.includes('mpc') || cStr.includes('predictive') || cStr.includes('receding')) ctrlDef = CONTROLLERS.mpc;
+        else if (cStr.includes('lead') || cStr.includes('lag')) ctrlDef = CONTROLLERS.lead_lag;
+        else if (cStr.includes('state') || cStr.includes('feedback')) ctrlDef = CONTROLLERS.state_feedback;
+        else if (cStr.includes('pid') || cStr.includes('proportional')) ctrlDef = CONTROLLERS.pid;
+      }
+    }
     if (!ctrlDef) {
       throw new Error(`Unknown controller type '${config.controller}'. Supported: ${Object.keys(CONTROLLERS).join(', ')}`);
     }
