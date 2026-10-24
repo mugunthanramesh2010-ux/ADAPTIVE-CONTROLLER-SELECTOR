@@ -1,5 +1,131 @@
 [
   {
+    "id": "AUD-MVM44SWV-OLH9",
+    "timestamp": "2026-10-24T08:04:20.959Z",
+    "action": "AI_MESSAGE_RECORDED",
+    "entity": "Project PRJ-MVM44SH4",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Logged conversation turn MSG-6PY5G9Y"
+  },
+  {
+    "id": "AUD-MVM44SV0-Q58O",
+    "timestamp": "2026-10-24T08:04:20.892Z",
+    "action": "ARTIFACT_EXPORTED",
+    "entity": "Project PRJ-MVM44SH4",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Exported complete project archive as JSON"
+  },
+  {
+    "id": "AUD-MVM44SUG-EM2B",
+    "timestamp": "2026-10-24T08:04:20.872Z",
+    "action": "ARTIFACT_EXPORTED",
+    "entity": "Project PRJ-MVM44SH4",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Exported technical certification report as Markdown"
+  },
+  {
+    "id": "AUD-MVM44SUA-6D12",
+    "timestamp": "2026-10-24T08:04:20.866Z",
+    "action": "REPORT_GENERATED",
+    "entity": "Project PRJ-MVM44SH4",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Generated engineering certification report REP-MVM44SU3"
+  },
+  {
+    "id": "AUD-MVM44SSU-Y4UH",
+    "timestamp": "2026-10-24T08:04:20.814Z",
+    "action": "ARTIFACT_EXPORTED",
+    "entity": "Project PRJ-MVM44SH4",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Exported simulation run time-series as CSV"
+  },
+  {
+    "id": "AUD-MVM44SRZ-AH7C",
+    "timestamp": "2026-10-24T08:04:20.783Z",
+    "action": "PROJECT_UPDATED",
+    "entity": "Project PRJ-MVM44SH4",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Updated configuration for project PRJ-MVM44SH4"
+  },
+  {
+    "id": "AUD-MVM44SQQ-6L91",
+    "timestamp": "2026-10-24T08:04:20.738Z",
+    "action": "AI_MESSAGE_RECORDED",
+    "entity": "Project PRJ-MVM44SH4",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Logged conversation turn MSG-Z5B9LBC"
+  },
+  {
+    "id": "AUD-MVM44SPR-JTGF",
+    "timestamp": "2026-10-24T08:04:20.703Z",
+    "action": "AI_MESSAGE_RECORDED",
+    "entity": "Project PRJ-MVM44SH4",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Logged conversation turn MSG-A7R5PNI"
+  },
+  {
+    "id": "AUD-MVM44SOR-STGI",
+    "timestamp": "2026-10-24T08:04:20.667Z",
+    "action": "SIMULATION_EXECUTED",
+    "entity": "Project PRJ-MVM44SH4",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Executed Continuous Linear Quadratic Regulator (LQR) simulation RUN-9GY6B6M with Ts=2.49s, Mp=2%"
+  },
+  {
+    "id": "AUD-MVM44SNF-ASWU",
+    "timestamp": "2026-10-24T08:04:20.619Z",
+    "action": "REPORT_GENERATED",
+    "entity": "Project PRJ-MVM44SH4",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Generated engineering certification report REP-MVM44SNB"
+  },
+  {
+    "id": "AUD-MVM44SLY-MW81",
+    "timestamp": "2026-10-24T08:04:20.566Z",
+    "action": "SIMULATION_EXECUTED",
+    "entity": "Project PRJ-MVM44SH4",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Executed Sliding Mode Control (SMC) with Boundary Layer simulation RUN-SOXDAKX with Ts=0.85s, Mp=0.58%"
+  },
+  {
+    "id": "AUD-MVM44SKR-U948",
+    "timestamp": "2026-10-24T08:04:20.523Z",
+    "action": "SIMULATION_EXECUTED",
+    "entity": "Project PRJ-MVM44SH4",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Executed Continuous Linear Quadratic Regulator (LQR) simulation RUN-7M0A13A with Ts=0.84s, Mp=1.98%"
+  },
+  {
+    "id": "AUD-MVM44SJM-R0C1",
+    "timestamp": "2026-10-24T08:04:20.482Z",
+    "action": "SIMULATION_EXECUTED",
+    "entity": "Project PRJ-MVM44SH4",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Executed Proportional-Integral-Derivative (PID) simulation RUN-FW0RP6G with Ts=1.36s, Mp=22.3%"
+  },
+  {
+    "id": "AUD-MVM44SHR-R84K",
+    "timestamp": "2026-10-24T08:04:20.415Z",
+    "action": "PROJECT_CREATED",
+    "entity": "Project PRJ-MVM44SH4",
+    "user": "Senior Guidance & Control Specialist",
+    "status": "SUCCESS",
+    "details": "Created project \"Automated UAV Pitch Control Engineering Lifecycle\" for plant UAV Quadrotor Attitude (Pitch Angle)"
+  },
+  {
     "id": "AUD-MVLVUA9M-1V0G",
     "timestamp": "2026-10-24T04:12:13.307Z",
     "action": "AI_MESSAGE_RECORDED",

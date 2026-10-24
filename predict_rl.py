@@ -11,9 +11,12 @@ def main():
     except Exception as e:
         print(json.dumps({'error':f'Invalid JSON: {e}'}))
         sys.exit(1)
-    if not isinstance(obs, list) or len(obs) != 5:
-        print(json.dumps({'error':'Obs must be list of 5 numbers'}))
+    if not isinstance(obs, list) or len(obs) == 0:
+        print(json.dumps({'error':'Obs must be a non-empty list of numbers'}))
         sys.exit(1)
+    while len(obs) < 5:
+        obs.append(0.0)
+    obs = obs[:5]
     try:
         model = PPO.load('models/ppo_controller')
         action, _ = model.predict(np.array([obs], dtype=np.float32), deterministic=True)
