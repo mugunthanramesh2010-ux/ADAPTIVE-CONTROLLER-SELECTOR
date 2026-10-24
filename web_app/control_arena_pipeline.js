@@ -408,8 +408,100 @@
         u = Math.max(-u_max, Math.min(u_max, u));
         return { u: u, error: ref - y, estimated_disturbance: state.z[2] };
       }
+    },
+
+    // 6. Model Predictive Control (Receding Horizon Linear MPC with Slew Rate & Input Constraints)
+    mpc: {
+      name: 'Constrained Model Predictive Control (MPC)',
+      synthesize: function(model, reqs) {
+        reqs = reqs || {};
+        const Np = reqs.predictionHorizon || 10;
+        const Nc = reqs.controlHorizon || 3;
+        const q_weight = reqs.weightQ || 12.0;
+        const r_weight = reqs.weightR || 0.8;
+        const b0 = Math.abs(model.B[model.B.length - 1][0]) || 1.0;
+        const a1 = Math.abs(model.A[model.A.length - 1][model.A[0].length - 1]) || 1.0;
+        const du_max = 8.0; // Max rate of change per step
+        return {
+          type: 'mpc',
+          gains: { Np, Nc, q_weight, r_weight, b0, a1, du_max },
+          u_limit: model.u_limit || 24.0,
+          description: `Receding horizon MPC (Np=${Np}, Nc=${Nc}, Q=${q_weight}, R=${r_weight})`
+        };
+      },
+      init: function(config) {
+        return { prev_u: 0.0, config: config };
+      },
+      compute: function(state, ref, y, dt, x_vec, u_prev) {
+        const g = this.config.gains;
+        const u_max = this.config.u_limit;
+        const e = ref - y;
+        const de = -(x_vec[1] || 0.0);
+
+        // Analytical unconstrained least-squares MPC control increment
+        const S_model = g.b0 * dt;
+        const pred_drift = y + (x_vec[1] || 0.0) * dt * (g.Np / 2.0);
+        const err_pred = ref - pred_drift;
+
+        const delta_u_opt = (g.q_weight * S_model * err_pred) / (g.q_weight * S_model * S_model * g.Nc + g.r_weight);
+        
+        // Slew rate clamping: |delta_u| <= du_max
+        const delta_u_clamped = Math.max(-g.du_max, Math.min(g.du_max, delta_u_opt));
+        let u = (state.prev_u || 0.0) + delta_u_clamped;
+
+        // Hard actuator saturation constraint
+        u = Math.max(-u_max, Math.min(u_max, u));
+        state.prev_u = u;
+        return { u: u, error: e, delta_u: delta_u_clamped };
+      }
+    },
+
+    // 7. Lead-Lag Frequency Domain Compensator
+    lead_lag: {
+      name: 'Dynamic Lead-Lag Cascade Compensator',
+      synthesize: function(model, reqs) {
+        const wn = model.wn || 2.5;
+        const z_lead = parseFloat((wn * 0.8).toFixed(2));
+        const p_lead = parseFloat((wn * 3.5).toFixed(2)); // alpha = z/p < 1 (Phase Lead)
+        const z_lag = parseFloat((wn * 0.2).toFixed(2));
+        const p_lag = parseFloat((wn * 0.02).toFixed(2)); // beta = z/p > 1 (Phase Lag)
+        const Kc = parseFloat(((p_lead / z_lead) * 1.8).toFixed(2));
+        return {
+          type: 'lead_lag',
+          gains: { Kc, z_lead, p_lead, z_lag, p_lag },
+          u_limit: model.u_limit || 24.0,
+          description: `Cascade Lead (z=${z_lead}, p=${p_lead}) & Lag (z=${z_lag}, p=${p_lag})`
+        };
+      },
+      init: function(config) {
+        return { lead_state: 0.0, lag_state: 0.0, prev_e: 0.0, config: config };
+      },
+      compute: function(state, ref, y, dt) {
+        const e = ref - y;
+        const g = this.config.gains;
+        const u_max = this.config.u_limit;
+
+        // Discrete filter update for Lead section
+        const a_lead = Math.exp(-g.p_lead * dt);
+        state.lead_state = a_lead * state.lead_state + (1 - a_lead) * (e + (e - state.prev_e) / Math.max(0.001, dt * g.p_lead));
+
+        // Discrete filter update for Lag section
+        const a_lag = Math.exp(-g.p_lag * dt);
+        state.lag_state = a_lag * state.lag_state + (1 - a_lag) * e;
+
+        state.prev_e = e;
+
+        let u = g.Kc * (state.lead_state + 0.35 * state.lag_state);
+        u = Math.max(-u_max, Math.min(u_max, u));
+        return { u: u, error: e };
+      }
     }
   };
+
+  // Controller Aliases
+  CONTROLLERS.lead = CONTROLLERS.lead_lag;
+  CONTROLLERS.lag = CONTROLLERS.lead_lag;
+  CONTROLLERS.statefb = CONTROLLERS.state_feedback;
 
   // ---------------------------------------------------------------------------
   // 3. NUMERICAL SIMULATION RUNNER (RK4 with Sub-stepping)

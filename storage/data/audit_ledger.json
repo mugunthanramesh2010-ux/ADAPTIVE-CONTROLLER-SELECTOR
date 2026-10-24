@@ -1,0 +1,128 @@
+[
+  {
+    "id": "AUD-MVLQBARR-THDG",
+    "timestamp": "2026-10-24T01:37:29.415Z",
+    "action": "PROJECT_UPDATED",
+    "entity": "Project PRJ-MVLQBAP1",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Updated configuration for project PRJ-MVLQBAP1"
+  },
+  {
+    "id": "AUD-MVLQBAR2-8TT1",
+    "timestamp": "2026-10-24T01:37:29.390Z",
+    "action": "REPORT_GENERATED",
+    "entity": "Project PRJ-MVLQBAP1",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Generated engineering certification report REP-MVLQBAQZ"
+  },
+  {
+    "id": "AUD-MVLQBAQJ-T96Y",
+    "timestamp": "2026-10-24T01:37:29.371Z",
+    "action": "SIMULATION_EXECUTED",
+    "entity": "Project PRJ-MVLQBAP1",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Executed Sliding Mode Control (SMC) with Boundary Layer simulation RUN-ETETPWL with Ts=0.85s, Mp=0.58%"
+  },
+  {
+    "id": "AUD-MVLQBAQ3-8YHF",
+    "timestamp": "2026-10-24T01:37:29.355Z",
+    "action": "SIMULATION_EXECUTED",
+    "entity": "Project PRJ-MVLQBAP1",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Executed Continuous Linear Quadratic Regulator (LQR) simulation RUN-9AJV8LF with Ts=0.84s, Mp=1.98%"
+  },
+  {
+    "id": "AUD-MVLQBAPN-N40B",
+    "timestamp": "2026-10-24T01:37:29.339Z",
+    "action": "SIMULATION_EXECUTED",
+    "entity": "Project PRJ-MVLQBAP1",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Executed Proportional-Integral-Derivative (PID) simulation RUN-YEJE8Y0 with Ts=1.36s, Mp=22.3%"
+  },
+  {
+    "id": "AUD-MVLQBAP4-WY69",
+    "timestamp": "2026-10-24T01:37:29.321Z",
+    "action": "PROJECT_CREATED",
+    "entity": "Project PRJ-MVLQBAP1",
+    "user": "Senior Guidance & Control Specialist",
+    "status": "SUCCESS",
+    "details": "Created project \"Automated UAV Pitch Control Engineering Lifecycle\" for plant UAV Quadrotor Attitude (Pitch Angle)"
+  },
+  {
+    "id": "AUD-MVLPU3SI-1NOY",
+    "timestamp": "2026-10-24T01:24:07.218Z",
+    "action": "PROJECT_UPDATED",
+    "entity": "Project PRJ-MVLPU3QS",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Updated configuration for project PRJ-MVLPU3QS"
+  },
+  {
+    "id": "AUD-MVLPU3RP-V50V",
+    "timestamp": "2026-10-24T01:24:07.189Z",
+    "action": "REPORT_GENERATED",
+    "entity": "Project PRJ-MVLPU3QS",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Generated engineering certification report REP-MVLPU3RN"
+  },
+  {
+    "id": "AUD-MVLPU3RG-UH5A",
+    "timestamp": "2026-10-24T01:24:07.180Z",
+    "action": "SIMULATION_EXECUTED",
+    "entity": "Project PRJ-MVLPU3QS",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Executed Sliding Mode Control (SMC) with Boundary Layer simulation RUN-93HIHAE with Ts=0.85s, Mp=0.58%"
+  },
+  {
+    "id": "AUD-MVLPU3R9-OSVA",
+    "timestamp": "2026-10-24T01:24:07.173Z",
+    "action": "SIMULATION_EXECUTED",
+    "entity": "Project PRJ-MVLPU3QS",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Executed Continuous Linear Quadratic Regulator (LQR) simulation RUN-3VP0KX0 with Ts=0.84s, Mp=1.98%"
+  },
+  {
+    "id": "AUD-MVLPU3R2-RWPF",
+    "timestamp": "2026-10-24T01:24:07.166Z",
+    "action": "SIMULATION_EXECUTED",
+    "entity": "Project PRJ-MVLPU3QS",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Executed Proportional-Integral-Derivative (PID) simulation RUN-6X5R4WO with Ts=1.36s, Mp=22.3%"
+  },
+  {
+    "id": "AUD-MVLPU3QT-LYNN",
+    "timestamp": "2026-10-24T01:24:07.157Z",
+    "action": "PROJECT_CREATED",
+    "entity": "Project PRJ-MVLPU3QS",
+    "user": "Senior Guidance & Control Specialist",
+    "status": "SUCCESS",
+    "details": "Created project \"Automated UAV Pitch Control Engineering Lifecycle\" for plant UAV Quadrotor Attitude (Pitch Angle)"
+  },
+  {
+    "id": "AUD-MVLPSO8X-T7PE",
+    "timestamp": "2026-10-24T01:23:00.417Z",
+    "action": "REPORT_GENERATED",
+    "entity": "Project PRJ-CONTROL-ALPHA",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Generated engineering certification report REP-MVLPSO8W"
+  },
+  {
+    "id": "AUDIT-INIT",
+    "timestamp": "2026-10-24T01:20:42.093Z",
+    "action": "STORE_INITIALIZATION",
+    "entity": "SYSTEM",
+    "user": "system_daemon",
+    "status": "SUCCESS",
+    "details": "Control-Arena X production storage initialized with zero-loss audit ledger."
+  }
+]

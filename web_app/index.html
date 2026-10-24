@@ -97,6 +97,7 @@
 
       <div class="sidebar-category">Studio & Repository</div>
       <nav class="sidebar-nav-list">
+        <a class="nav-item" data-view="viewProjects"><span class="nav-icon">📂</span> Engineering Projects</a>
         <a class="nav-item" data-view="viewVizCenter"><span class="nav-icon">🌌</span> 2D/3D Visualization Center</a>
         <a class="nav-item" data-view="viewBenchmarks"><span class="nav-icon">🏁</span> Experiments & Benchmarks</a>
         <a class="nav-item" data-view="viewReports"><span class="nav-icon">📑</span> Results & Reports</a>
@@ -1292,9 +1293,123 @@
             </div>
           </div>
         </div>
+      <!-- 20B. PRODUCTION ENGINEERING PROJECTS & LIFECYCLE MANAGEMENT -->
+      <section class="view-pane" id="viewProjects">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h2>📂 Control Engineering Projects &amp; Lifecycle Management</h2>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="btn-action btn-primary" id="btnOpenNewProjectModal" style="font-size: 11px;">➕ New Engineering Project</button>
+            <button class="btn-action btn-violet" id="btnRefreshProjects" style="font-size: 11px;">🔄 Refresh Projects</button>
+          </div>
+        </div>
+
+        <div class="grid-3" style="margin-bottom: 16px;">
+          <!-- Project Selector & Metadata -->
+          <div class="panel" style="background: rgba(13, 17, 23, 0.7); padding: 14px; border-radius: var(--radius-md);">
+            <div style="font-size: 11px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 8px;">📋 SELECT ACTIVE PROJECT</div>
+            <select id="selActiveProject" class="input-control" style="width: 100%; font-size: 12px; margin-bottom: 10px;">
+              <option value="">Loading projects...</option>
+            </select>
+            <div id="projectMetaCard" style="font-size: 11px; display: flex; flex-direction: column; gap: 6px;">
+              <div><span style="color:var(--text-muted)">Plant:</span> <strong id="prjPlantName" class="text-cyan">Precision DC Motor</strong></div>
+              <div><span style="color:var(--text-muted)">Active Controller:</span> <strong id="prjActiveCtrl" class="text-violet">PID Synthesized</strong></div>
+              <div><span style="color:var(--text-muted)">Status:</span> <span class="badge badge-green" id="prjStatusBadge">VERIFIED_PRODUCTION</span></div>
+              <div><span style="color:var(--text-muted)">Completed Runs:</span> <span id="prjRunCount" style="font-family:var(--font-mono); font-weight:700;">3 experiments</span></div>
+            </div>
+          </div>
+
+          <!-- Requirements & Engineering Constraints -->
+          <div class="panel" style="background: rgba(13, 17, 23, 0.7); padding: 14px; border-radius: var(--radius-md);">
+            <div style="font-size: 11px; font-weight: 700; color: var(--accent-violet); margin-bottom: 8px;">🎯 DESIGN REQUIREMENTS &amp; SPECS</div>
+            <div id="prjReqsCard" style="font-size: 11px; display: flex; flex-direction: column; gap: 6px;">
+              <div><span style="color:var(--text-muted)">Target Settling Time (Ts):</span> <strong id="prjReqTs" class="text-cyan">1.20 s</strong></div>
+              <div><span style="color:var(--text-muted)">Max Overshoot (Mp):</span> <strong id="prjReqMp" class="text-magenta">&lt; 5.0 %</strong></div>
+              <div><span style="color:var(--text-muted)">Max Steady-State Error:</span> <strong id="prjReqSSE" class="text-green">&lt; 0.02</strong></div>
+              <div><span style="color:var(--text-muted)">Actuator Saturation Bound:</span> <strong id="prjReqUmax" class="text-amber">±24.0 V</strong></div>
+            </div>
+          </div>
+
+          <!-- Quick Actions & Certification -->
+          <div class="panel" style="background: rgba(13, 17, 23, 0.7); padding: 14px; border-radius: var(--radius-md);">
+            <div style="font-size: 11px; font-weight: 700; color: var(--accent-green); margin-bottom: 8px;">⚡ LIFECYCLE WORKFLOW ACTIONS</div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <button class="btn-action btn-primary" id="btnPrjRunSim" style="font-size: 11px; justify-content: center;">▶ Run Closed-Loop Experiment</button>
+              <button class="btn-action btn-violet" id="btnPrjCompare" style="font-size: 11px; justify-content: center;">📊 Compare Candidates (Pareto)</button>
+              <button class="btn-action" id="btnPrjReport" style="font-size: 11px; justify-content: center; background: rgba(0, 245, 212, 0.1); border: 1px solid rgba(0, 245, 212, 0.4); color: var(--accent-cyan);">📑 Generate Technical Report</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pareto Candidate Comparison & Validation Gates -->
+        <div class="panel" style="margin-bottom: 16px;">
+          <div class="panel-header">
+            <h3>⚖️ Multi-Candidate Controller Comparison &amp; Pareto Ranking</h3>
+            <span class="badge badge-cyan" id="badgeCmpBest">Optimal Candidate</span>
+          </div>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; font-size: 11px; border-collapse: collapse; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-muted);">
+                  <th style="padding: 8px;">Rank</th>
+                  <th style="padding: 8px;">Controller</th>
+                  <th style="padding: 8px;">Rise Time (Tr)</th>
+                  <th style="padding: 8px;">Settling Time (Ts)</th>
+                  <th style="padding: 8px;">Overshoot (Mp)</th>
+                  <th style="padding: 8px;">SSE</th>
+                  <th style="padding: 8px;">Control Effort</th>
+                  <th style="padding: 8px;">Lyapunov Stability</th>
+                  <th style="padding: 8px;">Specs Met</th>
+                </tr>
+              </thead>
+              <tbody id="tblPrjComparisonBody">
+                <tr><td colspan="9" style="padding: 12px; text-align: center; color: var(--text-muted);">Click "Compare Candidates" to run Pareto ranking.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Technical Certification Report & Validation Gates -->
+        <div class="panel" id="prjReportContainer" style="margin-bottom: 16px; display: none;">
+          <div class="panel-header">
+            <h3>📑 Technical Certification Report</h3>
+            <div style="display: flex; gap: 8px;">
+              <span class="badge badge-green" id="prjReportStatusBadge">APPROVED_FOR_STAGING</span>
+              <button class="btn-control" id="btnExportReportJson">Export JSON</button>
+            </div>
+          </div>
+          <div id="prjReportContent" style="font-size: 11px; line-height: 1.5; padding: 8px;">
+            <!-- Populated on report generation -->
+          </div>
+        </div>
+
+        <!-- Tamper-Evident Audit Ledger -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3>🛡️ Tamper-Evident Engineering Audit Ledger</h3>
+            <span class="badge badge-violet">Immutable Ledger</span>
+          </div>
+          <div style="max-height: 200px; overflow-y: auto;">
+            <table style="width: 100%; font-size: 10px; border-collapse: collapse; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-muted);">
+                  <th style="padding: 6px;">Timestamp</th>
+                  <th style="padding: 6px;">Action</th>
+                  <th style="padding: 6px;">Entity</th>
+                  <th style="padding: 6px;">User</th>
+                  <th style="padding: 6px;">Status</th>
+                  <th style="padding: 6px;">Details</th>
+                </tr>
+              </thead>
+              <tbody id="tblPrjAuditBody">
+                <!-- Populated on load -->
+              </tbody>
+            </table>
+          </div>
+        </div>
       </section>
 
-    
       <!-- 21. AUTONOMOUS AI COPILOT BOT (OPTIONAL FEATURE) -->
       <section class="view-pane" id="viewAiBot">
         <div class="view-header">

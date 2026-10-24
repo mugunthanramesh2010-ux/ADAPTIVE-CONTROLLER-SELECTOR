@@ -3915,5 +3915,245 @@ ${480 + streamLen}
       showToastNotification('📋 <strong>Audit JSON Archive</strong> downloaded successfully!', 'success');
     });
   }
+
+  // =========================================================================
+  // G. PRODUCTION ENGINEERING PROJECT LIFECYCLE CONTROLLER
+  // =========================================================================
+  function initProjectLifecycleController() {
+    const selProject = document.getElementById('selActiveProject');
+    const btnRefresh = document.getElementById('btnRefreshProjects');
+    const btnNew = document.getElementById('btnOpenNewProjectModal');
+    const btnRunSim = document.getElementById('btnPrjRunSim');
+    const btnCompare = document.getElementById('btnPrjCompare');
+    const btnReport = document.getElementById('btnPrjReport');
+    let currentLoadedProjects = [];
+    let activePrjId = null;
+
+    async function loadProjects() {
+      try {
+        const res = await fetch('/api/projects');
+        const data = await res.json();
+        if (data.status === 'SUCCESS' && Array.isArray(data.projects)) {
+          currentLoadedProjects = data.projects;
+          if (selProject) {
+            selProject.innerHTML = data.projects.map(p => 
+              `<option value="${p.id}">${p.name} (${p.plantName} — ${p.runCount || 0} runs)</option>`
+            ).join('');
+            if (!activePrjId && data.projects.length > 0) {
+              activePrjId = data.projects[0].id;
+            }
+            if (activePrjId) {
+              selProject.value = activePrjId;
+              loadProjectDetails(activePrjId);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Could not load projects:', err.message);
+      }
+      loadAuditLedger();
+    }
+
+    async function loadProjectDetails(id) {
+      if (!id) return;
+      activePrjId = id;
+      try {
+        const res = await fetch(`/api/projects?id=${id}`);
+        const data = await res.json();
+        if (data.status === 'SUCCESS' && data.project) {
+          const p = data.project;
+          const pName = document.getElementById('prjPlantName');
+          const pCtrl = document.getElementById('prjActiveCtrl');
+          const pStatus = document.getElementById('prjStatusBadge');
+          const pRuns = document.getElementById('prjRunCount');
+          const rTs = document.getElementById('prjReqTs');
+          const rMp = document.getElementById('prjReqMp');
+          const rSSE = document.getElementById('prjReqSSE');
+          const rUmax = document.getElementById('prjReqUmax');
+
+          if (pName) pName.textContent = p.plantName || p.plantKey;
+          if (pCtrl) pCtrl.textContent = (p.activeController || 'pid').toUpperCase();
+          if (pStatus) pStatus.textContent = p.status || 'ACTIVE';
+          if (pRuns) pRuns.textContent = `${(p.runs || []).length} experiments`;
+          if (rTs) rTs.textContent = `${p.requirements?.targetSettlingTime || 1.20} s`;
+          if (rMp) rMp.textContent = `< ${p.requirements?.maxOvershootPct || 5.0} %`;
+          if (rSSE) rSSE.textContent = `< ${p.requirements?.maxSteadyStateError || 0.02}`;
+          if (rUmax) rUmax.textContent = `±${p.requirements?.u_limit || 24.0} V`;
+
+          // Auto-trigger comparison if runs exist
+          if (p.runs && p.runs.length > 0) {
+            executeComparison(id);
+          }
+        }
+      } catch (err) {
+        console.warn('Could not load project detail:', err.message);
+      }
+    }
+
+    async function executeComparison(id) {
+      if (!id) return;
+      try {
+        const res = await fetch(`/api/projects/compare?id=${id}`);
+        const data = await res.json();
+        if (data.status === 'SUCCESS' && Array.isArray(data.comparisonTable)) {
+          const tbody = document.getElementById('tblPrjComparisonBody');
+          const badgeBest = document.getElementById('badgeCmpBest');
+          if (badgeBest && data.paretoBestCandidate) {
+            badgeBest.textContent = `Pareto Rank 1: ${data.paretoBestCandidate.controller}`;
+          }
+          if (tbody) {
+            tbody.innerHTML = data.comparisonTable.map(c => `
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.06); ${c.rank === 1 ? 'background: rgba(0, 245, 212, 0.06); font-weight: 600;' : ''}">
+                <td style="padding: 8px;">#${c.rank}</td>
+                <td style="padding: 8px; color: ${c.rank === 1 ? 'var(--accent-cyan)' : 'inherit'};">${c.controller}</td>
+                <td style="padding: 8px;">${c.metrics.riseTime}s</td>
+                <td style="padding: 8px;">${c.metrics.settlingTime}s</td>
+                <td style="padding: 8px; color: ${c.metrics.overshoot > 10 ? 'var(--accent-magenta)' : 'inherit'};">${c.metrics.overshoot}%</td>
+                <td style="padding: 8px;">${c.metrics.steadyStateError}</td>
+                <td style="padding: 8px;">${c.metrics.controlEffort}</td>
+                <td style="padding: 8px; color: ${c.lyapunovCertified ? 'var(--state-success)' : 'var(--accent-amber)'};">${c.lyapunovCertified ? 'CERTIFIED' : 'CONDITIONAL'}</td>
+                <td style="padding: 8px;">${c.meetsAllRequirements ? '✅ PASS' : '⚠️ REVIEW'}</td>
+              </tr>
+            `).join('');
+          }
+        }
+      } catch (err) {
+        console.warn('Comparison note:', err.message);
+      }
+    }
+
+    async function executeReportGeneration(id) {
+      if (!id) return;
+      try {
+        const res = await fetch(`/api/projects/report?id=${id}`);
+        const data = await res.json();
+        if (data.status === 'SUCCESS' && data.report) {
+          const r = data.report;
+          const container = document.getElementById('prjReportContainer');
+          const content = document.getElementById('prjReportContent');
+          const badge = document.getElementById('prjReportStatusBadge');
+          if (container) container.style.display = 'block';
+          if (badge) {
+            badge.textContent = r.certificationStatus;
+            badge.className = r.certificationStatus === 'APPROVED_FOR_STAGING' ? 'badge badge-green' : 'badge badge-violet';
+          }
+          if (content) {
+            content.innerHTML = `
+              <div style="margin-bottom: 10px;">
+                <strong>Report ID:</strong> <span style="font-family:var(--font-mono); color:var(--accent-cyan);">${r.reportId}</span> | 
+                <strong>Project:</strong> ${r.project.name} (${r.plantSpecification.name}) | 
+                <strong>Timestamp:</strong> ${r.timestamp}
+              </div>
+              <div style="margin-bottom: 12px; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 4px;">
+                <div style="font-weight:700; color:var(--accent-violet); margin-bottom: 4px;">Validation Gates Assessment:</div>
+                <ul style="list-style: none; padding-left: 0; margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                  ${r.validationGates.map(g => `
+                    <li style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.04); padding-bottom:2px;">
+                      <span>${g.gate}:</span>
+                      <strong style="color: ${g.status === 'PASS' ? 'var(--accent-green)' : 'var(--accent-amber)'};">${g.status}</strong>
+                    </li>
+                  `).join('')}
+                </ul>
+              </div>
+            `;
+          }
+          showToastNotification(`📑 Engineering Certification Report <strong>${r.reportId}</strong> generated!`, 'success');
+        }
+      } catch (err) {
+        showToastNotification(`Report generation failed: ${err.message}`, 'error');
+      }
+      loadAuditLedger();
+    }
+
+    async function loadAuditLedger() {
+      try {
+        const res = await fetch('/api/audit?limit=20');
+        const data = await res.json();
+        if (data.status === 'SUCCESS' && Array.isArray(data.ledger)) {
+          const tbody = document.getElementById('tblPrjAuditBody');
+          if (tbody) {
+            tbody.innerHTML = data.ledger.map(e => `
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                <td style="padding: 4px 6px; font-family: var(--font-mono); color: var(--text-muted);">${e.timestamp.substring(11, 19)}</td>
+                <td style="padding: 4px 6px; font-weight: 600; color: var(--accent-cyan);">${e.action}</td>
+                <td style="padding: 4px 6px;">${e.entity}</td>
+                <td style="padding: 4px 6px; color: var(--text-muted);">${e.user}</td>
+                <td style="padding: 4px 6px; color: ${e.status === 'SUCCESS' ? 'var(--state-success)' : 'var(--state-error)'};">${e.status}</td>
+                <td style="padding: 4px 6px; color: var(--text-muted);">${e.details}</td>
+              </tr>
+            `).join('');
+          }
+        }
+      } catch (err) {
+        console.warn('Audit ledger fetch note:', err.message);
+      }
+    }
+
+    if (selProject) {
+      selProject.addEventListener('change', (e) => {
+        loadProjectDetails(e.target.value);
+      });
+    }
+    if (btnRefresh) {
+      btnRefresh.addEventListener('click', () => {
+        loadProjects();
+        showToastNotification('🔄 Projects and audit trail refreshed', 'success');
+      });
+    }
+    if (btnRunSim) {
+      btnRunSim.addEventListener('click', async () => {
+        if (!activePrjId) return;
+        try {
+          const res = await fetch('/api/projects/run', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ projectId: activePrjId, reference: 1.0, t_final: 2.0 })
+          });
+          const d = await res.json();
+          if (d.status === 'SUCCESS') {
+            showToastNotification(`▶ Experiment ${d.run.runId} recorded! Ts=${d.run.metrics.settlingTime}s`, 'success');
+            loadProjectDetails(activePrjId);
+          }
+        } catch (e) {
+          showToastNotification('Run failed: ' + e.message, 'error');
+        }
+      });
+    }
+    if (btnCompare) {
+      btnCompare.addEventListener('click', () => {
+        if (activePrjId) executeComparison(activePrjId);
+      });
+    }
+    if (btnReport) {
+      btnReport.addEventListener('click', () => {
+        if (activePrjId) executeReportGeneration(activePrjId);
+      });
+    }
+    if (btnNew) {
+      btnNew.addEventListener('click', async () => {
+        const name = prompt('Enter New Control Engineering Project Name:', 'Aerospace Flight Controller Synthesis');
+        if (!name) return;
+        try {
+          const res = await fetch('/api/projects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name, plantKey: 'quadrotor', activeController: 'lqr' })
+          });
+          const d = await res.json();
+          if (d.status === 'SUCCESS') {
+            showToastNotification(`➕ Project "${d.project.name}" created!`, 'success');
+            loadProjects();
+          }
+        } catch (e) {
+          showToastNotification('Creation failed: ' + e.message, 'error');
+        }
+      });
+    }
+
+    // Load initial projects list
+    loadProjects();
+  }
+
+  initProjectLifecycleController();
 });
 
