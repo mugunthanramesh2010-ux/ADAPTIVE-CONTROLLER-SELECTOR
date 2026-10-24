@@ -99,7 +99,33 @@ Then open `http://localhost:3000` in your web browser.
 - **Swarm & Multi-Agent Visualizer:** Drone swarm simulation featuring consensus dynamics and self-healing.
 - **Genetic Evolution Engine:** Live interactive genetic algorithm with chromosome genomes, generation counter, and Pareto fitness curve.
 - **Cyber-Physical War Room:** Interactive injection triggers for False Data Injection (FDI), Sensor Replay, 40% Actuator Burnout, and DoS latency with Chi-Square innovation monitoring.
+- **Engineering Projects Workspace:** Real project development lifecycle manager with Pareto multi-objective candidate ranking, automated 7-gate engineering certification reports, and tamper-evident audit ledger.
+- **Simulation-Based 3D Digital Twin:** Time-synchronized state-driven kinematic mesh animation with real-time actuator saturation warning aura and disturbance indicator.
 - **MATLAB Modules Explorer:** Interactive code viewer with syntax styling and real-time execution across all 81 subsystems.
+
+---
+
+## 🧪 Automated Testing & Verification Suite
+
+The repository includes a comprehensive 21-stage automated verification suite validating all mathematical models, controller synthesizers, numerical integrators, persistence layers, and API endpoints:
+
+```bash
+# Run both regression and production lifecycle suites
+npm test
+```
+
+### Verification Coverage:
+1. **[TEST A] Reference Sensitivity:** Validates non-constant step responses ($r=1.0 \to r=2.5$).
+2. **[TEST B] Plant Parameter Sensitivity:** Validates dynamic response to physical inertia variation ($J=0.01 \to J=0.05$).
+3. **[TEST C] Controller Execution:** Verifies unique control laws for PID, LQR, and Sliding Mode Control.
+4. **[TEST D] Disturbance Rejection:** Validates active disturbance rejection under step torque load ($d=2.0\text{ Nm}$).
+5. **[TEST E] Initial Conditions:** Verifies non-zero state regulation ($x_0 = [1.5, 0]^T \to 0$).
+6. **[TEST F] Actuator Saturation:** Enforces hard boundary saturation clamping ($|u| \le u_{\max}$).
+7. **[TEST G] Graph-Data Consistency:** Confirms error trajectories $e(t) = r(t) - y(t)$ across 200 time steps.
+8. **[TEST H] 3D State Synchronization:** Confirms 1:1 alignment between numerical simulation state and 3D visual twin.
+9. **[TEST I-K] API, Error Handling & Reproducibility:** Validates `/api/simulate`, NaN rejection, and deterministic reproducibility.
+10. **[TEST L] Backward Compatibility:** Asserts 100% operation of pre-existing `/api/plants` and `/api/rl_predict`.
+11. **[PRODUCTION STAGES 1-9]:** Health checks (`/health`), project persistence, candidate Pareto ranking, certification report generation (`/api/projects/report`), and SHA-256 audit ledger (`/api/audit`).
 
 ---
 

@@ -1,5 +1,59 @@
 [
   {
+    "id": "AUD-MVLQJZDZ-XVZQ",
+    "timestamp": "2026-10-24T01:44:14.567Z",
+    "action": "PROJECT_UPDATED",
+    "entity": "Project PRJ-MVLQJZC0",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Updated configuration for project PRJ-MVLQJZC0"
+  },
+  {
+    "id": "AUD-MVLQJZDI-T3VP",
+    "timestamp": "2026-10-24T01:44:14.550Z",
+    "action": "REPORT_GENERATED",
+    "entity": "Project PRJ-MVLQJZC0",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Generated engineering certification report REP-MVLQJZDF"
+  },
+  {
+    "id": "AUD-MVLQJZD4-E8ZZ",
+    "timestamp": "2026-10-24T01:44:14.536Z",
+    "action": "SIMULATION_EXECUTED",
+    "entity": "Project PRJ-MVLQJZC0",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Executed Sliding Mode Control (SMC) with Boundary Layer simulation RUN-J9BP38U with Ts=0.85s, Mp=0.58%"
+  },
+  {
+    "id": "AUD-MVLQJZCR-MSPB",
+    "timestamp": "2026-10-24T01:44:14.523Z",
+    "action": "SIMULATION_EXECUTED",
+    "entity": "Project PRJ-MVLQJZC0",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Executed Continuous Linear Quadratic Regulator (LQR) simulation RUN-0PX5AQT with Ts=0.84s, Mp=1.98%"
+  },
+  {
+    "id": "AUD-MVLQJZCH-7059",
+    "timestamp": "2026-10-24T01:44:14.513Z",
+    "action": "SIMULATION_EXECUTED",
+    "entity": "Project PRJ-MVLQJZC0",
+    "user": "control_engineer",
+    "status": "SUCCESS",
+    "details": "Executed Proportional-Integral-Derivative (PID) simulation RUN-8VTE8UV with Ts=1.36s, Mp=22.3%"
+  },
+  {
+    "id": "AUD-MVLQJZC4-QMBV",
+    "timestamp": "2026-10-24T01:44:14.500Z",
+    "action": "PROJECT_CREATED",
+    "entity": "Project PRJ-MVLQJZC0",
+    "user": "Senior Guidance & Control Specialist",
+    "status": "SUCCESS",
+    "details": "Created project \"Automated UAV Pitch Control Engineering Lifecycle\" for plant UAV Quadrotor Attitude (Pitch Angle)"
+  },
+  {
     "id": "AUD-MVLQBARR-THDG",
     "timestamp": "2026-10-24T01:37:29.415Z",
     "action": "PROJECT_UPDATED",
